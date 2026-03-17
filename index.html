@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.5">
+  <title>IsHetAlAfgelast.nl — Gaat je potje door?</title>
+  <meta name="description" content="Check of je amateurvoetbalwedstrijd wordt afgelast vanwege het weer. Machine Learning voorspelling op basis van 6800+ wedstrijden.">
+
+  <!-- Security meta tags -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta name="referrer" content="no-referrer">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+  <style>
+    /* ═══════════════════════════════════════════════════════════════
+       CSS VARIABLES
+       ═══════════════════════════════════════════════════════════════ */
+    :root {
+      --parchment: #f5e6c8;
+      --parchment-dark: #e0cda5;
+      --parchment-shadow: #c4a976;
+      --parchment-light: #faf0d7;
+      --gold: #d4a039;
+      --gold-bright: #f0c040;
+      --beer: #c68a17;
+      --red: #c0392b;
+      --red-dark: #922b21;
+      --green: #27ae60;
+      --green-dark: #1e8449;
+      --ink: #2a1506;
+      --ink-light: #5c4a3a;
+      --wood-mid: #3d2112;
+      --wood-light: #5c3a1e;
+      --wood-highlight: #8b6440;
+      --wood-grain: #4a2a14;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       RESET & BASE
+       ═══════════════════════════════════════════════════════════════ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; height: 100%; }
+    body {
+      height: 100%;
+      font-family: 'Patrick Hand', 'Segoe UI', cursive, sans-serif;
+      color: var(--ink);
+      overflow: hidden;
+      background: #1a0e06;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       VIEW TRANSITIONS
+       ═══════════════════════════════════════════════════════════════ */
+    .view { display: none; width: 100%; height: 100%; }
+    .view.active {
+      display: block;
+      animation: fadeSlideIn .5s cubic-bezier(.22,1,.36,1);
+    }
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       HOME VIEW — Image-overlay approach
+       ═══════════════════════════════════════════════════════════════ */
+    #view-home { background: #1a0e06; }
+    .home-scene { position: relative; width: 100%; height: 100%; }
+    .home-bg-img {
+      display: block; width: 100%; height: 100%;
+      object-fit: fill; user-select: none; -webkit-user-drag: none;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       GHOST INPUTS — invisible, positioned over drawn fields
+       ═══════════════════════════════════════════════════════════════ */
+    .ghost-input {
+      position: absolute;
+      background: transparent; border: none; outline: none;
+      color: var(--ink);
+      font-family: 'Patrick Hand', cursive;
+      text-align: center; cursor: text;
+      padding: 0; margin: 0; z-index: 2; line-height: 1;
+      font-size: clamp(14px, 1.8vw, 26px);
+      transition: box-shadow .25s ease, background .25s ease;
+    }
+    .ghost-input::placeholder { color: rgba(42, 21, 6, 0.25); font-style: italic; }
+    .ghost-input:hover { background: rgba(255, 255, 255, 0.13); }
+    .ghost-input:focus {
+      background: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 0 0 3px rgba(198, 138, 23, 0.30), inset 0 0 10px rgba(198, 138, 23, 0.08);
+      border-radius: 4px;
+    }
+    .field-home { top: 60.2%; left: 30.4%; width: 18.8%; height: 5.5%; }
+    .field-away { top: 60.2%; left: 50.9%; width: 18.8%; height: 5.5%; }
+    .field-city { top: 71.6%; left: 30.4%; width: 18.7%; height: 5.5%; }
+    .field-date { top: 71.8%; left: 55.3%; width: 14.2%; height: 5.5%; color-scheme: light; cursor: pointer; }
+    .field-date::-webkit-calendar-picker-indicator {
+      opacity: 0.7; cursor: pointer;
+      filter: invert(15%) sepia(50%) saturate(600%) hue-rotate(350deg);
+    }
+    .field-date:hover { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       GHOST BUTTONS
+       ═══════════════════════════════════════════════════════════════ */
+    .ghost-btn {
+      position: absolute; background: transparent; border: none;
+      cursor: pointer; z-index: 2; padding: 0; margin: 0;
+      transition: background .2s ease, transform .15s ease;
+    }
+    .ghost-btn:hover { background: rgba(255, 255, 255, 0.10); }
+    .ghost-btn:active { background: rgba(0, 0, 0, 0.06); transform: scale(0.98); }
+    .ghost-btn:disabled { cursor: not-allowed; opacity: 0.5; }
+    .btn-check { top: 80%; left: 33%; width: 34%; height: 9.5%; border-radius: 8px; }
+    .btn-check:hover { box-shadow: 0 0 20px rgba(240, 192, 64, 0.25); }
+    .btn-manual-area { top: 89.0%; left: 32.0%; width: 36.0%; height: 2.5%; border-radius: 4px; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       SOCIAL ICON OVERLAYS
+       ═══════════════════════════════════════════════════════════════ */
+    .ghost-social {
+      position: absolute; z-index: 2;
+      background: transparent; border: none; border-radius: 50%;
+      cursor: pointer; transition: background .2s, transform .2s;
+      display: flex; align-items: center; justify-content: center;
+      text-decoration: none;
+    }
+    .ghost-social:hover { background: rgba(255, 255, 255, 0.12); transform: scale(1.15); }
+    .ghost-social svg { display: none; }
+    .social-fb  { top: 92.4%; left: 44.2%; width: 3%; height: 5%; }
+    .social-x   { top: 92.4%; left: 48.4%; width: 3%; height: 5%; }
+    .social-wa  { top: 92.5%; left: 52.7%; width: 3%; height: 5%; }
+    .social-ig  { top: 92.3%; left: 56.9%; width: 3%; height: 5%; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       MANUAL WEATHER POPUP
+       ═══════════════════════════════════════════════════════════════ */
+    .manual-popup {
+      position: absolute; top: 78%; left: 28%; width: 44%; z-index: 20;
+      opacity: 0; pointer-events: none; transform: translateY(-8px);
+      transition: opacity .3s ease, transform .3s ease;
+    }
+    .manual-popup.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
+    .manual-card {
+      background: radial-gradient(ellipse at 30% 30%, rgba(180,140,80,0.08), transparent 60%),
+        linear-gradient(180deg, var(--parchment-light), var(--parchment), var(--parchment-dark));
+      border: 3px solid var(--parchment-shadow); border-radius: 12px;
+      padding: 3% 4%;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.4);
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3%;
+    }
+    .manual-field label {
+      display: block; font-family: 'Fredoka', sans-serif; font-weight: 600;
+      font-size: clamp(9px, 0.85vw, 13px); color: var(--ink);
+      text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; text-align: center;
+    }
+    .manual-field input {
+      width: 100%; padding: 6px 4px;
+      background: rgba(255,255,255,0.7); border: 2px solid rgba(42,21,6,0.2);
+      border-radius: 6px; font-family: 'Patrick Hand', cursive;
+      font-size: clamp(12px, 1.1vw, 18px); color: var(--ink); text-align: center;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .manual-field input:focus { outline: none; border-color: var(--beer); box-shadow: 0 0 0 3px rgba(198,138,23,0.2); }
+    .manual-close {
+      position: absolute; top: -8px; right: -8px; width: 24px; height: 24px;
+      background: var(--red); color: #fff; border: 2px solid var(--red-dark);
+      border-radius: 50%; font-size: 14px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; z-index: 5;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3); transition: transform .15s;
+    }
+    .manual-close:hover { transform: scale(1.15); }
+
+    /* ═══════════════════════════════════════════════════════════════
+       ERROR TOAST
+       ═══════════════════════════════════════════════════════════════ */
+    .error-toast {
+      position: fixed; top: 20px; left: 50%;
+      transform: translateX(-50%) translateY(-120px); z-index: 200;
+      background: rgba(254, 242, 242, 0.96); border: 2px solid #f5c6cb;
+      border-radius: 12px; padding: 12px 24px; color: var(--red-dark);
+      font-family: 'Fredoka', sans-serif; font-weight: 500; font-size: .95rem;
+      box-shadow: 0 6px 25px rgba(0,0,0,0.25); max-width: 90vw; text-align: center;
+      transition: transform .4s cubic-bezier(.22,1,.36,1);
+      display: flex; gap: 8px; align-items: center;
+    }
+    .error-toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ═══════════════════════════════════════════════════════════════
+       LOADING OVERLAY
+       ═══════════════════════════════════════════════════════════════ */
+    .loading-view {
+      display: none; position: fixed; inset: 0; z-index: 500;
+      background: rgba(13,7,4,0.88);
+      flex-direction: column; align-items: center; justify-content: center; gap: 1rem;
+    }
+    .loading-view.show { display: flex; }
+    .loading-ball { font-size: 4rem; animation: loadBounce 1s ease-in-out infinite; }
+    @keyframes loadBounce {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50%      { transform: translateY(-30px) rotate(180deg); }
+    }
+    .loading-text {
+      font-family: 'Fredoka', sans-serif; font-weight: 600;
+      font-size: 1.3rem; color: var(--parchment);
+      text-align: center; text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+    .loading-sub {
+      font-family: 'Patrick Hand', cursive; font-size: 1rem;
+      color: var(--parchment-dark); text-align: center;
+    }
+    .beer-fill {
+      width: 60px; height: 80px;
+      border: 3px solid var(--gold); border-radius: 0 0 8px 8px;
+      position: relative; overflow: hidden; background: rgba(0,0,0,0.3);
+    }
+    .beer-fill::after {
+      content: ''; position: absolute;
+      bottom: 0; left: 0; right: 0; height: 0%;
+      background: linear-gradient(0deg, var(--beer), var(--gold-bright));
+      animation: fillBeer 2.5s ease-in-out infinite; border-radius: 0 0 5px 5px;
+    }
+    @keyframes fillBeer {
+      0%   { height: 10%; }
+      80%  { height: 85%; }
+      90%  { height: 90%; }
+      100% { height: 10%; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       RESULT VIEW
+       ═══════════════════════════════════════════════════════════════ */
+    #view-result { background: #1a0e06; }
+    .result-scene { position: relative; width: 100%; height: 100%; }
+    .result-bg-img {
+      display: block; width: 100%; height: 100%;
+      object-fit: fill; user-select: none; -webkit-user-drag: none;
+    }
+
+    /* ── Result logo overlay ── */
+    .overlay-logo { z-index: 12; pointer-events: none; }
+    .scene-afgelast .overlay-logo { left: 6.8%; top: 1%; width: 22%; height: 18.5%; transform: rotate(0deg); }
+    .scene-doorgaat .overlay-logo { left: 6%; top: 1.1%; width: 20%; height: 17.5%; transform: rotate(0deg); }
+    .result-logo-img {
+      width: 100%; height: 100%; object-fit: contain;
+      user-select: none; -webkit-user-drag: none; pointer-events: none;
+    }
+
+    /* ── Back button overlay ── */
+    .result-back {
+      position: absolute; top: 12px; left: 12px; z-index: 30;
+      background: rgba(26, 14, 6, 0.6); color: var(--parchment);
+      border: 2px solid rgba(245,230,200,0.25); border-radius: 8px;
+      padding: 6px 14px; font-family: 'Fredoka', sans-serif;
+      font-weight: 600; font-size: .9rem; cursor: pointer;
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+      transition: background .2s, transform .15s;
+    }
+    .result-back:hover { background: rgba(26, 14, 6, 0.85); transform: scale(1.05); }
+
+    /* ═══════════════════════════════════════════════════════════════
+       OVERLAY ELEMENTS
+       ═══════════════════════════════════════════════════════════════ */
+    .result-overlay {
+      position: absolute; z-index: 10;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; line-height: 1.2; pointer-events: none;
+    }
+
+    /* ── Thermometer ── */
+    .scene-afgelast .overlay-thermo { left: 81.1%; top: 13.3%; width: 3%; height: 37%; transform: rotate(0deg); }
+    .scene-doorgaat .overlay-thermo { left: 81.9%; top: 12.6%; width: 3%; height: 37.5%; transform: rotate(0deg); }
+    .overlay-thermo .thermo-tube {
+      width: 55%; height: 80%;
+      background: rgba(0,0,0,0.05); border: 2px solid rgba(42,21,6,0.25);
+      border-bottom: none; border-radius: 999px 999px 0 0;
+      position: relative; overflow: hidden;
+    }
+    .overlay-thermo .thermo-fill {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 0%;
+      border-radius: 999px 999px 0 0;
+      transition: height 1.5s cubic-bezier(.22,1,.36,1), background 1.5s ease;
+    }
+    .overlay-thermo .thermo-bulb {
+      width: 75%; aspect-ratio: 1; border-radius: 50%;
+      border: 2px solid rgba(42,21,6,0.25); margin-top: -2px;
+      transition: background 1.5s ease;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* ── Kans / percentage ── */
+    .scene-afgelast .overlay-kans { left: 85.1%; top: 20.9%; width: 11%; height: 30%; transform: rotate(0deg); }
+    .scene-doorgaat .overlay-kans { left: 85.8%; top: 19.5%; width: 11%; height: 30%; transform: rotate(0deg); }
+    .thermo-pct {
+      font-family: 'Fredoka', sans-serif; font-weight: 700;
+      font-size: clamp(16px, 2.8vw, 42px); line-height: 1;
+    }
+    .thermo-pct.afgelast { color: var(--red); }
+    .thermo-pct.doorgaat { color: var(--green); }
+    .thermo-caption {
+      font-family: 'Patrick Hand', cursive;
+      font-size: clamp(8px, 1vw, 16px); color: rgba(255,255,255,0.8);
+      line-height: 1.15; margin-top: 3px; text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+    .risk-explain {
+      font-family: 'Patrick Hand', cursive;
+      font-size: clamp(10px, 0.85vw, 14px); color: rgba(255,255,255,1.0);
+      line-height: 1.2; margin-top: 4px; text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    /* ── Risk explain ── */
+    .scene-afgelast .overlay-risk { left: 85.3%; top: 42.6%; width: 11.5%; height: 6.5%; transform: rotate(0deg); }
+    .scene-doorgaat .overlay-risk { left: 85.9%; top: 41.6%; width: 11.5%; height: 5%; transform: rotate(0deg); }
+
+    /* ── Match data overlays ── */
+    .scene-afgelast .overlay-home  { left: 31.3%; top: 25.7%; width: 6.5%; height: 3.5%; transform: rotate(-3deg); }
+    .scene-doorgaat .overlay-home  { left: 32%; top: 25.6%; width: 6%; height: 3.5%; transform: rotate(-3deg); }
+    .scene-afgelast .overlay-vs    { left: 27.7%; top: 25.2%; width: 24%; height: 2%; transform: rotate(0deg); }
+    .scene-doorgaat .overlay-vs    { left: 28%; top: 26.1%; width: 24%; height: 2%; transform: rotate(0deg); }
+    .scene-afgelast .overlay-away  { left: 41%; top: 24.9%; width: 6.5%; height: 3.5%; transform: rotate(-3.5deg); }
+    .scene-doorgaat .overlay-away  { left: 39.8%; top: 24.6%; width: 10%; height: 3.5%; transform: rotate(-3deg); }
+    .scene-afgelast .overlay-loc   { left: 36.5%; top: 30.2%; width: 6.5%; height: 2.5%; transform: rotate(-2.5deg); }
+    .scene-doorgaat .overlay-loc   { left: 37.4%; top: 29.9%; width: 5.5%; height: 2.5%; transform: rotate(-3deg); }
+    .scene-afgelast .overlay-date  { left: 35.4%; top: 34.5%; width: 9.5%; height: 2.5%; transform: rotate(-3deg); }
+    .scene-doorgaat .overlay-date  { left: 34.9%; top: 34.4%; width: 11%; height: 2.5%; transform: rotate(-3deg); }
+    .data-team {
+      font-family: 'Patrick Hand', cursive;
+      font-size: clamp(11px, 1.3vw, 22px); font-weight: 700;
+      color: #fff; line-height: 1.2; text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    }
+    .data-vs {
+      font-family: 'Patrick Hand', cursive;
+      font-size: clamp(8px, 0.95vw, 15px); color: rgba(255,255,255,0.6); line-height: 1;
+    }
+    .data-info {
+      font-family: 'Patrick Hand', cursive;
+      font-size: clamp(8px, 0.9vw, 16px); color: rgba(255,255,255,0.85);
+      line-height: 1.3; text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+
+    /* ── Weather data overlays ── */
+    .scene-afgelast .overlay-temp   { left: 58%; top: 25.5%; width: 7%; height: 3.5%; transform: rotate(2.5deg); }
+    .scene-doorgaat .overlay-temp   { left: 51.4%; top: 25%; width: 21%; height: 3.5%; transform: rotate(2.5deg); }
+    .scene-afgelast .overlay-precip { left: 57%; top: 30.1%; width: 11%; height: 3.5%; transform: rotate(2.5deg); }
+    .scene-doorgaat .overlay-precip { left: 52%; top: 29%; width: 21%; height: 3.5%; transform: rotate(2.5deg); }
+    .scene-afgelast .overlay-wind   { left: 56.9%; top: 34.5%; width: 10.5%; height: 3.5%; transform: rotate(2.5deg); }
+    .scene-doorgaat .overlay-wind   { left: 52%; top: 32.7%; width: 21%; height: 3.5%; transform: rotate(2.5deg); }
+    .scene-afgelast .overlay-wlabel { left: 58.6%; top: 21.3%; width: 7.5%; height: 3.5%; transform: rotate(2.5deg); }
+    .scene-doorgaat .overlay-wlabel { left: 58.1%; top: 20.8%; width: 10.5%; height: 3.5%; transform: rotate(2.5deg); }
+    .data-line {
+      font-family: 'Patrick Hand', cursive;
+      font-size: clamp(16px, 1.7vw, 27px); color: #fff; line-height: 1.4;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+    .data-line .emoji { margin-right: 5px; }
+    .weather-label {
+      display: inline-block; padding: 1px 6px; border-radius: 3px;
+      font-family: 'Fredoka', sans-serif; font-weight: 1000;
+      font-size: clamp(20px, 0.8vw, 25px); letter-spacing: .03em;
+    }
+    .weather-label.bad  { background: var(--red);   color: #fff; }
+    .weather-label.ok   { background: var(--gold);  color: var(--ink); }
+    .weather-label.good { background: var(--green); color: #fff; }
+
+    /* ── Fun message ── */
+    .overlay-fun { z-index: 12; }
+    .scene-afgelast .overlay-fun { left: 32.3%; top: 61.5%; width: 36%; height: 13%; transform: rotate(0deg); }
+    .scene-doorgaat .overlay-fun { left: 31.7%; top: 68.2%; width: 36%; height: 10.5%; transform: rotate(0deg); }
+    .fun-msg {
+      text-align: center; padding: .6rem .8rem; border-radius: 8px;
+      font-family: 'Patrick Hand', cursive;
+      font-size: clamp(14px, 1.25vw, 24px); line-height: 1.3; width: 100%;
+    }
+    .fun-msg.afgelast { background: #fdecea; color: var(--red-dark); border: 2px solid #f5c6cb; }
+    .fun-msg.doorgaat { background: #eafaf1; color: var(--green-dark); border: 2px solid #a9dfbf; }
+
+    /* ── Result social click zones ── */
+    .result-social {
+      position: absolute; z-index: 12;
+      background: transparent; border: none; border-radius: 50%;
+      cursor: pointer; text-decoration: none; pointer-events: auto;
+    }
+    /* ── Social image overlays ── */
+    .overlay-social-img {
+      position: absolute; z-index: 11; pointer-events: none;
+      display: block; object-fit: fill;
+    }
+    .scene-afgelast  .overlay-wa-img { left: 1.7%; top: 84.6%; width: 20.5%; height: 14%; transform: rotate(0deg); }
+    .scene-doorgaat  .overlay-wa-img { left: 1.4%; top: 84.7%; width: 24%; height: 14%; transform: rotate(0deg); }
+    .scene-afgelast  .overlay-sm-img { left: 70.9%; top: 87.8%; width: 28.7%; height: 9.5%; transform: rotate(0deg); }
+    .scene-doorgaat  .overlay-sm-img { left: 70%; top: 87.3%; width: 29.5%; height: 11%; transform: rotate(0deg); }
+    .scene-afgelast .result-social-fb { left: 72.4%; top: 90.1%; width: 3%; height: 5%; transform: rotate(0deg); }
+    .scene-afgelast .result-social-x  { left: 76.2%; top: 90%; width: 3%; height: 5%; transform: rotate(0deg); }
+    .scene-afgelast .result-social-wa { left: 0.5%; top: 84.8%; width: 23.5%; height: 14.5%; transform: rotate(0deg); }
+    .scene-afgelast .result-social-ig { left: 80.1%; top: 90.2%; width: 3%; height: 5%; transform: rotate(0deg); }
+    .scene-doorgaat .result-social-fb { left: 71.7%; top: 90.8%; width: 3%; height: 5%; transform: rotate(0deg); }
+    .scene-doorgaat .result-social-x  { left: 75.5%; top: 90.3%; width: 3%; height: 5%; transform: rotate(0deg); }
+    .scene-doorgaat .result-social-wa { left: -0.9%; top: 84.8%; width: 28%; height: 13.5%; transform: rotate(0deg); }
+    .scene-doorgaat .result-social-ig { left: 79.3%; top: 90.5%; width: 3%; height: 5%; transform: rotate(0deg); }
+
+    /* ── Footer ── */
+    .result-footer { display: none; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       WEATHER FX OVERLAY
+       ═══════════════════════════════════════════════════════════════ */
+    #fx-layer {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 999; overflow: hidden;
+    }
+    .rain-drop {
+      position: absolute; top: -40px; width: 2px;
+      background: linear-gradient(transparent, rgba(100,160,220,0.6));
+      border-radius: 0 0 2px 2px; animation: rainFall linear infinite;
+    }
+    @keyframes rainFall {
+      0%   { transform: translateY(0); opacity: 0; }
+      3%   { opacity: .8; }
+      90%  { opacity: .6; }
+      100% { transform: translateY(110vh); opacity: 0; }
+    }
+    .lightning {
+      position: fixed; inset: 0;
+      background: rgba(255,255,255,0.25);
+      pointer-events: none; z-index: 998;
+      animation: flash .15s ease-out forwards;
+    }
+    @keyframes flash {
+      0%   { opacity: 1; }
+      30%  { opacity: 0; }
+      50%  { opacity: .6; }
+      100% { opacity: 0; }
+    }
+    .snowflake {
+      position: absolute; top: -20px; width: 8px; height: 8px;
+      background: #fff; border-radius: 50%; opacity: .9;
+      animation: snowFall linear infinite;
+    }
+    @keyframes snowFall {
+      0%   { transform: translateY(0) translateX(0); opacity: 0; }
+      3%   { opacity: .9; }
+      100% { transform: translateY(110vh) translateX(50px); opacity: 0; }
+    }
+    .confetti-piece {
+      position: absolute; top: -15px; width: 8px; height: 14px;
+      border-radius: 2px; animation: confettiFall linear forwards;
+    }
+    @keyframes confettiFall {
+      0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       RESPONSIVE
+       ═══════════════════════════════════════════════════════════════ */
+    @media (max-width: 700px) {
+      .ghost-input { font-size: clamp(11px, 3.5vw, 18px); }
+      .manual-popup { left: 5%; width: 90%; }
+      .thermo-pct { font-size: clamp(12px, 4vw, 24px); }
+      .thermo-caption { font-size: clamp(7px, 2vw, 12px); }
+      .risk-explain { font-size: clamp(6px, 1.8vw, 10px); }
+      .data-team { font-size: clamp(9px, 2.8vw, 16px); }
+      .data-info { font-size: clamp(7px, 2vw, 12px); }
+      .data-line { font-size: clamp(12px, 2.5vw, 17px); }
+      .weather-label { font-size: clamp(6px, 1.6vw, 10px); }
+    }
+    @media (max-width: 480px) {
+      .ghost-input { font-size: clamp(10px, 3vw, 14px); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- WEATHER FX OVERLAY -->
+<div id="fx-layer"></div>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-view" id="loading-view">
+  <div class="loading-ball">⚽</div>
+  <div class="beer-fill"></div>
+  <div class="loading-text" id="loading-text">Even kijken...</div>
+  <div class="loading-sub" id="loading-sub">We checken het weer en vullen een biertje</div>
+</div>
+
+<!-- ERROR TOAST -->
+<div class="error-toast" id="error-box">
+  <span>⚠️</span>
+  <span id="error-text"></span>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     VIEW: HOME
+     ═══════════════════════════════════════════════════════════ -->
+<section id="view-home" class="view active">
+  <form id="form" class="home-scene" autocomplete="off">
+    <img
+      src="img/Startpagina ishetalafgelast.nl.jpg"
+      alt="IsHetAlAfgelast.nl Startpagina"
+      class="home-bg-img"
+      draggable="false"
+    >
+    <input type="text" id="home" class="ghost-input field-home" placeholder="" aria-label="Thuisteam">
+    <input type="text" id="away" class="ghost-input field-away" placeholder="" aria-label="Uitteam">
+    <input type="text" id="city" class="ghost-input field-city" required placeholder="" aria-label="Locatie (stad, dorp of sportpark)">
+    <input type="date" id="date" class="ghost-input field-date" required aria-label="Datum">
+    <button type="submit" class="ghost-btn btn-check" id="btn-check" aria-label="Is het al afgelast?"></button>
+
+    <!-- Manual weather popup -->
+    <div class="manual-popup" id="manual-section">
+      <button type="button" class="manual-close" id="manual-close" aria-label="Sluiten">✕</button>
+      <div class="manual-card">
+        <div class="manual-field">
+          <label for="m-temp">🌡️ Temp (°C)</label>
+          <input type="number" id="m-temp" step="0.5" value="8">
+        </div>
+        <div class="manual-field">
+          <label for="m-precip">🌧️ Regen (mm)</label>
+          <input type="number" id="m-precip" step="0.5" value="0" min="0">
+        </div>
+        <div class="manual-field">
+          <label for="m-wind">💨 Wind (km/u)</label>
+          <input type="number" id="m-wind" step="1" value="30" min="0">
+        </div>
+      </div>
+    </div>
+
+    <!-- Social icon overlays -->
+    <a class="ghost-social social-fb" href="https://facebook.com" target="_blank" rel="noopener" title="Facebook"></a>
+    <a class="ghost-social social-x" href="https://twitter.com" target="_blank" rel="noopener" title="X / Twitter"></a>
+    <a class="ghost-social social-wa" href="https://wa.me/?text=Check%20IsHetAlAfgelast.nl!" target="_blank" rel="noopener" title="WhatsApp"></a>
+    <a class="ghost-social social-ig" href="https://instagram.com" target="_blank" rel="noopener" title="Instagram"></a>
+  </form>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     VIEW: RESULT
+     ═══════════════════════════════════════════════════════════ -->
+<section id="view-result" class="view">
+  <div class="result-scene">
+    <button class="result-back" id="btn-back">← Terug</button>
+    <img class="result-bg-img" id="result-img" src="" alt="Resultaat illustratie" draggable="false">
+
+    <div class="result-overlay overlay-logo" id="overlay-logo">
+      <img src="img/Logo IsHetAlAfgelast.nl.png" alt="IsHetAlAfgelast logo" class="result-logo-img" draggable="false">
+    </div>
+    <div class="result-overlay overlay-thermo" id="overlay-thermo">
+      <div class="thermo-tube"><div class="thermo-fill" id="thermo-fill"></div></div>
+      <div class="thermo-bulb" id="thermo-bulb"></div>
+    </div>
+    <div class="result-overlay overlay-kans" id="overlay-kans">
+      <div class="thermo-pct" id="r-pct">0%</div>
+    </div>
+    <div class="result-overlay overlay-risk" id="overlay-risk">
+      <div class="risk-explain" id="risk-explain"></div>
+    </div>
+    <div class="result-overlay overlay-home" id="overlay-home">
+      <span class="data-team" id="r-home"></span>
+    </div>
+    <div class="result-overlay overlay-vs" id="overlay-vs">
+      <span class="data-vs">vs</span>
+    </div>
+    <div class="result-overlay overlay-away" id="overlay-away">
+      <span class="data-team" id="r-away"></span>
+    </div>
+    <div class="result-overlay overlay-loc" id="overlay-loc">
+      <span class="data-info" id="r-location"></span>
+    </div>
+    <div class="result-overlay overlay-date" id="overlay-date">
+      <span class="data-info" id="r-date"></span>
+    </div>
+    <div class="result-overlay overlay-temp" id="overlay-temp">
+      <span class="data-line"><span class="emoji">🌡️</span> <span id="r-temp"></span></span>
+    </div>
+    <div class="result-overlay overlay-precip" id="overlay-precip">
+      <span class="data-line"><span class="emoji">🌧️</span> <span id="r-precip"></span></span>
+    </div>
+    <div class="result-overlay overlay-wind" id="overlay-wind">
+      <span class="data-line"><span class="emoji">💨</span> <span id="r-wind"></span></span>
+    </div>
+    <div class="result-overlay overlay-wlabel" id="overlay-wlabel">
+      <span class="weather-label" id="weather-label"></span>
+    </div>
+    <div class="result-overlay overlay-fun" id="overlay-fun">
+      <div class="fun-msg" id="fun-msg"></div>
+    </div>
+
+    <!-- Social image overlays -->
+    <img class="overlay-social-img overlay-wa-img" src="img/Whatsapp knop (1).png" alt="" draggable="false">
+    <img class="overlay-social-img overlay-sm-img" src="img/Social media knoppen.png" alt="" draggable="false">
+
+    <!-- Social click zones -->
+    <a class="result-social result-social-fb" id="result-social-fb" href="https://facebook.com" target="_blank" rel="noopener" title="Facebook"></a>
+    <a class="result-social result-social-x" id="result-social-x" href="https://twitter.com" target="_blank" rel="noopener" title="X / Twitter"></a>
+    <a class="result-social result-social-wa" id="result-social-wa" href="https://wa.me/?text=Check%20IsHetAlAfgelast.nl!" target="_blank" rel="noopener" title="WhatsApp"></a>
+    <a class="result-social result-social-ig" id="result-social-ig" href="https://instagram.com" target="_blank" rel="noopener" title="Instagram"></a>
+  </div>
+
+  <footer class="result-footer">
+    <div class="footer-text">IsHetAlAfgelast.nl &middot; De kelderklasse verdient het</div>
+  </footer>
+</section>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   CONFIGURATIE
+   Pas API_BASE aan naar je Render backend URL.
+   ═══════════════════════════════════════════════════════════════ */
+const API_BASE = "https://ishetalafgelast.onrender.com";
+
+/* ═══════════════════════════════════════════════════════════════
+   RESULT IMAGE URLS (statische paden)
+   ═══════════════════════════════════════════════════════════════ */
+const IMG_AFGELAST = "img/Afgelast pagina.jpeg";
+const IMG_NIETAFG  = "img/Niet afgelast pagina (3).jpeg";
+
+/* ═══════════════════════════════════════════════════════════════
+   APP LOGIC
+   ═══════════════════════════════════════════════════════════════ */
+const $ = id => document.getElementById(id);
+
+/* ── Default date: eerstvolgende zondag ── */
+(function setDefaultDate() {
+  const d = new Date();
+  const day = d.getDay();
+  const diff = (7 - day) % 7 || 7;
+  d.setDate(d.getDate() + diff);
+  $('date').value = d.toISOString().split('T')[0];
+})();
+
+/* ── Manual weather toggle ── */
+let manualOpen = false;
+const btnManual = $('btn-manual');
+if (btnManual) btnManual.addEventListener('click', () => {
+  manualOpen = !manualOpen;
+  $('manual-section').classList.toggle('open', manualOpen);
+});
+$('manual-close').addEventListener('click', () => {
+  manualOpen = false;
+  $('manual-section').classList.remove('open');
+});
+
+/* ── View switching ── */
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  $(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+/* ── Back button ── */
+$('btn-back').addEventListener('click', () => { clearFx(); showView('view-home'); });
+
+/* ── Loading messages ── */
+const LOAD_MSGS = [
+  ['Even kijken...', 'We checken het weer en vullen een biertje 🍺'],
+  ['Scheidsrechter bellen...', 'Hallo, is het veld al een zwembad? 📞'],
+  ['Veld inspecteren...', 'Even met de neus in de modder 👃'],
+  ['Regenradar checken...', 'Buienradar zegt: "Succes ermee" 🌧️'],
+  ['Biertje tappen...', 'Voor het geval dat... 🍻'],
+  ['Terreinmeester traceren...', 'Hij neemt z\'n telefoon niet op... 🤔'],
+];
+
+/* ── Form Submit ── */
+$('form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  $('error-box').classList.remove('show');
+
+  const body = {
+    home_team: $('home').value || 'Thuis',
+    away_team: $('away').value || 'Uit',
+    city: $('city').value,
+    date: $('date').value,
+  };
+
+  if (manualOpen) {
+    body.manual_weather = {
+      temperature:   parseFloat($('m-temp').value)   || 0,
+      precipitation: parseFloat($('m-precip').value) || 0,
+      wind_gusts:    parseFloat($('m-wind').value)   || 0,
+    };
+  }
+
+  const msg = LOAD_MSGS[Math.floor(Math.random() * LOAD_MSGS.length)];
+  $('loading-text').textContent = msg[0];
+  $('loading-sub').textContent  = msg[1];
+  $('loading-view').classList.add('show');
+  $('btn-check').disabled = true;
+
+  const minWait = new Promise(r => setTimeout(r, 2200));
+
+  try {
+    const [resp] = await Promise.all([
+      fetch(API_BASE + '/api/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      }),
+      minWait,
+    ]);
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || 'Er ging iets mis.');
+
+    $('loading-view').classList.remove('show');
+    showResult(data);
+  } catch (err) {
+    $('loading-view').classList.remove('show');
+    $('error-text').textContent = err.message;
+    $('error-box').classList.add('show');
+    setTimeout(() => $('error-box').classList.remove('show'), 5000);
+  } finally {
+    $('btn-check').disabled = false;
+  }
+});
+
+/* ── Dutch date formatting ── */
+function fmtDate(iso) {
+  const months = ['januari','februari','maart','april','mei','juni',
+    'juli','augustus','september','oktober','november','december'];
+  const days = ['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'];
+  const d = new Date(iso + 'T12:00:00');
+  return days[d.getDay()] + ' ' + d.getDate() + ' ' + months[d.getMonth()];
+}
+
+/* ── Weather label ── */
+function getWeatherLabel(temp, precip, wind) {
+  if (precip > 10 && temp < 2) return ['IJSKOUD ZEIKWEER', 'bad'];
+  if (precip > 10)             return ['ZEIKNAT', 'bad'];
+  if (temp < -2)               return ['BEVROREN MODDER', 'bad'];
+  if (temp < 2 && precip > 5)  return ['DRAMATISCH', 'bad'];
+  if (wind > 60)               return ['STORMACHTIG', 'bad'];
+  if (precip > 5)              return ['MODDERBAD', 'bad'];
+  if (precip > 2)              return ['REGENACHTIG', 'ok'];
+  if (temp > 18 && precip < 1) return ['TOPWEER', 'good'];
+  if (temp > 10 && precip < 2) return ['PRIMA WEER', 'good'];
+  if (precip < 1 && wind < 30) return ['VOETBALWEER', 'good'];
+  return ['TWIJFELACHTIG', 'ok'];
+}
+
+/* ── Fun messages ── */
+const MSGS_AFGELAST = [
+  "Lekker luieren! De scheids lag zelf nog in z'n bedje. 🛏️",
+  "Het veld is officieel een zwembad. Badpak mee? 🏊",
+  "Geen training, geen stress. Tijd voor FIFA en een kratje bier! 🎮🍺",
+  "De trainer belt: 'Niet komen.' Mooiste woorden ooit. 📞😎",
+  "Gefeliciteerd! Het regent zo hard dat zelfs de eenden binnen zitten. 🦆",
+  "De terreinmeester keek één keer naar buiten en besloot: nee. 🚫",
+];
+const MSGS_DOORGAAT = [
+  "Zet je schrap. De modder komt tot je knieën. 💀",
+  "De trainer staat al met z'n fluitje klaar. RENNEN! 🏃‍♂️",
+  "Geen excuus. Sokken aan, scheenbeschermers in, en janken mag later. 😭",
+  "Het veld is 'bespeelbaar'. Dat is slecht nieuws voor jou. ⚽",
+  "Veel plezier in de blubber! Vergeet je reserveshirt niet. 👕",
+  "Je kunt het weer niet als excuus gebruiken. Helaas. 🤷",
+];
+
+/* ── Risk explanation ── */
+function riskExplain(riskLabel, multiplier) {
+  const m = multiplier ? multiplier.toFixed(1) : '?';
+  if (riskLabel === 'ZEER HOOG') return 'Risico: ZEER HOOG — ' + m + '× de gemiddelde kans op afgelasting';
+  if (riskLabel === 'HOOG')      return 'Risico: HOOG — ' + m + '× de gemiddelde kans';
+  if (riskLabel === 'VERHOOGD')  return 'Risico: VERHOOGD — ' + m + '× de gemiddelde kans';
+  return 'Risico: LAAG — het ziet er goed uit (of slecht, als je niet wilde spelen)';
+}
+
+/* ══════════════════════════════════════════════════════════
+   SHOW RESULT
+   ══════════════════════════════════════════════════════════ */
+function showResult(data) {
+  const p = data.prediction;
+  const w = data.weather;
+  const m = data.match;
+  const pct = Math.round(p.probability * 100);
+  const isAfgelast = p.probability > 0.50;
+
+  showView('view-result');
+
+  const scene = document.querySelector('.result-scene');
+  scene.classList.remove('scene-afgelast', 'scene-doorgaat');
+  scene.classList.add(isAfgelast ? 'scene-afgelast' : 'scene-doorgaat');
+  scene.querySelectorAll('.result-overlay, .result-social').forEach(el => {
+    el.style.removeProperty('top');
+    el.style.removeProperty('left');
+    el.style.removeProperty('width');
+    el.style.removeProperty('height');
+    el.style.removeProperty('transform');
+  });
+
+  $('result-img').src = isAfgelast ? IMG_AFGELAST : IMG_NIETAFG;
+
+  $('r-home').textContent = m.home_team;
+  $('r-away').textContent = m.away_team;
+  $('r-location').innerHTML = '📍 ' + (m.city || '—');
+  $('r-date').innerHTML = '📅 ' + fmtDate(m.date);
+
+  $('r-temp').textContent   = w.temperature   != null ? w.temperature.toFixed(1) + '°C' : '–';
+  $('r-precip').textContent = w.precipitation != null ? w.precipitation.toFixed(1) + ' mm' : '–';
+  $('r-wind').textContent   = w.wind_gusts   != null ? w.wind_gusts.toFixed(0) + ' km/u' : '–';
+
+  const [wLabel, wClass] = getWeatherLabel(w.temperature, w.precipitation, w.wind_gusts);
+  const wl = $('weather-label');
+  wl.textContent = wLabel;
+  wl.className = 'weather-label ' + wClass;
+
+  const pctEl = $('r-pct');
+  pctEl.className = 'thermo-pct ' + (isAfgelast ? 'afgelast' : 'doorgaat');
+  animateValue(pctEl, 0, pct, 1400);
+
+  const hue = Math.round(120 * (1 - p.probability));
+  const thermoColor = 'hsl(' + hue + ', 70%, 45%)';
+  const fill = $('thermo-fill');
+  const bulb = $('thermo-bulb');
+  fill.style.background = thermoColor;
+  fill.style.height = '0%';
+  bulb.style.background = thermoColor;
+  setTimeout(() => { fill.style.height = Math.max(pct, 5) + '%'; }, 150);
+
+  $('risk-explain').textContent = riskExplain(p.risk_label, p.multiplier);
+
+  const msgs = isAfgelast ? MSGS_AFGELAST : MSGS_DOORGAAT;
+  const fmsg = $('fun-msg');
+  fmsg.textContent = msgs[Math.floor(Math.random() * msgs.length)];
+  fmsg.className = 'fun-msg ' + (isAfgelast ? 'afgelast' : 'doorgaat');
+
+  clearFx();
+  if (isAfgelast) { startRainFx(w.temperature); }
+  else            { startSunFx(); }
+}
+
+/* ── Animate count ── */
+function animateValue(el, from, to, duration) {
+  const start = performance.now();
+  function tick(now) {
+    const t = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - t, 3);
+    el.textContent = Math.round(from + (to - from) * eased) + '%';
+    if (t < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   WEATHER EFFECTS
+   ═══════════════════════════════════════════════════════════════ */
+const fxLayer = $('fx-layer');
+let fxTimers = [];
+
+function clearFx() {
+  fxLayer.innerHTML = '';
+  fxTimers.forEach(t => clearInterval(t));
+  fxTimers = [];
+  document.querySelectorAll('.sun-container').forEach(e => e.remove());
+}
+
+function startRainFx(temperature) {
+  const isSnow = temperature != null && temperature < 1;
+  const count = 55;
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    el.className = isSnow ? 'snowflake' : 'rain-drop';
+    el.style.left = Math.random() * 100 + '%';
+    if (isSnow) {
+      el.style.animationDuration = (3 + Math.random() * 4) + 's';
+      el.style.width = (5 + Math.random() * 6) + 'px';
+      el.style.height = el.style.width;
+    } else {
+      el.style.animationDuration = (0.4 + Math.random() * 0.4) + 's';
+      el.style.height = (12 + Math.random() * 20) + 'px';
+    }
+    el.style.animationDelay = Math.random() * 2 + 's';
+    fxLayer.appendChild(el);
+  }
+  if (!isSnow) {
+    const flashInterval = setInterval(() => {
+      if (Math.random() < 0.3) {
+        const flash = document.createElement('div');
+        flash.className = 'lightning';
+        fxLayer.appendChild(flash);
+        setTimeout(() => flash.remove(), 300);
+      }
+    }, 3000);
+    fxTimers.push(flashInterval);
+  }
+  const colors = ['#c0392b','#f0c040','#e74c3c','#d4a039','#fff','#27ae60'];
+  for (let i = 0; i < 35; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti-piece';
+    c.style.left = Math.random() * 100 + '%';
+    c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animationDuration = (2.5 + Math.random() * 3) + 's';
+    c.style.animationDelay = Math.random() * 2 + 's';
+    c.style.transform = 'rotate(' + Math.random() * 360 + 'deg)';
+    c.addEventListener('animationend', () => c.remove());
+    fxLayer.appendChild(c);
+  }
+}
+
+function startSunFx() {
+  const sunC = document.createElement('div');
+  sunC.className = 'sun-container';
+  const rays = document.createElement('div');
+  rays.className = 'sun-rays';
+  for (let i = 0; i < 12; i++) {
+    const ray = document.createElement('div');
+    ray.className = 'sun-ray';
+    ray.style.transform = 'rotate(' + (i * 30) + 'deg) translateY(-55px)';
+    rays.appendChild(ray);
+  }
+  sunC.appendChild(rays);
+  const face = document.createElement('div');
+  face.className = 'sun-face';
+  face.textContent = '😎';
+  sunC.appendChild(face);
+  document.body.appendChild(sunC);
+}
+</script>
+</body>
+</html>
