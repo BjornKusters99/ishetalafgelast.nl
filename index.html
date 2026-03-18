@@ -43,19 +43,24 @@
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; height: 100%; }
     body {
-      height: 100%;
+      min-height: 100%;
       font-family: 'Patrick Hand', 'Segoe UI', cursive, sans-serif;
       color: var(--ink);
       overflow: hidden;
       background: #1a0e06;
     }
+    @media (max-aspect-ratio: 3/2) {
+      body { overflow-y: auto; }
+    }
 
     /* ═══════════════════════════════════════════════════════════════
        VIEW TRANSITIONS
        ═══════════════════════════════════════════════════════════════ */
-    .view { display: none; width: 100%; height: 100%; }
+    .view { display: none; width: 100%; min-height: 100vh;
+      justify-content: center; align-items: center;
+    }
     .view.active {
-      display: block;
+      display: flex;
       animation: fadeSlideIn .5s cubic-bezier(.22,1,.36,1);
     }
     @keyframes fadeSlideIn {
@@ -67,7 +72,13 @@
        HOME VIEW — Image-overlay approach
        ═══════════════════════════════════════════════════════════════ */
     #view-home { background: #1a0e06; }
-    .home-scene { position: relative; width: 100%; height: 100%; }
+    .home-scene {
+      position: relative; width: 100%;
+      aspect-ratio: 1600 / 854; max-height: 100vh;
+    }
+    @media (max-aspect-ratio: 1600/854) {
+      .home-scene { max-height: none; }
+    }
     .home-bg-img {
       display: block; width: 100%; height: 100%;
       object-fit: fill; user-select: none; -webkit-user-drag: none;
@@ -234,7 +245,13 @@
        RESULT VIEW
        ═══════════════════════════════════════════════════════════════ */
     #view-result { background: #1a0e06; }
-    .result-scene { position: relative; width: 100%; height: 100%; }
+    .result-scene {
+      position: relative; width: 100%;
+      aspect-ratio: 1600 / 881; max-height: 100vh;
+    }
+    @media (max-aspect-ratio: 1600/881) {
+      .result-scene { max-height: none; }
+    }
     .result-bg-img {
       display: block; width: 100%; height: 100%;
       object-fit: fill; user-select: none; -webkit-user-drag: none;
@@ -470,6 +487,17 @@
     }
     @media (max-width: 480px) {
       .ghost-input { font-size: clamp(10px, 3vw, 14px); }
+    }
+
+    @media (max-aspect-ratio: 3/2) {
+      .loading-view {
+        position: absolute;
+        inset: 0;
+        z-index: 500;
+      }
+      .error-toast {
+        position: absolute;
+      }
     }
   </style>
 </head>
