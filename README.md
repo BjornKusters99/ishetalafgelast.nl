@@ -5,9 +5,16 @@ Statische frontend voor [IsHetAlAfgelast.nl](https://ishetalafgelast.nl) — che
 ## Architectuur
 
 - **Frontend** (deze repo) → gehost via GitHub Pages op `ishetalafgelast.nl`
-- **Backend API** → gehost op Render (`https://ishetalafgelast.onrender.com`)
+- **Backend API** → gehost op Render (`https://ishetalafgelast.onrender.com`), pure JSON API
 
-De frontend stuurt voorspellingsverzoeken naar de backend API, die het ML-model (getraind op 6.800+ echte wedstrijden) gebruikt om de kans op afgelasting te berekenen.
+De frontend stuurt voorspellingsverzoeken naar de backend API (`POST /api/predict`), die het ML-model (getraind op 6.800+ echte wedstrijden) gebruikt om de kans op afgelasting te berekenen.
+
+## API Endpoints (backend)
+
+| Methode | Pad | Beschrijving |
+|---------|-----|-------------|
+| `GET` | `/health` | Health check |
+| `POST` | `/api/predict` | Voorspelling (JSON) |
 
 ## Bestanden
 
