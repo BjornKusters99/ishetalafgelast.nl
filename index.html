@@ -10,6 +10,7 @@
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="X-Frame-Options" content="DENY">
   <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://ishetalafgelast.onrender.com; frame-ancestors 'none';">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
@@ -76,8 +77,9 @@
       position: relative; width: 100%;
       aspect-ratio: 1600 / 854; max-height: 100vh;
     }
-    @media (max-aspect-ratio: 1600/854) {
-      .home-scene { max-height: none; }
+    /* Portrait (mobile): switch to 9:16 ratio */
+    @media (orientation: portrait) {
+      .home-scene { aspect-ratio: 9 / 16; max-height: none; }
     }
     .home-bg-img {
       display: block; width: 100%; height: 100%;
@@ -249,8 +251,9 @@
       position: relative; width: 100%;
       aspect-ratio: 1600 / 881; max-height: 100vh;
     }
-    @media (max-aspect-ratio: 1600/881) {
-      .result-scene { max-height: none; }
+    /* Portrait (mobile): switch to 9:16 ratio */
+    @media (orientation: portrait) {
+      .result-scene { aspect-ratio: 9 / 16; max-height: none; }
     }
     .result-bg-img {
       display: block; width: 100%; height: 100%;
@@ -499,6 +502,32 @@
         position: absolute;
       }
     }
+
+    /* ═══════════════════════════════════════════════════════════════
+       MOBIEL: overlay posities voor 9:16 afbeeldingen
+       ═══════════════════════════════════════════════════════════════ */
+    @media (orientation: portrait) {
+      /* ── Home: invoervelden op mobiele afbeelding ── */
+      /* .field-home  { top: __%; left: __%; width: __%; height: __%; } */
+      /* .field-away  { top: __%; left: __%; width: __%; height: __%; } */
+      /* .field-city  { top: __%; left: __%; width: __%; height: __%; } */
+      /* .field-date  { top: __%; left: __%; width: __%; height: __%; } */
+      /* .btn-check   { top: __%; left: __%; width: __%; height: __%; } */
+
+      /* ── Resultaat: overlay posities op mobiele afbeelding ── */
+      /* .scene-afgelast .overlay-logo   { left: __%; top: __%; width: __%; height: __%; } */
+      /* .scene-doorgaat .overlay-logo   { left: __%; top: __%; width: __%; height: __%; } */
+      /* .scene-afgelast .overlay-thermo { left: __%; top: __%; width: __%; height: __%; } */
+      /* .scene-doorgaat .overlay-thermo { left: __%; top: __%; width: __%; height: __%; } */
+      /* .scene-afgelast .overlay-kans   { left: __%; top: __%; width: __%; height: __%; } */
+      /* .scene-doorgaat .overlay-kans   { left: __%; top: __%; width: __%; height: __%; } */
+      /* .scene-afgelast .overlay-data   { left: __%; top: __%; width: __%; height: __%; } */
+      /* .scene-doorgaat .overlay-data   { left: __%; top: __%; width: __%; height: __%; } */
+      /* .scene-afgelast .overlay-weer   { left: __%; top: __%; width: __%; height: __%; } */
+      /* .scene-doorgaat .overlay-weer   { left: __%; top: __%; width: __%; height: __%; } */
+      /* .scene-afgelast .overlay-fun    { left: __%; top: __%; width: __%; height: __%; } */
+      /* .scene-doorgaat .overlay-fun    { left: __%; top: __%; width: __%; height: __%; } */
+    }
   </style>
 </head>
 <body>
@@ -525,17 +554,21 @@
      ═══════════════════════════════════════════════════════════ -->
 <section id="view-home" class="view active">
   <form id="form" class="home-scene" autocomplete="off">
-    <img
-      src="img/Startpagina ishetalafgelast.nl.jpg"
-      alt="IsHetAlAfgelast.nl Startpagina"
-      class="home-bg-img"
-      draggable="false"
-    >
+    <picture>
+      <source media="(orientation: portrait)" srcset="img/Startpagina mobiel.jpg">
+      <img
+        src="img/Startpagina ishetalafgelast.nl.jpg"
+        alt="IsHetAlAfgelast.nl Startpagina"
+        class="home-bg-img"
+        draggable="false"
+      >
+    </picture>
     <input type="text" id="home" class="ghost-input field-home" placeholder="" aria-label="Thuisteam">
     <input type="text" id="away" class="ghost-input field-away" placeholder="" aria-label="Uitteam">
     <input type="text" id="city" class="ghost-input field-city" required placeholder="" aria-label="Locatie (stad, dorp of sportpark)">
     <input type="date" id="date" class="ghost-input field-date" required aria-label="Datum">
     <button type="submit" class="ghost-btn btn-check" id="btn-check" aria-label="Is het al afgelast?"></button>
+    <button type="button" class="ghost-btn btn-manual-area" id="btn-manual" aria-label="Weer handmatig invoeren"></button>
 
     <!-- Manual weather popup -->
     <div class="manual-popup" id="manual-section">
@@ -543,24 +576,24 @@
       <div class="manual-card">
         <div class="manual-field">
           <label for="m-temp">🌡️ Temp (°C)</label>
-          <input type="number" id="m-temp" step="0.5" value="8">
+          <input type="number" id="m-temp" step="0.5" value="8" min="-30" max="45">
         </div>
         <div class="manual-field">
           <label for="m-precip">🌧️ Regen (mm)</label>
-          <input type="number" id="m-precip" step="0.5" value="0" min="0">
+          <input type="number" id="m-precip" step="0.5" value="0" min="0" max="200">
         </div>
         <div class="manual-field">
           <label for="m-wind">💨 Wind (km/u)</label>
-          <input type="number" id="m-wind" step="1" value="30" min="0">
+          <input type="number" id="m-wind" step="1" value="30" min="0" max="200">
         </div>
       </div>
     </div>
 
     <!-- Social icon overlays -->
-    <a class="ghost-social social-fb" href="https://facebook.com" target="_blank" rel="noopener" title="Facebook"></a>
-    <a class="ghost-social social-x" href="https://twitter.com" target="_blank" rel="noopener" title="X / Twitter"></a>
-    <a class="ghost-social social-wa" href="https://wa.me/?text=Check%20IsHetAlAfgelast.nl!" target="_blank" rel="noopener" title="WhatsApp"></a>
-    <a class="ghost-social social-ig" href="https://instagram.com" target="_blank" rel="noopener" title="Instagram"></a>
+    <a class="ghost-social social-fb" href="https://facebook.com" target="_blank" rel="noopener noreferrer" title="Facebook"></a>
+    <a class="ghost-social social-x" href="https://twitter.com" target="_blank" rel="noopener noreferrer" title="X / Twitter"></a>
+    <a class="ghost-social social-wa" href="https://wa.me/?text=Check%20IsHetAlAfgelast.nl!%20Gaat%20je%20potje%20door%3F%20%E2%9A%BD" target="_blank" rel="noopener noreferrer" title="WhatsApp"></a>
+    <a class="ghost-social social-ig" href="https://instagram.com" target="_blank" rel="noopener noreferrer" title="Instagram"></a>
   </form>
 </section>
 
@@ -621,10 +654,10 @@
     <img class="overlay-social-img overlay-sm-img" src="img/Social media knoppen.png" alt="" draggable="false">
 
     <!-- Social click zones -->
-    <a class="result-social result-social-fb" id="result-social-fb" href="https://facebook.com" target="_blank" rel="noopener" title="Facebook"></a>
-    <a class="result-social result-social-x" id="result-social-x" href="https://twitter.com" target="_blank" rel="noopener" title="X / Twitter"></a>
-    <a class="result-social result-social-wa" id="result-social-wa" href="https://wa.me/?text=Check%20IsHetAlAfgelast.nl!" target="_blank" rel="noopener" title="WhatsApp"></a>
-    <a class="result-social result-social-ig" id="result-social-ig" href="https://instagram.com" target="_blank" rel="noopener" title="Instagram"></a>
+    <a class="result-social result-social-fb" id="result-social-fb" href="https://facebook.com" target="_blank" rel="noopener noreferrer" title="Facebook"></a>
+    <a class="result-social result-social-x" id="result-social-x" href="https://twitter.com" target="_blank" rel="noopener noreferrer" title="X / Twitter"></a>
+    <a class="result-social result-social-wa" id="result-social-wa" href="https://wa.me/?text=Check%20IsHetAlAfgelast.nl!%20Gaat%20je%20potje%20door%3F%20%E2%9A%BD" target="_blank" rel="noopener noreferrer" title="WhatsApp"></a>
+    <a class="result-social result-social-ig" id="result-social-ig" href="https://instagram.com" target="_blank" rel="noopener noreferrer" title="Instagram"></a>
   </div>
 
   <footer class="result-footer">
@@ -637,13 +670,31 @@
    CONFIGURATIE
    Pas API_BASE aan naar je Render backend URL.
    ═══════════════════════════════════════════════════════════════ */
-const API_BASE = "https://voetbal-voorspel-model.onrender.com";
+const API_BASE = "https://ishetalafgelast.onrender.com";
 
 /* ═══════════════════════════════════════════════════════════════
    RESULT IMAGE URLS (statische paden)
    ═══════════════════════════════════════════════════════════════ */
 const IMG_AFGELAST = "img/Afgelast pagina.jpeg";
 const IMG_NIETAFG  = "img/Niet afgelast pagina (3).jpeg";
+
+/* Mobiele versies (9:16 ratio) */
+const IMG_AFGELAST_MOBIEL = "img/Afgelast pagina mobiel.jpeg";
+const IMG_NIETAFG_MOBIEL  = "img/Niet afgelast pagina mobiel.jpeg";
+
+/* Media query matcher voor portrait/landscape detectie */
+const mqPortrait = window.matchMedia('(orientation: portrait)');
+function isMobiel() { return mqPortrait.matches; }
+
+/* Wissel resultaat-afbeelding bij oriëntatie-verandering */
+mqPortrait.addEventListener('change', () => {
+  const img = $('result-img');
+  if (!img.src || !img.dataset.variant) return;
+  const isAfg = img.dataset.variant === 'afgelast';
+  img.src = isAfg
+    ? (isMobiel() ? IMG_AFGELAST_MOBIEL : IMG_AFGELAST)
+    : (isMobiel() ? IMG_NIETAFG_MOBIEL  : IMG_NIETAFG);
+});
 
 /* ═══════════════════════════════════════════════════════════════
    APP LOGIC
@@ -735,9 +786,12 @@ $('form').addEventListener('submit', async (e) => {
     showResult(data);
   } catch (err) {
     $('loading-view').classList.remove('show');
-    $('error-text').textContent = err.message;
+    const msg = err.name === 'TypeError'
+      ? 'Geen verbinding met de server. Controleer je internetverbinding.'
+      : err.message;
+    $('error-text').textContent = msg;
     $('error-box').classList.add('show');
-    setTimeout(() => $('error-box').classList.remove('show'), 5000);
+    setTimeout(() => $('error-box').classList.remove('show'), 8000);
   } finally {
     $('btn-check').disabled = false;
   }
@@ -817,12 +871,15 @@ function showResult(data) {
     el.style.removeProperty('transform');
   });
 
-  $('result-img').src = isAfgelast ? IMG_AFGELAST : IMG_NIETAFG;
+  $('result-img').dataset.variant = isAfgelast ? 'afgelast' : 'doorgaat';
+  $('result-img').src = isAfgelast
+    ? (isMobiel() ? IMG_AFGELAST_MOBIEL : IMG_AFGELAST)
+    : (isMobiel() ? IMG_NIETAFG_MOBIEL  : IMG_NIETAFG);
 
   $('r-home').textContent = m.home_team;
   $('r-away').textContent = m.away_team;
-  $('r-location').innerHTML = '📍 ' + (m.city || '—');
-  $('r-date').innerHTML = '📅 ' + fmtDate(m.date);
+  $('r-location').textContent = '📍 ' + (m.city || '—');
+  $('r-date').textContent = '📅 ' + fmtDate(m.date);
 
   $('r-temp').textContent   = w.temperature   != null ? w.temperature.toFixed(1) + '°C' : '–';
   $('r-precip').textContent = w.precipitation != null ? w.precipitation.toFixed(1) + ' mm' : '–';
