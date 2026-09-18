@@ -190,7 +190,8 @@ body.doorgaat #bg::after {
 
 .field .req { color: var(--red); }
 
-.field input {
+.field input,
+.field select {
   width: 100%;
   min-height: 50px;
   padding: 10px 14px;
@@ -203,9 +204,11 @@ body.doorgaat #bg::after {
   transition: border-color .2s, box-shadow .2s;
 }
 
-.field input::placeholder { color: rgba(42, 21, 6, .38); }
+.field input::placeholder,
+.field select::placeholder { color: rgba(42, 21, 6, .38); }
 
-.field input:focus {
+.field input:focus,
+.field select:focus {
   outline: none;
   border-color: var(--beer);
   box-shadow: 0 0 0 3px rgba(198, 138, 23, .25);
@@ -782,4 +785,65 @@ input[type="date"] { color-scheme: light; cursor: pointer; }
     transition-duration: .01ms !important;
   }
   html { scroll-behavior: auto; }
+}
+
+/* ── Ad-slot (leeg tot er een ad-partner is; geen layout-shift) ── */
+.ad-slot {
+  display: none;
+  min-height: 0;
+  margin-top: 14px;
+}
+
+.ad-slot.has-ad {
+  display: block;
+  min-height: 90px;
+  padding: 10px;
+  background: rgba(26, 14, 6, .45);
+  border: 2px dashed rgba(216, 192, 144, .3);
+  border-radius: 12px;
+}
+
+/* ── Landingspagina's per plaats ── */
+.place-intro {
+  margin-top: 14px;
+  font-size: .98rem;
+  line-height: 1.55;
+  color: var(--parchment);
+}
+
+.place-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-top: 12px;
+  padding: 0;
+  list-style: none;
+  font-size: .92rem;
+}
+
+.place-links a,
+.how-note a,
+.site-footer a {
+  color: var(--beer);
+  font-weight: 500;
+  text-decoration: underline;
+}
+
+.faq {
+  margin-top: 18px;
+  display: grid;
+  gap: 10px;
+}
+
+.faq dt {
+  font-size: .95rem;
+  font-weight: 600;
+  color: var(--parchment);
+}
+
+.faq dd {
+  margin: 0 0 6px;
+  font-size: .9rem;
+  line-height: 1.5;
+  color: rgba(216, 192, 144, .85);
 }

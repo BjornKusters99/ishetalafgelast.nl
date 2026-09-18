@@ -12,10 +12,10 @@ function loadArtSlots() {
     for (const ext of ["webp", "png"]) {
       const probe = new Image();
       probe.onload = () => {
-        el.style.setProperty("--art", `url(img/components/${slot}.${ext})`);
-        el.classList.add("has-art");
-      };
-      probe.src = `img/components/${slot}.${ext}`;
+      el.style.setProperty("--art", `url(/img/components/${slot}.${ext})`);
+      el.classList.add("has-art");
+    };
+    probe.src = `/img/components/${slot}.${ext}`;
     }
   });
 }
@@ -95,6 +95,7 @@ $("form").addEventListener("submit", async (e) => {
     away_team: $("away").value.trim() || "Uit",
     city: $("city").value.trim(),
     date: $("date").value,
+    veldtype: $("veldtype")?.value || "unknown",
   };
 
   if (!manualPanel.hidden) {
@@ -237,6 +238,18 @@ function showResult(data) {
   $("r-temp").textContent = w.temperature != null ? w.temperature.toFixed(1) + "°C" : "–";
   $("r-precip").textContent = w.precipitation != null ? w.precipitation.toFixed(1) + " mm" : "–";
   $("r-wind").textContent = w.wind_gusts != null ? w.wind_gusts.toFixed(0) + " km/u" : "–";
+
+  const weekEl = $("r-week");
+  if (weekEl) {
+    const row = weekEl.closest("div");
+    if (w.precip_7d_sum != null) {
+      const vorst = w.frost_days_7d ? `, ${w.frost_days_7d} vorstdag(en)` : "";
+      weekEl.textContent = `${w.precip_7d_sum.toFixed(1)} mm${vorst}`;
+      if (row) row.hidden = false;
+    } else if (row) {
+      row.hidden = true;
+    }
+  }
 
   const [wLabel, wClass] = getWeatherLabel(w.temperature, w.precipitation, w.wind_gusts);
   const wl = $("weather-label");

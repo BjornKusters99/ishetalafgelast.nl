@@ -73,6 +73,14 @@
             <label for="date">Speeldatum <span class="req" aria-hidden="true">*</span></label>
             <input type="date" id="date" required>
           </div>
+          <div class="field">
+            <label for="veldtype">Veldtype</label>
+            <select id="veldtype">
+              <option value="unknown">Weet ik niet</option>
+              <option value="natuurgras">Natuurgras</option>
+              <option value="kunstgras">Kunstgras</option>
+            </select>
+          </div>
         </div>
 
         <button type="submit" class="btn-check" id="btn-check" data-art="btn-check">
@@ -102,6 +110,8 @@
         </div>
       </form>
 
+      <aside class="ad-slot" data-ad-slot="home-under-form" aria-hidden="true"></aside>
+
       <section class="how" aria-label="Hoe werkt het">
         <h2>Hoe werkt het?</h2>
         <ol class="how-steps">
@@ -109,7 +119,9 @@
           <li><strong>Wij halen de weersvoorspelling op</strong> voor jouw veld, tot 16 dagen vooruit.</li>
           <li><strong>Het model rekent</strong> — getraind op duizenden échte afgelastingen door vorst, regen en storm.</li>
         </ol>
+        <p class="how-note">Het model kijkt ook naar de dagen vóór je wedstrijd: een verzadigd veld na een natte week valt eerder af. En speel je op kunstgras? Dat veld speelt vrijwel altijd door — het model weet het.</p>
         <p class="how-note">Blijft een voorspelling op basis van weer. De officiële beslissing ligt bij de vereniging en de scheidsrechter.</p>
+        <p class="how-note">Check jouw gemeente op de <a href="/plaatsen/">plaatsenpagina's</a> — van Amsterdam tot Zwolle.</p>
       </section>
     </section>
 
@@ -146,6 +158,7 @@
             <div><dt>🌡️ Temperatuur</dt><dd id="r-temp">–</dd></div>
             <div><dt>🌧️ Neerslag</dt><dd id="r-precip">–</dd></div>
             <div><dt>💨 Windstoten</dt><dd id="r-wind">–</dd></div>
+            <div hidden><dt>🌊 Deze week gevallen</dt><dd id="r-week">–</dd></div>
           </dl>
         </div>
       </div>
@@ -166,6 +179,7 @@
 
   <footer class="site-footer">
     <p>IsHetAlAfgelast.nl · De kelderklasse verdient het</p>
+    <p><a href="/plaatsen/">Plaatsen</a> · <a href="/sponsor.html">Adverteren &amp; sponsoring</a></p>
   </footer>
 
   <div id="fx-layer" aria-hidden="true"></div>

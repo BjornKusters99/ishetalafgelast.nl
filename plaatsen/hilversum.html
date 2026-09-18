@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Wedstrijd afgelast in Hilversum? Check de kans direct | IsHetAlAfgelast.nl</title>
+  <meta name="description" content="Wordt je voetbalwedstrijd in Hilversum afgelast? Live weercheck met de weersvoorspelling voor Hilversum (Noord-Holland). Check binnen 10 seconden de kans op afgelasting.">
+  <link rel="canonical" href="https://www.ishetalafgelast.nl/plaatsen/hilversum.html">
+  <meta name="theme-color" content="#241209">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="nl_NL">
+  <meta property="og:site_name" content="IsHetAlAfgelast.nl">
+  <meta property="og:title" content="Wordt je potje in Hilversum afgelast?">
+  <meta property="og:description" content="Weercheck voor amateurvoetbal in Hilversum en omgeving — getraind op duizenden échte afgelastingen.">
+  <meta property="og:image" content="https://www.ishetalafgelast.nl/img/logo.webp">
+  <meta property="og:url" content="https://www.ishetalafgelast.nl/plaatsen/hilversum.html">
+  <meta name="twitter:card" content="summary">
+
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://ishetalafgelast.onrender.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%BD%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+  <div id="bg" data-art="bg-page" aria-hidden="true"></div>
+
+  <div class="loading-view" id="loading-view" role="status" aria-live="polite">
+    <div class="loading-ball">⚽</div>
+    <div class="beer-fill" aria-hidden="true"></div>
+    <div class="loading-text" id="loading-text">Even kijken...</div>
+    <div class="loading-sub" id="loading-sub">We checken het weer en vullen een biertje</div>
+  </div>
+
+  <div class="error-toast" id="error-box" role="alert" aria-live="assertive">
+    <span aria-hidden="true">⚠️</span>
+    <span id="error-text"></span>
+  </div>
+
+  <main class="page">
+
+    <section id="view-home" class="view active">
+      <header class="site-head">
+        <a href="/" aria-label="IsHetAlAfgelast.nl homepage"><img class="logo" src="/img/logo.webp" alt="IsHetAlAfgelast.nl" width="480" height="248"></a>
+        <div class="title-wrap" data-art="sign-title">
+          <h1>Wordt je potje in Hilversum afgelast?</h1>
+          <p class="tagline">Weercheck voor amateurvoetbal in Hilversum (Noord-Holland)</p>
+        </div>
+      </header>
+
+      <p class="place-intro">Wedstrijd in Hilversum en slecht weer voorspeld? Skip het bellen naar de terreinmeester — check hier eerst de kans op afgelasting. Getraind op échte afgelastingen, met de weersvoorspelling voor Hilversum en omgeving.</p>
+
+      <form id="form" class="panel form-panel" data-art="panel-form" autocomplete="off" novalidate>
+        <div class="form-grid">
+          <div class="field">
+            <label for="home">Thuisteam</label>
+            <input type="text" id="home" placeholder="Bijv. vv Modderjongens">
+          </div>
+          <div class="field">
+            <label for="away">Uitteam</label>
+            <input type="text" id="away" placeholder="Bijv. SC Blubberbos">
+          </div>
+          <div class="field">
+            <label for="city">Locatie <span class="req" aria-hidden="true">*</span></label>
+            <input type="text" id="city" required value="Hilversum">
+          </div>
+          <div class="field">
+            <label for="date">Speeldatum <span class="req" aria-hidden="true">*</span></label>
+            <input type="date" id="date" required>
+          </div>
+          <div class="field">
+            <label for="veldtype">Veldtype</label>
+            <select id="veldtype">
+              <option value="unknown">Weet ik niet</option>
+              <option value="natuurgras">Natuurgras</option>
+              <option value="kunstgras">Kunstgras</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-check" id="btn-check" data-art="btn-check">
+          Is het al afgelast?
+        </button>
+
+        <button type="button" class="link-btn" id="btn-manual" aria-expanded="false" aria-controls="manual-panel">
+          Weer zelf invoeren <span class="chev" aria-hidden="true">▾</span>
+        </button>
+
+        <div class="manual-panel" id="manual-panel" hidden>
+          <p class="manual-hint">Geen weerdata beschikbaar (bijv. wedstrijd over &gt; 16 dagen)? Vul dan zelf de verwachte omstandigheden in.</p>
+          <div class="manual-grid">
+            <div class="field">
+              <label for="m-temp">Temperatuur (°C)</label>
+              <input type="number" id="m-temp" step="0.5" value="8" min="-30" max="45">
+            </div>
+            <div class="field">
+              <label for="m-precip">Neerslag (mm)</label>
+              <input type="number" id="m-precip" step="0.5" value="0" min="0" max="200">
+            </div>
+            <div class="field">
+              <label for="m-wind">Windstoten (km/u)</label>
+              <input type="number" id="m-wind" step="1" value="30" min="0" max="200">
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <aside class="ad-slot" data-ad-slot="plaats-hilversum" aria-hidden="true"></aside>
+
+      <section class="how" aria-label="Over afgelastingen in Hilversum">
+        <h2>Afgelastingen in Hilversum — veelgevraagd</h2>
+        <dl class="faq">
+          <dt>Wordt mijn wedstrijd in Hilversum afgelast?</dt>
+          <dd>Vul hierboven je wedstrijd in. Wij halen de weersvoorspelling voor Hilversum op
+          (temperatuur, neerslag, wind) en het model berekent de kans op afgelasting —
+          getraind op duizenden échte afgelastingen in het amateurvoetbal.</dd>
+          <dt>Speelt kunstgras in Hilversum door bij regen?</dt>
+          <dd>Vrijwel altijd. Een kunstgrasveld loopt niet onder en vriest niet dicht:
+          ons model geeft kunstgras een flink lagere afgelastingskans bij hetzelfde
+          weer. Kies bij veldtype daarom "Kunstgras" voor een scherpere voorspelling.</dd>
+          <dt>Wat als het de dagen voor mijn wedstrijd heeft geregend?</dt>
+          <dd>Dat tellen we mee. Een verzadigd natuurgrasveld na een natte week wordt
+          veel vaker afgekeurd dan na een droge week. Het model kijkt naar de neerslag
+          en vorst van de áfgelegen zeven dagen.</dd>
+        </dl>
+        <p class="how-note">Blijft een voorspelling op basis van weer. De officiële beslissing ligt
+        bij de vereniging in Hilversum en de scheidsrechter.</p>
+        <p class="how-note">Ook wedstrijden in de buurt? Check <a href="/plaatsen/almere.html">Almere</a>, <a href="/plaatsen/utrecht.html">Utrecht</a>, <a href="/plaatsen/amersfoort.html">Amersfoort</a> en <a href="/plaatsen/nieuwegein.html">Nieuwegein</a>,
+        of kijk op het <a href="/plaatsen/">overzicht van alle plaatsen</a>.</p>
+      </section>
+    </section>
+
+    <section id="view-result" class="view">
+      <button class="btn-back" id="btn-back" data-art="btn-back">← Nieuwe check</button>
+
+      <div class="panel verdict-panel" data-art="panel-result">
+        <span class="verdict-badge" id="verdict-badge" data-art="badge-verdict">—</span>
+        <div class="verdict-score">
+          <div class="thermo" data-art="thermo" aria-hidden="true">
+            <div class="thermo-tube"><div class="thermo-fill" id="thermo-fill"></div></div>
+            <div class="thermo-bulb" id="thermo-bulb"></div>
+          </div>
+          <div class="verdict-pct">
+            <span class="pct" id="r-pct">0%</span>
+            <span class="pct-caption">kans op afgelasting</span>
+          </div>
+        </div>
+        <p class="risk-explain" id="risk-explain"></p>
+      </div>
+
+      <div class="result-grid">
+        <div class="panel info-panel" data-art="panel-info">
+          <h2 class="card-title">Wedstrijd</h2>
+          <p class="teams"><span id="r-home"></span> <span class="vs">vs</span> <span id="r-away"></span></p>
+          <p class="match-meta"><span id="r-location"></span></p>
+          <p class="match-meta"><span id="r-date"></span></p>
+        </div>
+
+        <div class="panel info-panel" data-art="panel-info">
+          <h2 class="card-title">Verwachte omstandigheden</h2>
+          <span class="weather-label" id="weather-label">—</span>
+          <dl class="weather-stats">
+            <div><dt>🌡️ Temperatuur</dt><dd id="r-temp">–</dd></div>
+            <div><dt>🌧️ Neerslag</dt><dd id="r-precip">–</dd></div>
+            <div><dt>💨 Windstoten</dt><dd id="r-wind">–</dd></div>
+            <div hidden><dt>🌊 Deze week gevallen</dt><dd id="r-week">–</dd></div>
+          </dl>
+        </div>
+      </div>
+
+      <p class="fun-note" id="fun-msg" data-art="note-fun"></p>
+
+      <div class="share">
+        <a class="btn-share" id="share-wa" data-art="btn-share" href="https://wa.me/" target="_blank" rel="noopener noreferrer">
+          Deel op WhatsApp
+        </a>
+        <button class="btn-share btn-share-alt" id="btn-copy" data-art="btn-share">Kopieer link</button>
+      </div>
+
+      <p class="disclaimer">Voorspelling op basis van weer — geen zekerheid. De vereniging beslist.</p>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>IsHetAlAfgelast.nl · <a href="/">Home</a> · <a href="/plaatsen/">Plaatsen</a> · <a href="/sponsor.html">Adverteren</a></p>
+  </footer>
+
+  <div id="fx-layer" aria-hidden="true"></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
