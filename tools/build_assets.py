@@ -44,8 +44,11 @@ def scenes() -> None:
     ImageDraw.Draw(mob).rectangle((640, 18, 767, 92), fill=(72, 46, 33))
     save_webp(mob, SCENES / "kantine-m.webp")
 
-    save_webp(Image.open(ART / "afgelast-desktop.jpg").convert("RGB"), SCENES / "afgelast-d.webp")
-    save_webp(Image.open(ART / "afgelast-mobiel.jpg").convert("RGB"), SCENES / "afgelast-m.webp")
+    # Afgelast: nieuwe 3:2-bron (PNG). Mobiel iets verkleind, scheelt ~40% bytes.
+    save_webp(Image.open(ART / "afgelast-desktop.png").convert("RGB"), SCENES / "afgelast-d.webp", quality=80)
+    mob = Image.open(ART / "afgelast-mobiel.png").convert("RGB")
+    mob = mob.resize((864, round(mob.height * 864 / mob.width)), Image.LANCZOS)
+    save_webp(mob, SCENES / "afgelast-m.webp", quality=80)
 
     # Doorgaat-art is 1200px breed: 1.5x opschalen + licht verscherpen,
     # anders wordt hij op desktop zichtbaar zacht.
@@ -104,8 +107,8 @@ def og_image(fonts: Path | None) -> None:
     bg = bg.crop((0, 0, 1376, 722)).resize((1200, 630), Image.LANCZOS)
     d = ImageDraw.Draw(bg)
     # Perkament zit op x 280..920, y 315..630 in deze schaal.
-    title = ImageFont.truetype(str(fonts / "LilitaOne.ttf"), 76)
-    sub = ImageFont.truetype(str(fonts / "Fredoka.ttf"), 30)
+    title = ImageFont.truetype(str(fonts / "LilitaOne.ttf"), 64)
+    sub = ImageFont.truetype(str(fonts / "Fredoka.ttf"), 26)
     sub.set_variation_by_axes([600, 100])  # [Weight, Width]
     cx = 600
     d.text((cx, 430), "Gaat je potje door?", font=title, fill=INK, anchor="mm")
