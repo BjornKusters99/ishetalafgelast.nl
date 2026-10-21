@@ -16,7 +16,7 @@ Feedbackronde van de eigenaar, volledig verwerkt:
    smalle schermen alleen korte namen.
 3. **Delen vanaf de start.** Ronde groene sticker op de perkamentrol
    ("Gooi in de appgroep!", native share op mobiel), gele deelband op de
-   homepage (WhatsApp, Telegram, Facebook, X, link kopiëren), en op de uitslag
+   homepage (WhatsApp, Instagram, Facebook, TikTok, X, link kopiëren; Instagram en TikTok kopiëren het bericht en openen de app, want die hebben geen deel-link), en op de uitslag
    een deelstrook met een fake WhatsApp-bubbel en "Ander berichtje".
 4. **Veldtype-bug opgelost.** Oorzaak: in de trainingsdata is
    `is_natuurgras + is_kunstgras` altijd 1. "Geen idee" zette beide op 0, dus
@@ -89,7 +89,7 @@ deelknop donkerder gemaakt, nu ≥ 4.5:1), e2e-test staat in de repo
   (PIL: lijnen + labels om de 50 px over het bronbeeld).
 - `index.html` is het sjabloon voor alle plaatspagina's: na wijzigen
   `python3 tools/gen_pages.py`. Na assetwijzigingen `VERSION` in `sw.js`
-  ophogen (nu `v5-1`).
+  ophogen (nu `v5-2`).
 
 ## Status bij overdracht
 
