@@ -92,8 +92,32 @@ export async function fetchWeather(lat, lon, isoDate, signal) {
   };
 }
 
-/** Modelkans op afgelasting (0..1) + risicolabel, identiek aan predict_full(). */
-export function predict(weather, veldtype) {
+/**
+ * Aandeel natuurgras in de trainingsdata (~0,70). In die data heeft élke
+ * wedstrijd een bekend veldtype: "geen idee" bestaat voor het model niet.
+ * Beide vlaggen op 0 zetten is dus buiten de trainingsverdeling en gaf
+ * onterecht lage kansen. Daarom: "geen idee" = gewogen mix van gras en
+ * kunstgras, met dit aandeel als gewicht.
+ */
+const NATUUR_SHARE = (() => {
+  const j = MODEL.features.indexOf("is_natuurgras");
+  return j < 0 ? 0.7 : MODEL.folds.reduce((s, f) => s + f.mean[j], 0) / MODEL.folds.length;
+})();
+
+/**
+ * Hoe zwaar het kunstgras-effect meetelt (in logit-ruimte, t.o.v. gras).
+ * Het ruwe model is op kunstgras extreem optimistisch (bij hevige vorst of
+ * een zompige week ~4% tegen ~30% op gras). Bevroren of ondergelopen
+ * kunstgras wordt in de praktijk ook afgekeurd, dus we dempen dat effect.
+ * 1 = puur model, 0 = kunstgras telt als gras.
+ */
+const KUNSTGRAS_WEIGHT = 0.75;
+
+const logit = (p) => Math.log(p / (1 - p));
+const sigmoid = (z) => 1 / (1 + Math.exp(-z));
+
+/** Ruwe modelkans voor één veldtype, identiek aan predict_full() in Python. */
+function rawProbability(weather, veldtype) {
   const natuur = veldtype === "natuurgras" ? 1 : 0;
   const feats = {
     precipitation_sum: weather.precipitation,
@@ -116,19 +140,40 @@ export function predict(weather, veldtype) {
     for (let j = 0; j < x.length; j++) z += fold.coef[j] * ((x[j] - fold.mean[j]) / fold.scale[j]);
     p += 1 / (1 + Math.exp(fold.a * z + fold.b));
   }
-  p /= MODEL.folds.length;
+  return p / MODEL.folds.length;
+}
+
+const clampP = (p) => Math.min(1 - 1e-6, Math.max(1e-6, p));
+
+/**
+ * Kans op afgelasting (0..1) + risicolabel.
+ * Gras = puur model. Kunstgras = model met gedempt veldeffect.
+ * Geen idee = gewogen mix van die twee.
+ */
+export function predict(weather, veldtype) {
+  const gras = rawProbability(weather, "natuurgras");
+  const kunstRaw = rawProbability(weather, "kunstgras");
+  const kunst = sigmoid(logit(clampP(gras)) + KUNSTGRAS_WEIGHT * (logit(clampP(kunstRaw)) - logit(clampP(gras))));
+  const p =
+    veldtype === "kunstgras" ? kunst
+      : veldtype === "natuurgras" ? gras
+        : NATUUR_SHARE * gras + (1 - NATUUR_SHARE) * kunst;
 
   const t = MODEL.thresholds;
   const risk = p >= t.p95 ? "zeer hoog" : p >= t.p90 ? "hoog" : p >= t.p75 ? "verhoogd" : "laag";
   return { probability: p, risk, multiplier: p / MODEL.baseline };
 }
 
+/** Ruwe modeluitkomst zonder correcties (voor pariteitstests met Python). */
+export const predictRaw = rawProbability;
+
 /**
  * Welke factor duwt de kans het meest omhoog (of omlaag)?
  * Gemiddelde lineaire bijdrage over de folds, gegroepeerd per begrip.
  */
 export function explain(weather, veldtype) {
-  const natuur = veldtype === "natuurgras" ? 1 : 0;
+  // "Geen idee" = verwachte waarde (zelfde mix als in predict).
+  const natuur = veldtype === "natuurgras" ? 1 : veldtype === "kunstgras" ? 0 : NATUUR_SHARE;
   const x = {
     precipitation_sum: weather.precipitation || 0,
     wind_gusts_max: weather.wind_gusts || 0,
@@ -139,7 +184,7 @@ export function explain(weather, veldtype) {
     frost_days_7d: weather.frost_days_7d || 0,
     rain_days_7d: weather.rain_days_7d || 0,
     is_natuurgras: natuur,
-    is_kunstgras: veldtype === "kunstgras" ? 1 : 0,
+    is_kunstgras: 1 - natuur,
     rain_x_natuur: (weather.precipitation || 0) * natuur,
   };
   const groups = {
