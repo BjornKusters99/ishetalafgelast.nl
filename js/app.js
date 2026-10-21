@@ -310,8 +310,10 @@ function verdictFor(p, w) {
 
 function whyText(weather, veld, p, manual) {
   const c = explain(weather, veld);
-  const entries = Object.entries(c).filter(([k]) => !(manual && k === "week"));
   const up = p >= 0.4;
+  // Veldtype alleen noemen als de gebruiker het echt koos (en het de goede kant op werkt).
+  const veldTelt = up ? veld === "natuurgras" : veld === "kunstgras";
+  const entries = Object.entries(c).filter(([k]) => !(manual && k === "week") && (k !== "veld" || veldTelt));
   const [key] = entries.sort((a, b) => (up ? b[1] - a[1] : a[1] - b[1]))[0];
   const w = weather;
   const lines = up

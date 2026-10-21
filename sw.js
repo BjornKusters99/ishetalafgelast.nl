@@ -1,7 +1,7 @@
 // Offline-schil: de site zelf werkt offline (weer ophalen natuurlijk niet).
 // Statische assets: cache-first. Pagina's: netwerk eerst, cache als vangnet.
 // Verhoog VERSION bij elke release die assets wijzigt.
-const VERSION = "v4-1";
+const VERSION = "v4-2";
 const CORE = [
   "/",
   "/styles.css",
