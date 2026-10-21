@@ -25,6 +25,10 @@ log = logging.getLogger(__name__)
 ROOT = Path(__file__).resolve().parents[1]
 BASE_URL = "https://www.ishetalafgelast.nl"
 
+# Adverteren staat voorlopig uit. Op True zetten om sponsor.html weer te
+# genereren, in de sitemap op te nemen en in de footer te linken.
+SPONSOR_LIVE = False
+
 # (naam, provincie, lat, lon) — coördinaten sync met backend DUTCH_CITIES
 PLAATSEN: list[tuple[str, str, float, float]] = [
     ("Alkmaar", "Noord-Holland", 52.6324, 4.7534),
@@ -151,13 +155,17 @@ def place_page(naam: str, prov: str) -> str:
         "en rekenen uit hoe groot de kans op afgelasting is.</p>"
     ))
     out = swap(out, "intro", (
-        '      <div class="how-intro">\n'
-        f'        <h2 id="hoe-title">Afgelast in {naam}?</h2>\n'
-        f"        <p>{intro}</p>\n"
-        '        <p class="how-proof">Ons model is getraind op <strong>2.100 echte '
-        "amateurwedstrijden</strong>, waarvan 364 werden afgelast. De officiële "
-        f"beslissing ligt bij je club in {naam} en de scheidsrechter.</p>\n"
-        "      </div>"
+        '      <header class="reken-head">\n'
+        f'        <p class="overline">Het rekenwerk voor {naam}</p>\n'
+        f'        <h2 id="reken-title">Afgelast in {naam}? Wij weten het eerder dan de scheids</h2>\n'
+        '        <div class="reken-lede">\n'
+        f"          <p>{intro}</p>\n"
+        '          <p>De scheids, laten we hem <button type="button" class="henk-link">Henk</button> noemen, '
+        "beslist pas op het veld. Ons model heeft <strong>2.100 echte amateurwedstrijden</strong> gezien, "
+        f"waarvan er <strong>364</strong> werden afgelast. De officiële beslissing ligt bij je club in {naam} "
+        "en de scheidsrechter.</p>\n"
+        "        </div>\n"
+        "      </header>"
     ))
     buren = "\n".join(
         f'        <li><a href="/plaatsen/{slug(n)}.html">{n}</a></li>' for n in dichtstbijzijnde(entry, 6)
@@ -180,6 +188,7 @@ def place_page(naam: str, prov: str) -> str:
 def doc_page(title: str, desc: str, path: str, body: str, *, noindex: bool = False) -> str:
     robots = '  <meta name="robots" content="noindex">\n' if noindex else ""
     canon = "" if noindex else f'  <link rel="canonical" href="{BASE_URL}{path}">\n'
+    sponsor_link = '      <a href="/sponsor.html">Adverteren</a>\n' if SPONSOR_LIVE else ""
     return f"""<!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -221,8 +230,7 @@ def doc_page(title: str, desc: str, path: str, body: str, *, noindex: bool = Fal
     <p>Voor iedereen die op zondagochtend in de kelderklasse speelt.</p>
     <nav aria-label="Footer">
       <a href="/plaatsen/">Plaatsen</a>
-      <a href="/sponsor.html">Adverteren</a>
-      <a href="/privacy.html">Privacy</a>
+{sponsor_link}      <a href="/privacy.html">Privacy</a>
     </nav>
     <p class="credit">Weerdata: <a href="https://open-meteo.com/" rel="noopener">Open-Meteo</a> (CC BY 4.0)</p>
   </footer>
@@ -303,7 +311,9 @@ NOT_FOUND = """      <h1>Buitenspel.</h1>
 
 
 def sitemap() -> str:
-    urls = [f"{BASE_URL}/", f"{BASE_URL}/plaatsen/", f"{BASE_URL}/sponsor.html", f"{BASE_URL}/privacy.html"]
+    urls = [f"{BASE_URL}/", f"{BASE_URL}/plaatsen/", f"{BASE_URL}/privacy.html"]
+    if SPONSOR_LIVE:
+        urls.insert(2, f"{BASE_URL}/sponsor.html")
     urls += [f"{BASE_URL}/plaatsen/{quote(slug(n))}.html" for n, _, _, _ in PLAATSEN]
     body = "\n".join(
         f"  <url><loc>{u}</loc><changefreq>weekly</changefreq><priority>{'1.0' if i == 0 else '0.7'}</priority></url>"
@@ -322,17 +332,21 @@ def main() -> None:
     for naam, prov, _, _ in PLAATSEN:
         (out / f"{slug(naam)}.html").write_text(place_page(naam, prov), encoding="utf-8")
     (out / "index.html").write_text(plaatsen_index(), encoding="utf-8")
-    (ROOT / "sponsor.html").write_text(doc_page(
-        "Adverteren en sponsoring",
-        "Adverteren op IsHetAlAfgelast.nl: bereik amateurvoetballers op zondagochtend, regionaal en zonder pop-ups.",
-        "/sponsor.html", SPONSOR), encoding="utf-8")
+    sponsor = ROOT / "sponsor.html"
+    if SPONSOR_LIVE:
+        sponsor.write_text(doc_page(
+            "Adverteren en sponsoring",
+            "Adverteren op IsHetAlAfgelast.nl: bereik amateurvoetballers op zondagochtend, regionaal en zonder pop-ups.",
+            "/sponsor.html", SPONSOR), encoding="utf-8")
+    elif sponsor.exists():
+        sponsor.unlink()
     (ROOT / "privacy.html").write_text(doc_page(
         "Privacy", "Geen cookies, geen trackers. Zo gaat IsHetAlAfgelast.nl met je gegevens om.",
         "/privacy.html", PRIVACY), encoding="utf-8")
     (ROOT / "404.html").write_text(doc_page(
         "Pagina niet gevonden", "Deze pagina bestaat niet.", "/404.html", NOT_FOUND, noindex=True), encoding="utf-8")
     (ROOT / "sitemap.xml").write_text(sitemap(), encoding="utf-8")
-    log.info("%d plaatspagina's + index, sponsor, privacy, 404, sitemap", len(PLAATSEN))
+    log.info("%d plaatspagina's + index, privacy, 404, sitemap (sponsor: %s)", len(PLAATSEN), SPONSOR_LIVE)
 
 
 if __name__ == "__main__":

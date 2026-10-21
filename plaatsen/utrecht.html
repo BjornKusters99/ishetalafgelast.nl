@@ -41,12 +41,21 @@
     <symbol id="i-back" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></symbol>
     <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
     <symbol id="i-chat" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></symbol>
+    <symbol id="i-fb" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M4 4h4.5L20 20h-4.5zM4 20l6.6-6.6M13.4 10.6 20 4"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></symbol>
+    <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="m18 14 4 4-4 4M18 2l4 4-4 4"/><path d="M2 18h1.97a4 4 0 0 0 3.3-1.7l5.46-8.6A4 4 0 0 1 16.03 6H22M2 6h1.97a4 4 0 0 1 3.3 1.7l.82 1.3M22 18h-5.97a4 4 0 0 1-3.3-1.7l-.82-1.3"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
     <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="m5 12 7-7 7 7M12 19V5"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14M19 12l-7 7-7-7"/></symbol>
     <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 48 48"><path d="M17 4c1.5 3 4 4.5 7 4.5S29.5 7 31 4l11 5 4 12-8 3v20H10V24l-8-3 4-12z"/></symbol>
   </svg>
 
   <a class="skip" href="#check">Direct naar de check</a>
+  <p class="sr-only" id="egg-live" aria-live="polite"></p>
 
   <!-- ═══════════ Home ═══════════ -->
   <div id="view-home" class="view">
@@ -57,6 +66,8 @@
           <img src="/img/scenes/kantine-d.webp" alt="" width="1376" height="768" fetchpriority="high">
         </picture>
         <canvas class="stage-fx"></canvas>
+        <div class="blackout"></div>
+        <div class="hotspots" data-eggs="kantine"></div>
       </div>
 
       <header class="topbar">
@@ -64,12 +75,17 @@
           <img src="/img/logo.webp" alt="" width="480" height="248">
         </a>
         <nav class="topnav" aria-label="Hoofdmenu">
-          <a href="#hoe">Hoe het werkt</a>
+          <a href="#rekenwerk">Het rekenwerk</a>
           <a href="/plaatsen/">Plaatsen</a>
         </nav>
       </header>
 
       <div class="scroll scroll--form" id="check">
+        <button type="button" class="sticker" data-share="home" aria-label="Deel IsHetAlAfgelast.nl met je appgroep">
+          <svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg>
+          <span>Gooi in de<br>appgroep!</span>
+        </button>
+
         <!--seo:hero-->
         <h1 id="title">Gaat je potje in Utrecht door?</h1>
         <p class="lede">Wij halen het weer rond je sportpark in Utrecht op en rekenen uit hoe groot de kans op afgelasting is.</p>
@@ -86,26 +102,28 @@
 
           <div class="field field--date">
             <label for="date">Wanneer?</label>
-            <input id="date" name="datum" type="date" required aria-describedby="date-err">
+            <input id="date" name="datum" type="date" required aria-describedby="date-err date-hint">
             <p class="field-err" id="date-err" hidden></p>
+            <p class="field-hint" id="date-hint" hidden></p>
           </div>
 
           <div class="field field--home">
             <label for="home">Thuisploeg <span class="opt">optioneel</span></label>
-            <input id="home" name="thuis" type="text" maxlength="40" placeholder="vv Modderjongens">
+            <input id="home" name="thuis" type="text" maxlength="40" placeholder="Quick Boys">
           </div>
 
           <div class="field field--away">
             <label for="away">Uitploeg <span class="opt">optioneel</span></label>
-            <input id="away" name="uit" type="text" maxlength="40" placeholder="SC Blubberbos">
+            <input id="away" name="uit" type="text" maxlength="40" placeholder="Katwijk" aria-describedby="team-hint">
+            <p class="field-hint" id="team-hint" hidden></p>
           </div>
 
           <fieldset class="field field--veld">
             <legend>Soort veld</legend>
             <div class="seg">
-              <label><input type="radio" name="veld" value="natuurgras"><span>Gras</span></label>
+              <label><input type="radio" name="veld" value="natuurgras" checked><span>Gras</span></label>
               <label><input type="radio" name="veld" value="kunstgras"><span>Kunstgras</span></label>
-              <label><input type="radio" name="veld" value="unknown" checked><span>Geen idee</span></label>
+              <label><input type="radio" name="veld" value="unknown"><span>Geen idee</span></label>
             </div>
           </fieldset>
 
@@ -135,36 +153,96 @@
       </div>
     </section>
 
-    <section class="how" id="hoe" aria-labelledby="hoe-title">
+    <section class="reken" id="rekenwerk" aria-labelledby="reken-title">
       <!--seo:intro-->
-      <div class="how-intro">
-        <h2 id="hoe-title">Afgelast in Utrecht?</h2>
-        <p>Regen, vorst of storm afgelopen nacht? Voor elke wedstrijd in Utrecht halen we het weerbericht van die dag en de zeven dagen ervoor op. Want een veld dat al een week water slurpt, keurt de scheids sneller af.</p>
-        <p class="how-proof">Ons model is getraind op <strong>2.100 echte amateurwedstrijden</strong>, waarvan 364 werden afgelast. De officiële beslissing ligt bij je club in Utrecht en de scheidsrechter.</p>
-      </div>
+      <header class="reken-head">
+        <p class="overline">Het rekenwerk voor Utrecht</p>
+        <h2 id="reken-title">Afgelast in Utrecht? Wij weten het eerder dan de scheids</h2>
+        <div class="reken-lede">
+          <p>Regen, vorst of storm afgelopen nacht? Voor elke wedstrijd in Utrecht halen we het weerbericht van die dag en de zeven dagen ervoor op. Want een veld dat al een week water slurpt, keurt de scheids sneller af.</p>
+          <p>De scheids, laten we hem <button type="button" class="henk-link">Henk</button> noemen, beslist pas op het veld. Ons model heeft <strong>2.100 echte amateurwedstrijden</strong> gezien, waarvan er <strong>364</strong> werden afgelast. De officiële beslissing ligt bij je club in Utrecht en de scheidsrechter.</p>
+        </div>
+      </header>
       <!--/seo:intro-->
-      <ol class="factors">
-        <li>
-          <span class="factor-n">1</span>
-          <div><h3>Regen op de dag zelf</h3><p>Alles boven een paar millimeter maakt een grasveld zompig.</p></div>
-        </li>
-        <li>
-          <span class="factor-n">2</span>
-          <div><h3>De week ervoor</h3><p>Een veld dat al zeven dagen water slurpt, kan niets meer hebben.</p></div>
-        </li>
-        <li>
-          <span class="factor-n">3</span>
-          <div><h3>Vorst</h3><p>Een bevroren veld is keihard en gevaarlijk. Dan is het einde verhaal.</p></div>
-        </li>
-        <li>
-          <span class="factor-n">4</span>
-          <div><h3>Storm</h3><p>Zware windstoten tellen mee, al gaat het daar zelden alleen om.</p></div>
-        </li>
-        <li>
-          <span class="factor-n">5</span>
-          <div><h3>Gras of kunstgras</h3><p>Kunstgras speelt bijna altijd door. Kies het veldtype voor een scherpere uitslag.</p></div>
-        </li>
-      </ol>
+
+      <div class="reken-grid">
+        <figure class="appgroep" aria-label="Voorbeeld: de appgroep op zondagochtend">
+          <div class="appgroep-top" aria-hidden="true">
+            <span class="appgroep-av">Z7</span>
+            <span><strong>Zondag 7 (de echte)</strong><small id="appgroep-typing">Kevin is aan het typen...</small></span>
+          </div>
+          <ol class="appgroep-log" id="appgroep-log">
+            <li><b>Jeroen</b>Gaat het door vandaag??<time>07:58</time></li>
+            <li><b>Trainer Ad</b>Wacht op de scheids.<time>08:02</time></li>
+            <li><b>Dennis (keeper)</b>Mijn handschoenen liggen nog bij m'n schoonvader.<time>08:05</time></li>
+            <li><b>Kevin</b>Ik ben eerlijk gezegd nog een beetje brak.<time>08:11</time></li>
+            <li><b>Rinus (grensrechter)</b>Vroeger speelden we gewoon door. Ook met sneeuw.<time>08:24</time></li>
+            <li class="me">ishetalafgelast.nl zegt 81%. Ik draai me nog een keer om.<time>08:40</time></li>
+          </ol>
+          <button type="button" class="appgroep-more" id="appgroep-more">Meer gezeur laden</button>
+        </figure>
+
+        <div class="opstelling">
+          <h3>De basisopstelling: wat telt het zwaarst</h3>
+          <ol class="factors">
+            <li>
+              <span class="shirt" aria-hidden="true"><svg><use href="#i-shirt"/></svg><b>9</b></span>
+              <div>
+                <h4>De week ervoor <span class="tag">topscorer</span></h4>
+                <p>Een veld dat al zeven dagen water slurpt, kan niks meer hebben. Ook niet als het zondag droog is.</p>
+                <span class="bar" aria-hidden="true"><i></i></span>
+              </div>
+            </li>
+            <li>
+              <span class="shirt" aria-hidden="true"><svg><use href="#i-shirt"/></svg><b>4</b></span>
+              <div>
+                <h4>Vorst <span class="tag">keiharde verdediger</span></h4>
+                <p>Bevroren gras breekt enkels. De bal stuit als een stuiterbal en Henk fluit af.</p>
+                <span class="bar" aria-hidden="true"><i></i></span>
+              </div>
+            </li>
+            <li>
+              <span class="shirt" aria-hidden="true"><svg><use href="#i-shirt"/></svg><b>1</b></span>
+              <div>
+                <h4>Gras of kunstgras <span class="tag">de ondergrond</span></h4>
+                <p>Kunstgras speelt bijna altijd door. Geen idee? Dan rekenen we met de Nederlandse mix: zeven op de tien velden zijn gras.</p>
+                <span class="bar" aria-hidden="true"><i></i></span>
+              </div>
+            </li>
+            <li>
+              <span class="shirt" aria-hidden="true"><svg><use href="#i-shirt"/></svg><b>7</b></span>
+              <div>
+                <h4>Storm <span class="tag">waait alle kanten op</span></h4>
+                <p>Zware windstoten tellen mee, maar het gaat zelden alleen om wind. Behalve voor het dak van de dug-out.</p>
+                <span class="bar" aria-hidden="true"><i></i></span>
+              </div>
+            </li>
+            <li>
+              <span class="shirt" aria-hidden="true"><svg><use href="#i-shirt"/></svg><b>12</b></span>
+              <div>
+                <h4>Regen op de dag zelf <span class="tag">invaller</span></h4>
+                <p>Telt mee, maar minder dan je denkt: een droge week vangt een flinke bui prima op.</p>
+                <span class="bar" aria-hidden="true"><i></i></span>
+              </div>
+            </li>
+          </ol>
+          <p class="bank"><strong>Op de bank:</strong> het humeur van de terreinmeester. Zit niet in ons model. Helaas.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="deelband" aria-labelledby="deel-title">
+      <div class="deelband-inner">
+        <h2 id="deel-title">Er zit altijd één gast in de appgroep die om 07:12 vraagt of het doorgaat.</h2>
+        <p>Stuur hem dit. Scheelt jou veertig berichten.</p>
+        <div class="share-row" data-share-row="home">
+          <a class="btn-share" data-net="wa" href="https://wa.me/" target="_blank" rel="noopener"><svg class="ic"><use href="#i-chat"/></svg> WhatsApp</a>
+          <a class="btn-net" data-net="tg" href="https://t.me/share/url" target="_blank" rel="noopener" aria-label="Deel via Telegram"><svg class="ic"><use href="#i-send"/></svg></a>
+          <a class="btn-net" data-net="fb" href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener" aria-label="Deel via Facebook"><svg class="ic"><use href="#i-fb"/></svg></a>
+          <a class="btn-net" data-net="x" href="https://x.com/intent/post" target="_blank" rel="noopener" aria-label="Deel via X"><svg class="ic"><use href="#i-x"/></svg></a>
+          <button type="button" class="btn-net" data-net="copy" aria-label="Kopieer link"><svg class="ic"><use href="#i-link"/></svg></button>
+        </div>
+      </div>
     </section>
 
     <!--seo:places-->
@@ -188,8 +266,8 @@
     <section class="scene scene--result" aria-labelledby="verdict-word">
       <div class="stage" data-scene="afgelast" aria-hidden="true">
         <picture>
-          <source media="(orientation: portrait)" srcset="/img/scenes/afgelast-m.webp" width="768" height="1376">
-          <img src="/img/scenes/afgelast-d.webp" alt="" width="1394" height="768">
+          <source media="(orientation: portrait)" srcset="/img/scenes/afgelast-m.webp" width="864" height="1296">
+          <img src="/img/scenes/afgelast-d.webp" alt="" width="1536" height="1024">
         </picture>
         <canvas class="stage-fx"></canvas>
         <div class="dg-live" aria-hidden="true">
@@ -201,6 +279,7 @@
           <span class="dg dg-pct" data-bind="pct"></span>
           <span class="dg-liquid"><i></i></span>
         </div>
+        <div class="hotspots" data-eggs="result"></div>
       </div>
 
       <button type="button" class="btn-back" id="btn-back">
@@ -220,35 +299,61 @@
       </div>
     </section>
 
-    <section class="scroll scroll--result" aria-label="Details van de voorspelling">
-      <p class="fun" id="r-fun"></p>
-      <p class="why" id="r-why"></p>
-
+    <section class="scorebord" aria-label="Het weer op de speeldag">
       <dl class="conditions">
         <div><dt><svg class="ic"><use href="#i-temp"/></svg>Temperatuur</dt><dd id="r-temp">-</dd></div>
         <div><dt><svg class="ic"><use href="#i-rain"/></svg>Regen</dt><dd id="r-precip">-</dd></div>
         <div><dt><svg class="ic"><use href="#i-wind"/></svg>Windstoten</dt><dd id="r-wind">-</dd></div>
         <div id="r-week-row"><dt><svg class="ic"><use href="#i-week"/></svg>Week ervoor</dt><dd id="r-week">-</dd></div>
       </dl>
+    </section>
 
-      <figure class="stuit">
-        <div class="stuit-frame">
-          <canvas id="stuit-canvas" aria-hidden="true"></canvas>
-          <button type="button" class="stuit-drop" id="stuit-drop">Laat de bal vallen</button>
+    <section class="scroll rapport" aria-labelledby="rapport-title">
+      <div class="rapport-grid">
+        <figure class="stuit">
+          <div class="stuit-head">
+            <h2 id="rapport-title">De stuitproef van Henk</h2>
+            <button type="button" class="stuit-drop" id="stuit-drop">Nog een keer</button>
+          </div>
+          <div class="stuit-frame">
+            <canvas id="stuit-canvas" aria-hidden="true"></canvas>
+          </div>
+          <figcaption><span id="stuit-cap">Zo stuit de bal op jouw veld volgens het weerbericht.</span> <span class="stuit-tip">Niet op de scheids tikken.</span></figcaption>
+        </figure>
+
+        <div class="verslag">
+          <p class="fun" id="r-fun"></p>
+          <h3>Wat de doorslag gaf</h3>
+          <p class="why" id="r-why"></p>
+          <ul class="weights" id="r-weights"></ul>
         </div>
-        <figcaption><strong>De stuitproef.</strong> <span id="stuit-cap">Zo stuit de bal op jouw veld volgens het weerbericht.</span></figcaption>
-      </figure>
-
-      <div class="share">
-        <a class="btn-share" id="share-wa" href="https://wa.me/" target="_blank" rel="noopener">
-          <svg class="ic"><use href="#i-chat"/></svg> Gooi in de appgroep
-        </a>
-        <button type="button" class="btn-ghost" id="btn-copy">
-          <svg class="ic"><use href="#i-link"/></svg> <span>Kopieer link</span>
-        </button>
+        <div class="share-box">
+          <h3>Gooi 'm in de appgroep</h3>
+          <div class="share-strip">
+            <div class="chat-preview">
+              <p class="bubble" id="share-msg"></p>
+              <button type="button" class="btn-tiny" id="share-shuffle"><svg class="ic"><use href="#i-shuffle"/></svg> Ander berichtje</button>
+            </div>
+            <div class="share-row" data-share-row="result">
+              <a class="btn-share" data-net="wa" id="share-wa" href="https://wa.me/" target="_blank" rel="noopener"><svg class="ic"><use href="#i-chat"/></svg> Stuur naar de appgroep</a>
+              <button type="button" class="btn-net" data-net="native" aria-label="Delen" hidden><svg class="ic"><use href="#i-share"/></svg></button>
+              <a class="btn-net" data-net="tg" href="https://t.me/share/url" target="_blank" rel="noopener" aria-label="Deel via Telegram"><svg class="ic"><use href="#i-send"/></svg></a>
+              <a class="btn-net" data-net="fb" href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener" aria-label="Deel via Facebook"><svg class="ic"><use href="#i-fb"/></svg></a>
+              <a class="btn-net" data-net="x" href="https://x.com/intent/post" target="_blank" rel="noopener" aria-label="Deel via X"><svg class="ic"><use href="#i-x"/></svg></a>
+              <button type="button" class="btn-net" data-net="copy" id="btn-copy" aria-label="Kopieer link"><svg class="ic"><use href="#i-link"/></svg></button>
+            </div>
+          </div>
+        </div>
       </div>
+      <p class="fineprint">Voorspelling op basis van het weerbericht. De vereniging en de scheidsrechter beslissen. Henk heeft altijd gelijk.</p>
+    </section>
 
-      <p class="fineprint">Voorspelling op basis van het weerbericht. De vereniging en de scheidsrechter beslissen.</p>
+    <section class="extra" aria-labelledby="extra-title">
+      <div class="extra-head">
+        <h2 id="extra-title"></h2>
+        <p id="extra-sub"></p>
+      </div>
+      <div class="extra-body" id="extra-body"></div>
     </section>
   </div>
 
@@ -263,6 +368,7 @@
           <li data-step="weer">Weerbericht ophalen</li>
           <li data-step="model">Bal laten stuiten</li>
         </ol>
+        <p class="keuring-chat" id="keuring-chat" aria-hidden="true"></p>
         <p class="keuring-verdict" id="keuring-verdict" hidden></p>
       </div>
     </div>
@@ -279,7 +385,6 @@
     <p>Voor iedereen die op zondagochtend in de kelderklasse speelt.</p>
     <nav aria-label="Footer">
       <a href="/plaatsen/">Plaatsen</a>
-      <a href="/sponsor.html">Adverteren</a>
       <a href="/privacy.html">Privacy</a>
     </nav>
     <p class="credit">Weerdata: <a href="https://open-meteo.com/" rel="noopener">Open-Meteo</a> (CC BY 4.0)</p>
