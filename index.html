@@ -41,7 +41,8 @@
     <symbol id="i-back" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></symbol>
     <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
     <symbol id="i-chat" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
-    <symbol id="i-send" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></symbol>
+    <symbol id="i-ig" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/></symbol>
+    <symbol id="i-tt" viewBox="0 0 24 24"><path d="M9 11.5a4.5 4.5 0 1 0 4.5 4.5V2.5h3a4.5 4.5 0 0 0 4.5 4.5"/></symbol>
     <symbol id="i-fb" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></symbol>
     <symbol id="i-x" viewBox="0 0 24 24"><path d="M4 4h4.5L20 20h-4.5zM4 20l6.6-6.6M13.4 10.6 20 4"/></symbol>
     <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></symbol>
@@ -237,8 +238,9 @@
         <p>Stuur hem dit. Scheelt jou veertig berichten.</p>
         <div class="share-row" data-share-row="home">
           <a class="btn-share" data-net="wa" href="https://wa.me/" target="_blank" rel="noopener"><svg class="ic"><use href="#i-chat"/></svg> WhatsApp</a>
-          <a class="btn-net" data-net="tg" href="https://t.me/share/url" target="_blank" rel="noopener" aria-label="Deel via Telegram"><svg class="ic"><use href="#i-send"/></svg></a>
+          <a class="btn-net" data-net="ig" href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Deel via Instagram (link wordt gekopieerd)"><svg class="ic"><use href="#i-ig"/></svg></a>
           <a class="btn-net" data-net="fb" href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener" aria-label="Deel via Facebook"><svg class="ic"><use href="#i-fb"/></svg></a>
+          <a class="btn-net" data-net="tt" href="https://www.tiktok.com/" target="_blank" rel="noopener" aria-label="Deel via TikTok (link wordt gekopieerd)"><svg class="ic"><use href="#i-tt"/></svg></a>
           <a class="btn-net" data-net="x" href="https://x.com/intent/post" target="_blank" rel="noopener" aria-label="Deel via X"><svg class="ic"><use href="#i-x"/></svg></a>
           <button type="button" class="btn-net" data-net="copy" aria-label="Kopieer link"><svg class="ic"><use href="#i-link"/></svg></button>
         </div>
@@ -343,8 +345,9 @@
             <div class="share-row" data-share-row="result">
               <a class="btn-share" data-net="wa" id="share-wa" href="https://wa.me/" target="_blank" rel="noopener"><svg class="ic"><use href="#i-chat"/></svg> Stuur naar de appgroep</a>
               <button type="button" class="btn-net" data-net="native" aria-label="Delen" hidden><svg class="ic"><use href="#i-share"/></svg></button>
-              <a class="btn-net" data-net="tg" href="https://t.me/share/url" target="_blank" rel="noopener" aria-label="Deel via Telegram"><svg class="ic"><use href="#i-send"/></svg></a>
+              <a class="btn-net" data-net="ig" href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Deel via Instagram (link wordt gekopieerd)"><svg class="ic"><use href="#i-ig"/></svg></a>
               <a class="btn-net" data-net="fb" href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener" aria-label="Deel via Facebook"><svg class="ic"><use href="#i-fb"/></svg></a>
+              <a class="btn-net" data-net="tt" href="https://www.tiktok.com/" target="_blank" rel="noopener" aria-label="Deel via TikTok (link wordt gekopieerd)"><svg class="ic"><use href="#i-tt"/></svg></a>
               <a class="btn-net" data-net="x" href="https://x.com/intent/post" target="_blank" rel="noopener" aria-label="Deel via X"><svg class="ic"><use href="#i-x"/></svg></a>
               <button type="button" class="btn-net" data-net="copy" id="btn-copy" aria-label="Kopieer link"><svg class="ic"><use href="#i-link"/></svg></button>
             </div>

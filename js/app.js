@@ -225,7 +225,6 @@ function setShare(row, text, url) {
   for (const a of row.querySelectorAll("[data-net]")) {
     const net = a.dataset.net;
     if (net === "wa") a.href = `https://wa.me/?text=${enc(`${text} ${url}`)}`;
-    else if (net === "tg") a.href = `https://t.me/share/url?url=${enc(url)}&text=${enc(text)}`;
     else if (net === "fb") a.href = `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`;
     else if (net === "x") a.href = `https://x.com/intent/post?text=${enc(text)}&url=${enc(url)}`;
     else if (net === "native") a.hidden = !navigator.share;
@@ -256,6 +255,16 @@ async function nativeShare(text, url) {
 document.addEventListener("click", async (e) => {
   const el = e.target.closest("[data-net]");
   if (!el) return;
+  // Instagram en TikTok hebben geen deel-link: bericht kopiëren, dan de app openen.
+  if (el.dataset.net === "ig" || el.dataset.net === "tt") {
+    const r = el.getBoundingClientRect();
+    const app = el.dataset.net === "ig" ? "Instagram" : "TikTok";
+    navigator.clipboard?.writeText(`${el.dataset.text} ${el.dataset.url}`).then(
+      () => say(`Link gekopieerd. Plak hem in ${app}.`, r.left + r.width / 2, r.top),
+      () => {},
+    );
+    return;
+  }
   if (el.dataset.net === "copy") {
     e.preventDefault();
     copyLink(el);
