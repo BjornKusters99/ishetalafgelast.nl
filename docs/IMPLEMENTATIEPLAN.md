@@ -29,7 +29,7 @@ en zet de status in de tabel hieronder op ✅.
 | Taak | Issue | Onderwerp | Bevindingen | Status |
 | --- | --- | --- | --- | --- |
 | T01 | [#10](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/10) | Geocoding vindt alle Nederlandse plaatsen | BUG-1, BUG-13, SEO-2 | ✅ |
-| T02 | [#11](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/11) | Handmatig weer rekent met een gemiddelde week | BUG-2, BUG-12 | ☐ |
+| T02 | [#11](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/11) | Handmatig weer rekent met een gemiddelde week | BUG-2, BUG-12 | ✅ |
 | T03 | [#12](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/12) | Eén set drempels, afronding en veilige deeltekst | BUG-5, BUG-10, BUG-16, SEC-5 | ☐ |
 | T04 | [#13](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/13) | Datumhorizon en archiefgrens kloppen | BUG-4, BUG-9 | ☐ |
 | T05 | [#14](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/14) | Service worker haalt verse bestanden en heeft offline-terugval | BUG-3, SEC-1, BUG-14 | ☐ |

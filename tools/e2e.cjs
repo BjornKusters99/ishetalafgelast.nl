@@ -112,7 +112,7 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   await p3.fill("#m-temp", "-3"); await p3.fill("#m-precip", "2"); await p3.fill("#m-wind", "20");
   await p3.click("#btn-check");
   await p3.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
-  ok(await p3.isHidden("#r-week-row"), "handmatig: week-rij verborgen");
+  ok((await p3.textContent("#r-week")).includes("gemiddelde week"), "handmatig: week ervoor als gemiddelde");
   ok(/t=-3/.test(p3.url()), "handmatig weer in URL");
 
   // plaatspagina

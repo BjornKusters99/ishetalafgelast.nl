@@ -158,10 +158,16 @@ const NATUUR_SHARE = (() => {
  */
 const KUNSTGRAS_WEIGHT = 0.75;
 
+const orMean = (v, fold, j) => (Number.isFinite(v) ? v : fold.mean[j]);
 const logit = (p) => Math.log(p / (1 - p));
 const sigmoid = (z) => 1 / (1 + Math.exp(-z));
 
-/** Ruwe modelkans voor één veldtype, identiek aan predict_full() in Python. */
+/**
+ * Ruwe modelkans voor één veldtype, identiek aan predict_full() in Python.
+ * Een ontbrekende waarde (handmatig weer kent de week ervoor niet) krijgt het
+ * trainingsgemiddelde. Met 0 rekende het model met een kurkdroge week zonder
+ * vorst en kwam de kans 2,5 tot 3,4 keer te laag uit.
+ */
 function rawProbability(weather, veldtype) {
   const natuur = veldtype === "natuurgras" ? 1 : 0;
   const feats = {
@@ -177,12 +183,12 @@ function rawProbability(weather, veldtype) {
     is_kunstgras: veldtype === "kunstgras" ? 1 : 0,
     rain_x_natuur: (weather.precipitation || 0) * natuur,
   };
-  const x = MODEL.features.map((f) => (Number.isFinite(feats[f]) ? feats[f] : 0));
+  const x = MODEL.features.map((f) => feats[f]);
 
   let p = 0;
   for (const fold of MODEL.folds) {
     let z = fold.intercept;
-    for (let j = 0; j < x.length; j++) z += fold.coef[j] * ((x[j] - fold.mean[j]) / fold.scale[j]);
+    for (let j = 0; j < x.length; j++) z += fold.coef[j] * ((orMean(x[j], fold, j) - fold.mean[j]) / fold.scale[j]);
     p += 1 / (1 + Math.exp(fold.a * z + fold.b));
   }
   return p / MODEL.folds.length;
@@ -223,11 +229,11 @@ export function explain(weather, veldtype) {
     precipitation_sum: weather.precipitation || 0,
     wind_gusts_max: weather.wind_gusts || 0,
     temperature_mean: weather.temperature || 0,
-    precip_7d_sum: weather.precip_7d_sum || 0,
-    precip_3d_sum: weather.precip_3d_sum || 0,
-    precip_1d: weather.precip_1d || 0,
-    frost_days_7d: weather.frost_days_7d || 0,
-    rain_days_7d: weather.rain_days_7d || 0,
+    precip_7d_sum: weather.precip_7d_sum,
+    precip_3d_sum: weather.precip_3d_sum,
+    precip_1d: weather.precip_1d,
+    frost_days_7d: weather.frost_days_7d,
+    rain_days_7d: weather.rain_days_7d,
     is_natuurgras: natuur,
     is_kunstgras: 1 - natuur,
     rain_x_natuur: (weather.precipitation || 0) * natuur,
@@ -245,7 +251,7 @@ export function explain(weather, veldtype) {
     for (const f of feats) {
       const j = MODEL.features.indexOf(f);
       if (j < 0) continue;
-      for (const fold of MODEL.folds) out[g] += (fold.coef[j] * (x[f] - fold.mean[j])) / fold.scale[j] / MODEL.folds.length;
+      for (const fold of MODEL.folds) out[g] += (fold.coef[j] * (orMean(x[f], fold, j) - fold.mean[j])) / fold.scale[j] / MODEL.folds.length;
     }
   }
   return out;
