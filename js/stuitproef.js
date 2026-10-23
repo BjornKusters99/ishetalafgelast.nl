@@ -366,13 +366,24 @@ export const REF_MOUTH = [70, -230];
 
 /* ───────── fysica-profiel ───────── */
 
+/**
+ * Stemming bij kans p, op het getoonde (afgeronde) percentage. Uitslag,
+ * Henks tekst en de bal gebruiken allemaal deze ene grens, zodat 36% nooit
+ * "Gaat door" met "Henk twijfelt" combineert.
+ */
+export function moodFor(p) {
+  const pct = Math.round(p * 100);
+  return pct >= 60 ? "afgelast" : pct >= 40 ? "twijfel" : "doorgaat";
+}
+
 /** Hoe gedraagt de bal zich bij kans p en dit weer? */
 export function bounceProfile(p, w) {
   const frozen = w && (w.temperature < 0 || (w.frost_days_7d >= 2 && w.temperature < 2));
   const wet = w && (w.precipitation > 2 || w.precip_7d_sum > 18);
-  if (p > 0.5 && frozen) return { e: 0.72, sink: 0, ground: "ice", key: "ijs" };
-  if (p > 0.5) return { e: clamp(0.36 - (p - 0.5) * 1.1, 0.03, 0.3), sink: wet ? 0.42 : 0.18, ground: "mud", key: "prut" };
-  if (p > 0.35) return { e: 0.36, sink: 0, ground: wet ? "mud" : "grass", key: "twijfel" };
+  const mood = moodFor(p);
+  if (mood === "afgelast" && frozen) return { e: 0.72, sink: 0, ground: "ice", key: "ijs" };
+  if (mood === "afgelast") return { e: clamp(0.36 - (p - 0.6) * 1.1, 0.03, 0.3), sink: wet ? 0.42 : 0.18, ground: "mud", key: "prut" };
+  if (mood === "twijfel") return { e: 0.36, sink: 0, ground: wet ? "mud" : "grass", key: "twijfel" };
   return { e: clamp(0.78 - p * 0.9, 0.5, 0.76), sink: 0, ground: frozen ? "ice" : "grass", key: "stuit" };
 }
 
