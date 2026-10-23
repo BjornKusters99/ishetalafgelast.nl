@@ -5,7 +5,10 @@ import { MODEL } from "./model.js";
 const GEO_URL = "https://geocoding-api.open-meteo.com/v1/search";
 const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
 const ARCHIVE_URL = "https://archive-api.open-meteo.com/v1/archive";
-const MAX_DAYS_AHEAD = 15;
+// Dag +15 levert bij Open-Meteo geen volledige dagwaarden meer op.
+export const MAX_DAYS_AHEAD = 14;
+// De forecast-API kent ongeveer 42 dagen terug; het archief loopt een paar dagen achter.
+const ARCHIVE_BEFORE_DAYS = -30;
 const DAY_MS = 86_400_000;
 const REQUEST_TIMEOUT_MS = 12_000;
 
@@ -15,6 +18,17 @@ export class UserError extends Error {}
 const isoDay = (d) => d.toISOString().slice(0, 10);
 const parseDay = (iso) => new Date(`${iso}T00:00:00Z`);
 const todayUtc = () => parseDay(new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Amsterdam" }));
+
+/** Aantal dagen van vandaag (Nederlandse tijd) tot de speeldag; negatief = verleden. */
+export const daysAhead = (iso) => Math.round((parseDay(iso) - todayUtc()) / DAY_MS);
+
+/** Foutmelding als er voor deze speeldag nog geen weerbericht is, anders "". */
+export function horizonError(iso) {
+  const n = daysAhead(iso);
+  return n > MAX_DAYS_AHEAD
+    ? `Je wedstrijd is over ${n} dagen. Weersvoorspellingen gaan ${MAX_DAYS_AHEAD} dagen vooruit: vul hieronder het weer zelf in of kom later terug.`
+    : "";
+}
 
 /** Controleer ook kalenderdagen, niet alleen de vorm van een gedeelde datum. */
 export function isValidDay(iso) {
@@ -81,22 +95,18 @@ export async function geocode(query, signal) {
 
 /**
  * Weer op de wedstrijddag + de zeven dagen ervoor, in één call.
- * Verleden (tot ~3 maanden) en toekomst (tot 15 dagen) via de forecast-API,
- * ouder via de archief-API.
+ * Recent verleden en toekomst (tot 14 dagen) via de forecast-API, ouder dan
+ * 30 dagen via de archief-API.
  */
 export async function fetchWeather(lat, lon, isoDate, signal) {
   if (!isValidDay(isoDate)) throw new UserError("Kies een geldige speeldag.");
   if (!Number.isFinite(lat) || Math.abs(lat) > 90 || !Number.isFinite(lon) || Math.abs(lon) > 180) {
     throw new UserError("De locatie van het sportpark is ongeldig.");
   }
+  const tooFar = horizonError(isoDate);
+  if (tooFar) throw new UserError(tooFar);
   const day = parseDay(isoDate);
-  const daysAhead = Math.round((day - todayUtc()) / DAY_MS);
-  if (daysAhead > MAX_DAYS_AHEAD) {
-    throw new UserError(
-      `Je wedstrijd is over ${daysAhead} dagen. Weersvoorspellingen gaan ${MAX_DAYS_AHEAD} dagen vooruit: vul het weer zelf in of kom later terug.`,
-    );
-  }
-  const base = daysAhead < -80 ? ARCHIVE_URL : FORECAST_URL;
+  const base = daysAhead(isoDate) < ARCHIVE_BEFORE_DAYS ? ARCHIVE_URL : FORECAST_URL;
   const params = new URLSearchParams({
     latitude: lat.toFixed(4),
     longitude: lon.toFixed(4),

@@ -1,4 +1,4 @@
-import { searchPlaces, geocode, fetchWeather, predict, explain, isValidDay, UserError, BASELINE } from "./engine.js";
+import { searchPlaces, geocode, fetchWeather, predict, explain, isValidDay, horizonError, UserError, BASELINE } from "./engine.js";
 import { mountStage } from "./scene.js";
 import { Stuitproef, bounceProfile, moodFor } from "./stuitproef.js";
 import { say, parade, mountHotspots, mountAppgroep } from "./eggs.js";
@@ -155,6 +155,11 @@ function validate(q) {
   }
   if (!isValidDay(q.date)) {
     setFieldError(dateInput, "Kies de speeldag.");
+    ok = false;
+  } else if (!q.manual && horizonError(q.date)) {
+    // Meteen melden, niet pas na de keuring, en de uitweg alvast openklappen.
+    setFieldError(dateInput, horizonError(q.date));
+    $("#manual").open = true;
     ok = false;
   }
   if (!ok) form.querySelector('[aria-invalid="true"]')?.focus();

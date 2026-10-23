@@ -190,3 +190,14 @@ for (const page of pages) {
     assert.doesNotMatch(html, /\son[a-z]+="/, "geen inline event handlers");
   });
 }
+
+test("forecast horizon is 14 days and older matches use the archive", async () => {
+  const urls = [];
+  const api = engineWith(async (url) => { urls.push(new URL(url)); return { ok: true, json: async () => ({}) }; });
+  const ahead = (n) => new Date(Date.now() + n * 864e5).toLocaleDateString("sv-SE", { timeZone: "Europe/Amsterdam" });
+  await assert.rejects(api.fetchWeather(52, 5, ahead(15)), /14 dagen vooruit/);
+  for (const [n, host] of [[14, "api.open-meteo.com"], [-29, "api.open-meteo.com"], [-31, "archive-api.open-meteo.com"], [-60, "archive-api.open-meteo.com"]]) {
+    await assert.rejects(api.fetchWeather(52, 5, ahead(n)), /volledig weerbericht/);
+    assert.equal(urls.at(-1).host, host, `dag ${n}`);
+  }
+});
