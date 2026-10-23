@@ -2,7 +2,7 @@ name: Secure Pages
 
 on:
   push:
-    branches: [master, fix/security-pages]
+    branches: [master]
   pull_request:
     branches: [master]
   workflow_dispatch:
@@ -40,7 +40,15 @@ jobs:
         run: |
           npm run build
           git diff --exit-code -- index.html plaatsen privacy.html 404.html sitemap.xml
-      - run: npx --no-install playwright install --with-deps chromium
+      # De runner heeft Chrome al; installeren met apt-afhankelijkheden kost ~11 minuten.
+      - name: Use the runner's Chrome or install Chromium
+        shell: bash
+        run: |
+          if chrome=$(command -v google-chrome); then
+            echo "CHROME=$chrome" >> "$GITHUB_ENV"
+          else
+            npx --no-install playwright install --with-deps chromium
+          fi
       - name: Test public artefact in browser
         shell: bash
         run: |
