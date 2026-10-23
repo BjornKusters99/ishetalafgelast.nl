@@ -119,18 +119,37 @@ test("form and shared links use the same numeric limits", () => {
   assert.deepEqual(JSON.parse(JSON.stringify(context.api.fromParams(new URLSearchParams(`datum=${DATE}&t=999&r=-5&w=999`)).manual)), { temperature: 40, precipitation: 0, wind_gusts: 200 });
 });
 
-function workerWith(response) {
+function workerWith(response, { cached = {}, offline = false } = {}) {
   const handlers = {};
   const writes = [];
   const deleted = [];
-  const context = vm.createContext({ URL, Response, location: { origin: "https://example.test" },
-    self: { addEventListener: (name, fn) => { handlers[name] = fn; }, clients: { claim: async () => {} } },
-    fetch: async () => response,
-    caches: { open: async () => ({ put: async (key) => writes.push(key), match: async () => undefined }),
-      keys: async () => ["v5-2", "ishetalafgelast-old", "other-app"], delete: async (key) => deleted.push(key) } });
+  const precached = [];
+  // In een worker lost een relatief pad op tegen de eigen origin; in Node niet.
+  const SwRequest = class extends Request { constructor(path, init) { super(new URL(path, "https://example.test"), init); } };
+  const context = vm.createContext({ URL, Request: SwRequest, Response, location: { origin: "https://example.test" },
+    self: { addEventListener: (name, fn) => { handlers[name] = fn; }, clients: { claim: async () => {} }, skipWaiting: async () => {} },
+    fetch: async () => { if (offline) throw new TypeError("offline"); return response; },
+    caches: { open: async () => ({ put: async (key) => writes.push(key), match: async (key) => cached[key],
+      addAll: async (requests) => precached.push(...requests) }),
+    keys: async () => ["v5-2", "ishetalafgelast-old", "other-app"], delete: async (key) => deleted.push(key) } });
   vm.runInContext(worker, context);
-  return { handlers, writes, deleted };
+  return { handlers, writes, deleted, precached };
 }
+
+test("worker precache bypasses the HTTP cache so a release cannot pin old files", async () => {
+  const fake = workerWith(new Response("ok"));
+  let pending;
+  fake.handlers.install({ waitUntil: (promise) => { pending = promise; } });
+  await pending;
+  assert.ok(fake.precached.length > 5);
+  for (const request of fake.precached) assert.equal(request.cache, "reload", request.url);
+});
+
+test("worker shows the cached app offline for a page it never saw", async () => {
+  const home = new Response("home");
+  const fake = workerWith(null, { offline: true, cached: { "/": home } });
+  assert.equal(await navigate(fake, "/plaatsen/ede.html"), home);
+});
 
 async function navigate(fake, pathname) {
   const pending = [];
