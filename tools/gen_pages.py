@@ -309,7 +309,7 @@ PRIVACY = """      <h1>Privacy</h1>
 NOT_FOUND = """      <h1>Buitenspel.</h1>
       <p>Deze pagina bestaat niet, of hij is afgelast. De vlag gaat omhoog, maar de
       check werkt gewoon.</p>
-      <p>Deze link ging er niet in. Net als elke penalty op de keeper van EGS 6.</p>
+      <p>Deze link is gehouden. Door een hele goede keeper.</p>
       <ul class="doc-links">
         <li><a href="/">Check je wedstrijd</a></li>
         <li><a href="/plaatsen/">Alle plaatsen</a></li>
