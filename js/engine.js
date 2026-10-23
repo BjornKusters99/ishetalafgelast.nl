@@ -7,6 +7,7 @@ const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
 const ARCHIVE_URL = "https://archive-api.open-meteo.com/v1/archive";
 const MAX_DAYS_AHEAD = 15;
 const DAY_MS = 86_400_000;
+const REQUEST_TIMEOUT_MS = 12_000;
 
 /** Fout met een tekst die rechtstreeks aan de gebruiker getoond mag worden. */
 export class UserError extends Error {}
@@ -15,24 +16,50 @@ const isoDay = (d) => d.toISOString().slice(0, 10);
 const parseDay = (iso) => new Date(`${iso}T00:00:00Z`);
 const todayUtc = () => parseDay(new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Amsterdam" }));
 
+/** Controleer ook kalenderdagen, niet alleen de vorm van een gedeelde datum. */
+export function isValidDay(iso) {
+  return typeof iso === "string" && /^\d{4}-\d{2}-\d{2}$/.test(iso)
+    && Number.isFinite(parseDay(iso).getTime()) && isoDay(parseDay(iso)) === iso;
+}
+
 async function getJson(url, signal) {
-  let resp;
+  const controller = new AbortController();
+  const abort = () => controller.abort();
+  const timer = setTimeout(abort, REQUEST_TIMEOUT_MS);
+  signal?.addEventListener("abort", abort, { once: true });
+  if (signal?.aborted) abort();
   try {
-    resp = await fetch(url, { signal });
+    const resp = await fetch(url, { signal: controller.signal, credentials: "omit", referrerPolicy: "no-referrer" });
+    if (!resp.ok) throw new UserError("De weerdienst reageert even niet. Probeer het zo nog eens.");
+    return await resp.json();
   } catch (err) {
-    if (err.name === "AbortError") throw err;
+    if (signal?.aborted || err instanceof UserError) throw err;
+    if (controller.signal.aborted) throw new UserError("De weerdienst reageert te langzaam. Probeer het opnieuw.");
+    if (err instanceof SyntaxError) throw new UserError("De weerdienst gaf een ongeldig antwoord. Probeer het opnieuw.");
     throw new UserError("Geen verbinding met de weerdienst. Check je internet en probeer opnieuw.");
+  } finally {
+    clearTimeout(timer);
+    signal?.removeEventListener("abort", abort);
   }
-  if (!resp.ok) throw new UserError("De weerdienst reageert even niet. Probeer het zo nog eens.");
-  return resp.json();
 }
 
 /** Zoek een Nederlandse plaats. Geeft lijst {name, region, lat, lon}. */
 export async function searchPlaces(query, signal, count = 6) {
+  if (typeof query !== "string" || query.length > 80 || !Number.isInteger(count) || count < 1 || count > 6) {
+    throw new UserError("Vul een plaatsnaam van maximaal 80 tekens in.");
+  }
   const q = query.trim();
   if (q.length < 2) return [];
   const url = `${GEO_URL}?name=${encodeURIComponent(q)}&count=${count * 2}&language=nl&format=json`;
   const data = await getJson(url, signal);
+  if (!data || typeof data !== "object" || (data.results !== undefined && !Array.isArray(data.results))) {
+    throw new UserError("De weerdienst gaf ongeldige plaatsgegevens. Probeer het opnieuw.");
+  }
+  if ((data.results || []).some((r) => !r || typeof r.name !== "string" || typeof r.country_code !== "string"
+    || !Number.isFinite(r.latitude) || Math.abs(r.latitude) > 90
+    || !Number.isFinite(r.longitude) || Math.abs(r.longitude) > 180)) {
+    throw new UserError("De weerdienst gaf ongeldige plaatsgegevens. Probeer het opnieuw.");
+  }
   return (data.results || [])
     .filter((r) => r.country_code === "NL")
     .slice(0, count)
@@ -53,6 +80,10 @@ export async function geocode(query, signal) {
  * ouder via de archief-API.
  */
 export async function fetchWeather(lat, lon, isoDate, signal) {
+  if (!isValidDay(isoDate)) throw new UserError("Kies een geldige speeldag.");
+  if (!Number.isFinite(lat) || Math.abs(lat) > 90 || !Number.isFinite(lon) || Math.abs(lon) > 180) {
+    throw new UserError("De locatie van het sportpark is ongeldig.");
+  }
   const day = parseDay(isoDate);
   const daysAhead = Math.round((day - todayUtc()) / DAY_MS);
   if (daysAhead > MAX_DAYS_AHEAD) {
@@ -70,14 +101,23 @@ export async function fetchWeather(lat, lon, isoDate, signal) {
     end_date: isoDate,
   });
   const data = await getJson(`${base}?${params}`, signal);
-  const d = data.daily;
-  if (!d?.time?.length) throw new UserError("Voor deze datum is (nog) geen weer bekend. Vul het weer zelf in.");
+  const d = data?.daily;
+  const limits = {
+    temperature_2m_mean: [-90, 60],
+    temperature_2m_min: [-90, 60],
+    precipitation_sum: [0, 2000],
+    wind_gusts_10m_max: [0, 500],
+  };
+  if (!Array.isArray(d?.time) || d.time.length !== 8
+    || d.time.some((date, i) => date !== isoDay(new Date(day - (7 - i) * DAY_MS)))
+    || Object.entries(limits).some(([key, [lo, hi]]) => !Array.isArray(d[key]) || d[key].length !== 8
+      || d[key].some((v) => !Number.isFinite(v) || v < lo || v > hi))) {
+    throw new UserError("Voor deze datum is geen volledig weerbericht bekend. Vul het weer zelf in of probeer het later.");
+  }
 
-  const i = d.time.indexOf(isoDate);
-  if (i < 0) throw new UserError("Voor deze datum is (nog) geen weer bekend. Vul het weer zelf in.");
-  const num = (v) => (typeof v === "number" && Number.isFinite(v) ? v : 0);
-  const prevPrecip = d.precipitation_sum.slice(0, i).map(num);
-  const prevMin = d.temperature_2m_min.slice(0, i).map(num);
+  const i = 7;
+  const prevPrecip = d.precipitation_sum.slice(0, i);
+  const prevMin = d.temperature_2m_min.slice(0, i);
   const sum = (a) => a.reduce((s, v) => s + v, 0);
 
   return {

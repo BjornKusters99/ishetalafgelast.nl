@@ -1,4 +1,4 @@
-import { searchPlaces, geocode, fetchWeather, predict, explain, UserError, BASELINE } from "./engine.js";
+import { searchPlaces, geocode, fetchWeather, predict, explain, isValidDay, UserError, BASELINE } from "./engine.js";
 import { mountStage } from "./scene.js";
 import { Stuitproef, bounceProfile } from "./stuitproef.js";
 import { say, parade, mountHotspots, mountAppgroep } from "./eggs.js";
@@ -116,16 +116,16 @@ function setFieldError(input, msg) {
 function readForm() {
   const manual = $("#manual").open;
   return {
-    city: cityInput.value.trim(),
+    city: cityInput.value.trim().slice(0, 80),
     date: dateInput.value,
-    home: $("#home").value.trim(),
-    away: $("#away").value.trim(),
+    home: $("#home").value.trim().slice(0, 40),
+    away: $("#away").value.trim().slice(0, 40),
     veld: form.elements.veld.value || "natuurgras",
     manual: manual
       ? {
-          temperature: Number($("#m-temp").value) || 0,
-          precipitation: Math.max(0, Number($("#m-precip").value) || 0),
-          wind_gusts: Math.max(0, Number($("#m-wind").value) || 0),
+          temperature: clampNum($("#m-temp").value, -30, 40, 6),
+          precipitation: clampNum($("#m-precip").value, 0, 200, 0),
+          wind_gusts: clampNum($("#m-wind").value, 0, 200, 30),
         }
       : null,
   };
@@ -153,7 +153,7 @@ function validate(q) {
     setFieldError(cityInput, "Vul de plaats van het sportpark in.");
     ok = false;
   }
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(q.date)) {
+  if (!isValidDay(q.date)) {
     setFieldError(dateInput, "Kies de speeldag.");
     ok = false;
   }
@@ -412,6 +412,7 @@ function waitForTapOr(ms) {
 
 async function runCheck(q, push) {
   if (busy) return;
+  if (!validate(q)) return;
   busy = true;
   $("#btn-check").disabled = true;
   openKeuring();
@@ -884,5 +885,5 @@ if (initial) {
 void homeStage;
 
 if ("serviceWorker" in navigator && location.protocol === "https:") {
-  addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
+  addEventListener("load", () => navigator.serviceWorker.register("/sw.js", { updateViaCache: "none" }).catch(() => {}));
 }

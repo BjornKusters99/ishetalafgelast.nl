@@ -1,0 +1,12 @@
+{
+  "name": "ishetalafgelast",
+  "private": true,
+  "scripts": {
+    "test": "node --test tools/test_security.mjs && python3 -m unittest discover -s tools -p 'test_*.py'",
+    "test:e2e": "node tools/e2e.cjs && node tools/test_worker.cjs",
+    "build": "python3 tools/gen_pages.py && python3 tools/build_site.py"
+  },
+  "devDependencies": {
+    "playwright": "1.64.1"
+  }
+}

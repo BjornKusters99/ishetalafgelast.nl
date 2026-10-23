@@ -14,3 +14,21 @@ desktop.ini
 
 # Windows/WSL metadata rommel
 *Zone.Identifier
+
+# Lokale geheimen en niet-publieke modelbestanden
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.joblib
+*.pickle
+*.pkl
+.venv/
+__pycache__/
+node_modules/
+_site/
+.playwright-cli/
+test-results/
+playwright-report/

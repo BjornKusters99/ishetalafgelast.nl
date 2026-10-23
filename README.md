@@ -61,19 +61,45 @@ python3 tools/gen_pages.py
   worden per plaats vervangen. Wijzig `index.html` en draai dit opnieuw.
 - `export_model.py`: na hertrainen van het model opnieuw draaien.
 
-Na het wijzigen van assets: verhoog `VERSION` in `sw.js`.
+De publicatiebuild geeft `sw.js` automatisch een cacheversie op basis van
+alle publieke bestanden. Test de build, niet een oude `_site`-map.
 
 ## Lokaal testen
 
-```
-python3 -m http.server 8765
-# in een tweede terminal (playwright-core + een Chromium nodig):
-NODE_PATH=<map met node_modules/playwright-core> CHROME=<pad naar chromium> node tools/e2e.cjs
+```bash
+npm ci --ignore-scripts
+npm test
+npm run build
+npx --no-install playwright install chromium
+python3 -m http.server 8765 --bind 127.0.0.1 --directory _site
+# in een tweede terminal:
+npm run test:e2e
 ```
 
 `tools/e2e.cjs` mockt Open-Meteo en loopt de hele flow door: validatie,
 uitslag, delen, terug/vooruit, deeplinks, foutgevallen, plaatspagina's en de
 easter eggs.
+
+## Veilige publicatie
+
+`master` is beschermd: wijzigingen gaan via een pull request en de verplichte
+`security-checks`. De workflow `.github/workflows/pages.yml` test het publieke
+artefact en publiceert uitsluitend vanaf `master`; fork-PR's krijgen geen
+deployrechten. Actions zijn beperkt tot GitHub Actions en gepind op commit-SHA.
+
+`tools/build_site.py` maakt een nieuwe `_site`-map met alleen runtimebestanden.
+`docs/`, `tools/`, `art/`, Gitbestanden en lokale configuratie blijven buiten
+de website. Bestaat `_site` al, gebruik dan `--output` met een nieuwe lege
+bestemming of verwijder uitsluitend je eigen oude buildmap vóór opnieuw bouwen.
+Een public repo en de benodigde frontend-JavaScript blijven openbaar leesbaar.
+
+HTTPS wordt afgedwongen. API-antwoorden worden gevalideerd en verzoeken hebben
+een timeout. Resultaatlinks kunnen bij delen/herladen bij hosting terechtkomen;
+zie `privacy.html`. Er worden geen referrers meegestuurd.
+
+Resterende eigenaarstaken, hostingbeperkingen en incidentherstel staan in
+`docs/security/BEHEER.md`. Een private repo, betaalde hosting of backend is niet
+automatisch nodig voor deze statische site.
 
 ## Easter eggs
 
