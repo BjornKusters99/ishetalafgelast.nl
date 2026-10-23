@@ -56,7 +56,9 @@
 
   <a class="skip" href="#check">Direct naar de check</a>
   <p class="sr-only" id="egg-live" aria-live="polite"></p>
+  <p class="sr-only" id="keuring-live" role="status"></p>
 
+  <main id="main">
   <!-- ═══════════ Home ═══════════ -->
   <div id="view-home" class="view">
     <section class="scene scene--home" aria-labelledby="title">
@@ -81,7 +83,7 @@
       </header>
 
       <div class="scroll scroll--form" id="check">
-        <button type="button" class="sticker" data-share="home" aria-label="Deel IsHetAlAfgelast.nl met je appgroep">
+        <button type="button" class="sticker" data-share="home" aria-label="Gooi in de appgroep! Deel IsHetAlAfgelast.nl met je teamgenoten">
           <svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg>
           <span>Gooi in de<br>appgroep!</span>
         </button>
@@ -107,14 +109,18 @@
             <p class="field-hint" id="date-hint" hidden></p>
           </div>
 
+          <button type="button" class="teams-toggle" id="teams-toggle" aria-expanded="false" aria-controls="home away">
+            + Teamnamen toevoegen <span class="opt">optioneel</span>
+          </button>
+
           <div class="field field--home">
             <label for="home">Thuisploeg <span class="opt">optioneel</span></label>
-            <input id="home" name="thuis" type="text" maxlength="40" placeholder="Quick Boys">
+            <input id="home" name="thuis" type="text" maxlength="40" placeholder="bijv. Quick Boys">
           </div>
 
           <div class="field field--away">
             <label for="away">Uitploeg <span class="opt">optioneel</span></label>
-            <input id="away" name="uit" type="text" maxlength="40" placeholder="Katwijk" aria-describedby="team-hint">
+            <input id="away" name="uit" type="text" maxlength="40" placeholder="bijv. Katwijk" aria-describedby="team-hint">
             <p class="field-hint" id="team-hint" hidden></p>
           </div>
 
@@ -365,9 +371,11 @@
     </section>
   </div>
 
+  </main>
+
   <!-- ═══════════ Veldkeuring (laden + onthulling) ═══════════ -->
   <div class="keuring" id="keuring" hidden>
-    <div class="keuring-inner" role="status" aria-live="polite">
+    <div class="keuring-inner">
       <canvas id="keuring-canvas" aria-hidden="true"></canvas>
       <div class="keuring-text">
         <h2 id="keuring-title">Veldkeuring</h2>
