@@ -1,7 +1,7 @@
 // End-to-end check met gemockt weer. Zie README ("Testen").
-//   python3 -m http.server 8765        (in de repo-root)
-//   NODE_PATH=<map met playwright-core> CHROME=<pad naar chromium> node tools/e2e.cjs
-const { chromium } = require("playwright-core");
+//   python3 -m http.server 8765 --directory _site
+//   npm run test:e2e (Playwright/Chromium vooraf installeren)
+const { chromium } = require("playwright");
 const exe = process.env.CHROME || undefined;
 const BASE = process.env.BASE || "http://127.0.0.1:8765";
 let fails = 0;
@@ -118,6 +118,32 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   const p4 = await ctx.newPage();
   await p4.goto(BASE + "/plaatsen/utrecht.html", { waitUntil: "networkidle" });
   ok((await p4.inputValue("#city")) === "Utrecht", "plaatspagina vooringevuld");
+
+  // Invoer uit een gedeelde link blijft tekst, ook als die HTML bevat.
+  const xss = await ctx.newPage();
+  await mock(xss, { t: 14, r: 0, wind: 15, r7: 2 });
+  await xss.goto(BASE + "/?" + new URLSearchParams({ plaats: "Oss", datum: new Date().toISOString().slice(0, 10), thuis: '<img src=x onerror="window.xss=1">' }));
+  await xss.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
+  ok((await xss.textContent("#r-kicker")).includes("<img"), "HTML-teamnaam blijft tekst");
+  ok(await xss.evaluate(() => window.xss === undefined), "geen scriptuitvoering uit teamnaam");
+  const invalid = await ctx.newPage();
+  await invalid.goto(BASE + "/?datum=2026-02-30&t=4");
+  ok(await invalid.isVisible("#date-err"), "ongeldige deeplinkdatum afgewezen");
+  ok(!(await invalid.isVisible("#keuring")), "ongeldige deeplink start geen keuring");
+
+  const badWeather = await ctx.newPage();
+  await mock(badWeather);
+  await badWeather.route("**/api.open-meteo.com/**", (rt) => rt.fulfill({ json: { daily: { time: ["2026-10-25"] } } }));
+  await badWeather.goto(BASE + "/");
+  await badWeather.fill("#city", "Oss");
+  await badWeather.click("#btn-check");
+  await badWeather.waitForSelector("#toast:not([hidden])", { timeout: 8000 });
+  ok((await badWeather.textContent("#toast-text")).includes("volledig weerbericht"), "onvolledig weer geeft fout, geen kans");
+  ok(await badWeather.isEnabled("#btn-check"), "formulier herstelt na API-fout");
+  ok((await page.getAttribute('meta[name="referrer"]', "content")) === "no-referrer", "geen querygegevens in referrer");
+  for (const path of ["/HANDOVER.md", "/tools/export_model.py", "/docs/security.md"]) {
+    ok((await ctx.request.get(BASE + path)).status() === 404, "niet-publiek pad geeft 404: " + path);
+  }
 
   ok(errs.length === 0, "geen JS-fouten " + errs.join(" | "));
   await b.close();

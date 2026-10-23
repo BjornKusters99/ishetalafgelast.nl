@@ -112,7 +112,7 @@ TEMPLATE = (ROOT / "index.html").read_text(encoding="utf-8")
 NO_SCRIPT_CSP = (
     '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; '
     "script-src 'none'; style-src 'self'; font-src 'self'; img-src 'self'; "
-    "base-uri 'self'; form-action 'none';\">"
+    "object-src 'none'; base-uri 'none'; form-action 'none';\">"
 )
 
 
@@ -199,7 +199,7 @@ def doc_page(title: str, desc: str, path: str, body: str, *, noindex: bool = Fal
 {robots}{canon}  <meta property="og:image" content="{BASE_URL}/img/og.jpg">
   <meta name="theme-color" content="#2c1b11">
   {NO_SCRIPT_CSP}
-  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="referrer" content="no-referrer">
   <link rel="icon" href="/img/icon-48.png" type="image/png">
   <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
   <link rel="preload" href="/fonts/lilita-one.woff2" as="font" type="font/woff2" crossorigin>
@@ -285,9 +285,12 @@ PRIVACY = """      <h1>Privacy</h1>
       <p>Kort: we willen niets van je weten, en dat lukt aardig.</p>
       <h2>Wat er gebeurt als je checkt</h2>
       <p>De berekening gebeurt in je eigen browser. De plaatsnaam en de coördinaten van
-      die plaats gaan naar <a href="https://open-meteo.com/en/terms" rel="noopener">Open-Meteo</a>,
-      een Europese weerdienst, om het weerbericht op te halen. Teamnamen verlaten je
-      browser niet, behalve als je zelf een link deelt: die staan dan in de link.</p>
+      die plaats gaan rechtstreeks naar <a href="https://open-meteo.com/en/terms" rel="noopener">Open-Meteo</a>,
+      om het weerbericht op te halen. Open-Meteo ontvangt daarbij ook je IP-adres.</p>
+      <p>Plaats, datum en ingevulde teamnamen staan in de resultaatlink. Bij delen,
+      bezoeken of opnieuw laden ontvangt de hostingdienst deze URL; ontvangers en
+      het gekozen deelplatform kunnen de link ook lezen. Technische logs kunnen
+      URL's bevatten. Vul geen namen van personen of andere privégegevens in.</p>
       <h2>Wat we niet doen</h2>
       <ul>
         <li>Geen cookies, geen accounts, geen trackers.</li>
