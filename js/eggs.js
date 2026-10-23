@@ -7,6 +7,13 @@ const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 const live = document.getElementById("egg-live");
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
 
+// Shout-outs: de juicher met de paardenstaart in het kantineraam speelt bij
+// EGS'20 Vrouwen; het schild aan de muur is van EGS 6, en hun keeper.
+const CLUB = "EGS'20";
+const SHOUTOUT = `Applaus voor ${CLUB} Vrouwen!`;
+const KAMPIOENEN = "Kampioenen! EGS 6! Olé olé olé!";
+const KEEPER = "Beste keeper ooit? Die van EGS 6.";
+
 /* ─────────── tekstballon ─────────── */
 
 let bubbleEl = null;
@@ -97,19 +104,25 @@ const SPOTS = {
       ["tap", 0, 49.5, 10.9, 14.3],
       ["beker", 81, 43, 6.9, 18.9],
       ["huilers", 61.8, 33.2, 10.9, 12.4],
-      ["juichers", 28, 31.3, 8.7, 12.4],
+      ["juichers", 28, 31.3, 5.4, 12.4],
+      ["egs20", 33.4, 31.3, 3.8, 12.4],
       ["lamp", 18, 11.5, 5, 5.5],
       ["lamp", 77.5, 11.5, 5, 5.5],
       ["shirt", 87.2, 31.3, 6.2, 19.5],
       ["fust", 92.3, 83.3, 7.7, 16.7],
+      ["plaquette", 74.8, 23.6, 5.2, 9.6],
+      ["prikbord", 8.6, 29, 7.3, 20],
     ],
     m: [
       ["vaantje", 0, 12.4, 14.3, 13.1],
       ["huilers", 64.5, 25.8, 15.6, 6.2],
-      ["juichers", 19.5, 24.7, 14.3, 6.5],
+      ["juichers", 19.5, 24.7, 8.2, 6.5],
+      ["egs20", 27.7, 24.7, 6.4, 6.5],
       ["shirt", 85.3, 21, 9.4, 11],
       ["beker", 84.6, 50.9, 15.4, 11.6],
       ["tap", 0, 53, 14.3, 11],
+      ["plaquette", 85.2, 35, 9.3, 5.7],
+      ["prikbord", 0.7, 27, 14, 22],
     ],
   },
   afgelast: {
@@ -142,6 +155,8 @@ const SPOTS = {
       ["ballon", 25.4, 0, 8.2, 19.4],
       ["handdruk", 45.7, 63.5, 8.6, 9.1],
       ["hond", 0, 63.5, 6.4, 9.1],
+      ["speelster", 5.5, 67, 7.5, 14],
+      ["keeper", 70.6, 38.6, 4.2, 16],
     ],
   },
 };
@@ -153,27 +168,90 @@ const LINES = {
     "Kampioen 4e klasse F, seizoen '97. Wordt elke week gepoetst.",
     "Er staat 'Kampioen' op. Daaronder, heel klein: 'van de reserves'.",
     "Niet aankomen. Vingerafdrukken.",
+    "Na het kampioenschap van EGS 6 is hier bier uit gedronken. Door de keeper. Met handschoenen aan.",
   ],
-  huilers: ["Scheids! Dat was HANDS!", "Ze huilen al sinds de warming-up.", "Bij afgelasting verliezen ze in elk geval niet."],
+  huilers: [
+    "Scheids! Dat was HANDS!",
+    "Ze huilen al sinds de warming-up.",
+    "Bij afgelasting verliezen ze in elk geval niet.",
+    "De scheids heeft nog niks gefloten. Ze huilen preventief.",
+  ],
   juichers: ["Spitsen. Die juichen ook bij een inworp.", "Ze juichen omdat het doorgaat. Of omdat het bier gratis is."],
-  lamp: ["Wie heeft de meterkast weer dichtgedaan?", "Terreinmeester! Stroom!"],
-  shirt: ["Rugnummer 14. Nooit gewassen. Brengt geluk.", "Dit shirt ruikt nog naar de promotie van 2011."],
-  fust: ["Het fust is leeg. Wie was er gisteren?", "Hier zit de kas van de feestcommissie in. Geloof ik."],
-  slaper: ["Nog vijf minuutjes...", "Zzz... nee scheids... die was binnen... zzz", "Laat hem. Hij is vandaag koning van het bed."],
+  egs20: [
+    `Speelster van ${CLUB} Vrouwen. Kwam even laten zien hoe juichen moet.`,
+    `${CLUB} Vrouwen vragen nooit of het doorgaat. Die staan om tien uur gewoon op het veld.`,
+    "Het biertje in haar hand? Weddenschap gewonnen. Van de heren.",
+    "Haar paardenstaart maakt meer loopacties dan onze hele middenlinie.",
+    `Wie zegt dat vrouwenvoetbal langzamer is, heeft nog nooit tegen ${CLUB} gespeeld.`,
+    "Ze juicht niet om de uitslag. Ze juicht omdat haar hele team op tijd was. Allemaal.",
+    `Derde helft bij ${CLUB} Vrouwen: begint om vijf uur, eindigt als de stoelen op tafel staan.`,
+  ],
+  lamp: ["Wie heeft de meterkast weer dichtgedaan?", "Terreinmeester! Stroom!", "Deze lamp is ouder dan de kleedkamers. En doet het beter."],
+  shirt: [
+    "Rugnummer 14. Nooit gewassen. Brengt geluk.",
+    "Dit shirt ruikt nog naar de promotie van 2011.",
+    "Gesigneerd door een Leeuwin. Welke? Dat weet de penningmeester niet meer.",
+  ],
+  fust: [
+    "Het fust is leeg. Wie was er gisteren?",
+    "Hier zit de kas van de feestcommissie in. Geloof ik.",
+    "Dit fust is leeggedronken op het kampioensfeest van EGS 6. In één helft.",
+  ],
+  plaquette: [
+    "EGS 6. Kampioen! Bij elke derde helft wordt het verhaal een beetje mooier.",
+    "Na het laatste fluitsignaal hing half EGS 6 in z'n nakie aan de lat. Die lat hangt sindsdien een beetje scheef.",
+    "Het kampioensfeest van EGS 6 duurde drie dagen. De tap is er nooit helemaal van hersteld.",
+    "Het geheim van EGS 6: de beste keeper van alle amateurvelden van Nederland. Ongeslagen, ongewassen, onvergetelijk.",
+    "Op de kampioensfoto staan er vier zonder broek. De keeper had wél z'n handschoenen nog aan. Professional.",
+    "Na het kampioensfeest heeft de terreinmeester het doel laten desinfecteren. Twee keer.",
+    "Niet aankomen. Wordt elke zondag gepoetst. Door de keeper van EGS 6, met keepershandschoenen.",
+  ],
+  prikbord: [
+    "Gezocht: speelsters voor Vrouwen 2. Kicksen kun je lenen, zin moet je zelf meenemen.",
+    "Gevonden: één scheenbeschermer. Links. Hangt hier sinds september.",
+    `Krantenknipsel over ${CLUB} Vrouwen. Iemand heeft er drie hartjes bij getekend.`,
+    "Leeuwinnen kijken in de kantine! Bitterballen van de club.",
+    "Gezocht: de keeper van EGS 6. Voor een handtekening. Of drie.",
+    "Wasschema: deze week neemt Anouk de shirts mee. Sterkte, Anouk.",
+    "Rooster bardienst zondag: nog niemand. Weer niet.",
+  ],
+  speelster: [
+    "Eerste op het veld, laatste uit de kantine. Aanvoerder, uiteraard.",
+    `Speelt bij ${CLUB} Vrouwen. Haar sliding is in drie gemeenten verboden.`,
+    "Vijftien jaar geen training gemist. Eén wedstrijd wel, voor een bruiloft. Die van haarzelf.",
+    "Ze vroeg Henk of het doorging. Henk zei ja. Zij stond al twintig minuten omgekleed.",
+    "Haar vrije trappen gaan er altijd in. De muur weet het en gaat alvast opzij.",
+  ],
+  keeper: [
+    "Keeper. Prima keeper. Maar geen keeper van EGS 6.",
+    "Hij heeft gehoord dat de keeper van EGS 6 komt kijken. Zenuwen.",
+    "Hij laat er gemiddeld één per wedstrijd door. De keeper van EGS 6 deed dat per seizoen.",
+    "Handschoenen omhoog, net als zijn grote voorbeeld. Raad eens van welk team.",
+  ],
+  slaper: [
+    "Nog vijf minuutjes...",
+    "Zzz... nee scheids... die was binnen... zzz",
+    "Laat hem. Hij is vandaag koning van het bed.",
+    "Hij droomt dat hij een penalty stopt. De keeper van EGS 6 hoeft daar niet voor te slapen.",
+  ],
   ballen: ["Drie ballen kwijt. Wie heeft de netten?", "Waterpolo is ook een sport, toch?", "De wedstrijdbal drijft richting de Noordzee."],
   vlag: ["De hoekvlag gaat er zwemmend vandoor. Succes, vlaggetje."],
-  foto: ["Het elftal van '84. Zelfde snor als Henk.", "Die met de beker is Henk. Toen nog met haar."],
+  foto: [
+    "Het elftal van '84. Zelfde snor als Henk.",
+    "Die met de beker is Henk. Toen nog met haar.",
+    "Nee wacht, dit is EGS 6 na het kampioenschap. Daarom staat de keeper in het midden.",
+  ],
   bier: ["Proost op de afgelasting!", "De derde helft begint vroeg vandaag."],
   pizza: ["Pizza van gisteren. Ontbijt van kampioenen.", "Koolhydraten stapelen voor een wedstrijd die niet doorgaat. Topsport."],
   lampje: ["Lampje uit, dekbed over je hoofd. Telefoon op stil."],
-  geit: ["Mèèèh. De geit is als enige altijd op tijd.", "Die geit staat al drie seizoenen in de basis."],
+  geit: ["Mèèèh. De geit is als enige altijd op tijd.", "Die geit staat al drie seizoenen in de basis.", "De geit eet de reclameborden op. De sponsor vindt het prima."],
   kip: ["Tok. Waarom staat er een kip op het veld? Kelderklasse.", "De kip maakt meer loopacties dan onze spits."],
   handstand: ["Hij oefent z'n salto voor als hij scoort. Gebeurt nooit.", "Opwarmen, kelderklasse-stijl."],
-  camera: ["Studio Sport? Nee, de vader van Kevin.", "Alles wordt gefilmd. Ook jouw pass in de sloot."],
+  camera: ["Studio Sport? Nee, de vader van Kevin.", "Alles wordt gefilmd. Ook jouw pass in de sloot.", "Dit filmpje staat over drie jaar op de clubsite."],
   kaart: ["Rood! Voor de grensrechter. Weer.", "Kaarten uitdelen voor de aftrap. Efficiënt."],
-  ballon: ["Zo komt de uitploeg aan. Te laat, natuurlijk."],
-  handdruk: ["Nu nog vrienden. We spreken elkaar om vijf uur in de kantine."],
-  hond: ["Woef. Ook de hond heeft een spelerspas."],
+  ballon: ["Zo komt de uitploeg aan. Te laat, natuurlijk.", "Met de luchtballon. Parkeren bij het sportpark is ook zo'n gedoe."],
+  handdruk: ["Nu nog vrienden. We spreken elkaar om vijf uur in de kantine.", "Fair play. Tot de eerste sliding."],
+  hond: ["Woef. Ook de hond heeft een spelerspas.", "De hond haalt alle ballen terug. Beter dan de wissels."],
 };
 
 const counts = {};
@@ -200,6 +278,8 @@ function act(id, el, x, y) {
   if (id === "lamp") blackout(el.closest(".stage"));
   if ((id === "tap" && n % 3 === 0) || id === "bier") foam(x, y);
   if (id === "kaart") parade("Rood. Iedereen naar de kantine.");
+  if (id === "egs20" && n % LINES.egs20.length === 1) parade(SHOUTOUT);
+  if (id === "plaquette" && n % LINES.plaquette.length === 1) parade(KAMPIOENEN);
   say(text, x, y);
 }
 
@@ -304,7 +384,7 @@ export function parade(text = "PRRRT! Iedereen naar de kantine!") {
   requestAnimationFrame(frame);
 }
 
-/* ─────────── toetsenbord: Konami of "henk" ─────────── */
+/* ─────────── toetsenbord: Konami, "henk", "egs20", "egs6" of "keeper" ─────────── */
 
 const KONAMI = "ArrowUp ArrowUp ArrowDown ArrowDown ArrowLeft ArrowRight ArrowLeft ArrowRight b a";
 let keys = [];
@@ -314,30 +394,109 @@ addEventListener("keydown", (e) => {
   const seq = keys.join(" ");
   if (seq.endsWith(KONAMI)) parade("Cheatcode? Gele kaart. En nu spelen.");
   else if (seq.toLowerCase().endsWith("h e n k")) parade("Je riep?");
+  else if (seq.toLowerCase().endsWith("e g s 2 0")) parade(SHOUTOUT);
+  else if (seq.toLowerCase().endsWith("e g s 6")) parade(KAMPIOENEN);
+  else if (seq.toLowerCase().endsWith("k e e p e r")) parade(KEEPER);
 });
 
 /* ─────────── appgroep op de homepage ─────────── */
 
-const GEZEUR = [
-  ["Sander", "Ik heb m'n sleutels in de kleedkamer laten liggen. Van vorige week."],
-  ["Trainer Ad", "Wie neemt de sinaasappels mee?"],
-  ["Kevin", "Ik zit nog in de stad. Is dat erg?"],
-  ["Mo", "Bij ons in de straat ligt sneeuw. Eén vlokje maar."],
-  ["Dennis (keeper)", "Handschoenen gevonden. In de vriezer. Lang verhaal."],
-  ["Rinus (grensrechter)", "Ik neem de vlag mee. En m'n thermosfles."],
-  ["Jeroen", "Gaat het nou door of niet??"],
-  ["Bas", "Mijn moeder vraagt of ze moet rijden."],
-  ["Trainer Ad", "Iedereen om 09:15 bij de kantine. Ook Kevin."],
-  ["Kevin", "Kevin heeft de groep verlaten."],
+// Elke bezoeker zit in één van twee appgroepen. De chat tijdens de veldkeuring
+// komt uit dezelfde groep.
+const GROUPS = [
+  {
+    name: "Zondag 7 (de echte)",
+    av: "Z7",
+    intro: [
+      ["Jeroen", "Gaat het door vandaag??", "07:58"],
+      ["Trainer Ad", "Wacht op de scheids.", "08:02"],
+      ["Dennis (keeper)", "Mijn handschoenen liggen nog bij m'n schoonvader.", "08:05"],
+      ["Kevin", "Ik ben eerlijk gezegd nog een beetje brak.", "08:11"],
+      ["Rinus (grensrechter)", "Vroeger speelden we gewoon door. Ook met sneeuw.", "08:24"],
+    ],
+    typing: ["Kevin", "Jeroen", "Trainer Ad", "Rinus", "Dennis"],
+    gezeur: [
+      ["Sander", "Ik heb m'n sleutels in de kleedkamer laten liggen. Van vorige week."],
+      ["Trainer Ad", "Wie neemt de sinaasappels mee?"],
+      ["Kevin", "Ik zit nog in de stad. Is dat erg?"],
+      ["Mo", "Bij ons in de straat ligt sneeuw. Eén vlokje maar."],
+      ["Dennis (keeper)", "Handschoenen gevonden. In de vriezer. Lang verhaal."],
+      ["Rinus (grensrechter)", "Ik neem de vlag mee. En m'n thermosfles."],
+      ["Dennis (keeper)", "Ze vergelijken me wéér met de keeper van EGS 6. Oneerlijke vergelijking."],
+      ["Jeroen", "Gaat het nou door of niet??"],
+      ["Bas", "Mijn moeder vraagt of ze moet rijden."],
+      ["Trainer Ad", "Iedereen om 09:15 bij de kantine. Ook Kevin."],
+      ["Kevin", "Kevin heeft de groep verlaten."],
+    ],
+    keuring: [
+      ["Jeroen", "gaat het door??"],
+      ["Trainer Ad", "niemand gaat naar huis voor de scheids er is"],
+      ["Kevin", "ik lig nog in bed, hou me op de hoogte"],
+      ["Dennis (keeper)", "mijn handschoenen zijn nog nat van vorige week"],
+      ["Rinus", "vroeger speelden we gewoon door"],
+      ["Bas", "wie heeft de sleutel van het materiaalhok?"],
+      ["Mo", "het regent hier niet. wel een beetje. best veel eigenlijk"],
+      ["Sander", "ik neem wel de bitterballen mee"],
+    ],
+  },
+  {
+    name: "Vrouwen 2 (de gezelligste)",
+    av: "V2",
+    intro: [
+      ["Lotte", "Gaat het door vandaag??", "07:58"],
+      ["Trainer Mirjam", "Wacht op de scheids. Warming-up om 11:15, niet om 11:25.", "08:02"],
+      ["Daphne (keeper)", "Mijn handschoenen liggen nog in de auto van m'n zus.", "08:05"],
+      ["Fleur", "Ik ben eerlijk gezegd nog een beetje brak. Vrijgezellenfeest.", "08:11"],
+      ["Ingrid (leider)", "Vroeger kleedden we ons om in het ballenhok. En we speelden gewoon.", "08:24"],
+    ],
+    typing: ["Fleur", "Lotte", "Trainer Mirjam", "Ingrid", "Daphne"],
+    gezeur: [
+      ["Sanne", "Wie heeft de shirts? O wacht. Die liggen al twee weken in mijn wasmand."],
+      ["Trainer Mirjam", "Wie neemt de sinaasappels mee?"],
+      ["Esmee", "Heeft iemand een haarelastiekje over? Vraag voor een vriendin. Ik ben de vriendin."],
+      ["Yasmina", "Bij ons in de straat ligt sneeuw. Eén vlokje maar."],
+      ["Ingrid (leider)", "De JO17 heeft ons veld weer ingepikt. We spelen op veld 4, achter de kantine."],
+      ["Daphne (keeper)", "Handschoenen gevonden. In de vriezer. Lang verhaal."],
+      ["Lotte", "Gaat het nou door of niet??"],
+      ["Romy", `Als het hier niet doorgaat, gaan we bij ${CLUB} kijken. Kunnen we wat leren.`],
+      ["Romy", "Mijn vriend vraagt of hij moet rijden."],
+      ["Trainer Mirjam", "Iedereen om 11:15 bij de kantine. Ook Fleur."],
+      ["Fleur", "Fleur heeft de groep verlaten."],
+    ],
+    keuring: [
+      ["Lotte", "gaat het door??"],
+      ["Trainer Mirjam", "niemand gaat naar huis voor de scheids er is"],
+      ["Fleur", "ik lig nog in bed, hou me op de hoogte"],
+      ["Daphne (keeper)", "mijn handschoenen zijn nog nat van vorige week"],
+      ["Ingrid (leider)", "vroeger speelden we altijd op veld 4. nu eigenlijk ook nog"],
+      ["Sanne", "wie heeft de sleutel van het materiaalhok?"],
+      ["Yasmina", "het regent hier niet. wel een beetje. best veel eigenlijk"],
+      ["Romy", "ik neem wel de bitterballen mee"],
+    ],
+  },
 ];
+export const appgroep = pick(GROUPS);
 let gezeurI = 0;
+
+function chatLine(who, msg, time) {
+  const li = document.createElement("li");
+  li.append(Object.assign(document.createElement("b"), { textContent: who }), msg,
+    Object.assign(document.createElement("time"), { textContent: time }));
+  return li;
+}
 
 export function mountAppgroep() {
   const log = document.getElementById("appgroep-log");
   const btn = document.getElementById("appgroep-more");
   const typing = document.getElementById("appgroep-typing");
   if (!log || !btn) return;
-  const names = ["Kevin", "Jeroen", "Trainer Ad", "Rinus", "Dennis"];
+  const { name, av, intro, typing: names, gezeur } = appgroep;
+  const top = typing.closest(".appgroep-top");
+  top.querySelector(".appgroep-av").textContent = av;
+  top.querySelector("strong").textContent = name;
+  typing.textContent = `${names[0]} is aan het typen...`;
+  const me = log.querySelector(".me");
+  log.replaceChildren(...intro.map((line) => chatLine(...line)), me);
   let ni = 0;
   setInterval(() => {
     if (document.hidden) return;
@@ -345,18 +504,17 @@ export function mountAppgroep() {
     typing.textContent = `${names[ni]} is aan het typen...`;
   }, 2600);
   btn.addEventListener("click", () => {
-    const [who, msg] = GEZEUR[gezeurI++ % GEZEUR.length];
-    const li = document.createElement("li");
+    const [who, msg] = gezeur[gezeurI++ % gezeur.length];
     const now = new Date();
+    let li;
     if (msg.endsWith("verlaten.")) {
+      li = document.createElement("li");
       li.className = "sys";
       li.textContent = msg;
     } else {
-      li.append(Object.assign(document.createElement("b"), { textContent: who }), msg,
-        Object.assign(document.createElement("time"), { textContent: now.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" }) }));
+      li = chatLine(who, msg, now.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" }));
     }
     li.classList.add("is-new");
-    const me = log.querySelector(".me");
     log.insertBefore(li, me);
     while (log.children.length > 8) log.firstElementChild.remove();
   });
@@ -365,7 +523,7 @@ export function mountAppgroep() {
 /* ─────────── console ─────────── */
 
 console.log(
-  "%c PRRRT! %c\nKijk jij nou in de broncode tijdens de wedstrijd?\nHenk ziet alles. Gele kaart.\n\nTip: typ ergens op de pagina 'henk'.",
+  "%c PRRRT! %c\nKijk jij nou in de broncode tijdens de wedstrijd?\nHenk ziet alles. Gele kaart.\n\nTip: typ ergens op de pagina 'henk'.\n\nPS: deze site is gemaakt door de keeper van EGS 6. Die houdt ook bugs tegen.",
   "background:#e7ac3c;color:#2b1a10;font:bold 22px sans-serif;padding:4px 10px;border:3px solid #2b1a10;border-radius:8px",
   "color:#8e2216;font:14px sans-serif",
 );

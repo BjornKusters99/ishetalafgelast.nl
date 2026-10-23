@@ -93,7 +93,7 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   await p2.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
   ok((await p2.textContent("#verdict-word")) === "Verwachting: Gaat door", "deeplink + droog weer -> Gaat door");
   ok((await p2.textContent("[data-bind=pct]")).endsWith("%"), "live bord gevuld");
-  ok((await p2.locator(".tas li").count()) === 10, "tas-check bij doorgaan");
+  ok((await p2.locator(".tas li").count()) === 11, "tas-check bij doorgaan");
 
   // onbekende plaats
   const p3 = await ctx.newPage();

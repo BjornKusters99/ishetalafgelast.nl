@@ -1,7 +1,7 @@
 import { searchPlaces, geocode, fetchWeather, predict, explain, isValidDay, horizonError, daysAhead, UserError, BASELINE } from "./engine.js";
 import { mountStage } from "./scene.js";
 import { Stuitproef, bounceProfile, moodFor } from "./stuitproef.js";
-import { say, parade, mountHotspots, mountAppgroep } from "./eggs.js";
+import { say, parade, mountHotspots, mountAppgroep, appgroep } from "./eggs.js";
 
 const $ = (s, el = document) => el.querySelector(s);
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
@@ -299,7 +299,7 @@ document.addEventListener("click", async (e) => {
 
 const HOME_SHARE = [
   "Gaat ons potje door? Check het hier in 10 seconden, dan hoeft niemand om 07:12 de appgroep te spammen.",
-  "Mannen, vanaf nu geen 'gaat het door??' meer in de groep. Gewoon hier checken:",
+  "Team, vanaf nu geen 'gaat het door??' meer in de groep. Gewoon hier checken:",
   "Afgelast of niet? Deze site laat de bal alvast stuiten:",
 ];
 const homeShareText = pick(HOME_SHARE);
@@ -311,7 +311,9 @@ $(".sticker").addEventListener("click", async () => {
   window.open(`https://wa.me/?text=${enc(`${homeShareText} ${homeUrl}`)}`, "_blank", "noopener");
 });
 
-$(".henk-link").addEventListener("click", () => parade("Ik ben Henk. Ik fluit al sinds 1987."));
+const HENK = ["Ik ben Henk. Ik fluit al sinds 1987.", "Buitenspel? Dat is een mening.", "Verlenging? Alleen in de kantine.", "Beste keeper ooit? Die van EGS 6."];
+let henkI = 0;
+$(".henk-link").addEventListener("click", () => parade(HENK[henkI++ % HENK.length]));
 
 // Opstelling-balken groeien zodra de sectie in beeld komt.
 const reken = $(".reken");
@@ -335,16 +337,6 @@ const STEP_TEXT = {
   model: ["Bal laten stuiten", "Henk laat de bal vallen", "Noppen in het gras prikken", "Rekenen, met de rekenmachine van de penningmeester"],
 };
 const KEURING_TITLE = ["Veldkeuring", "Henk keurt het veld", "Even wachten op de scheids", "Keuring bezig"];
-const KEURING_CHAT = [
-  ["Jeroen", "gaat het door??"],
-  ["Trainer Ad", "niemand gaat naar huis voor de scheids er is"],
-  ["Kevin", "ik lig nog in bed, hou me op de hoogte"],
-  ["Dennis (keeper)", "mijn handschoenen zijn nog nat van vorige week"],
-  ["Rinus", "vroeger speelden we gewoon door"],
-  ["Bas", "wie heeft de sleutel van het materiaalhok?"],
-  ["Mo", "het regent hier niet. wel een beetje. best veel eigenlijk"],
-  ["Sander", "ik neem wel de bitterballen mee"],
-];
 const KEURING_LINES = {
   ijs: [
     "De bal stuit als een gek: het veld is keihard bevroren. Afgekeurd.",
@@ -377,7 +369,7 @@ function setStep(name, state) {
 let chatTimer = 0;
 function startChat() {
   const el = $("#keuring-chat");
-  const lines = [...KEURING_CHAT].sort(() => Math.random() - 0.5);
+  const lines = [...appgroep.keuring].sort(() => Math.random() - 0.5);
   let i = 0;
   const show = () => {
     const [who, msg] = lines[i++ % lines.length];
@@ -518,13 +510,14 @@ async function runCheck(q, push, quick = false) {
 const FUN = {
   afgelast: [
     "Kratje binnen handbereik. Wel even wachten op het bericht van je club.",
-    "Het veld is officieel een zwembad. Neem je zwembroek mee, niet je kicksen.",
+    "Het veld is officieel een zwembad. Neem je zwemspullen mee, niet je kicksen.",
     "De terreinmeester keek één keer naar buiten en ging weer slapen.",
     "Geen voetbal, wel derde helft. Iemand moet het bier toch opdrinken.",
     "Zelfs de eenden op de middenstip hebben afgezegd.",
     "Je hamstrings sturen een bedankkaartje.",
     "De kantinejuffrouw heeft de frituur al uitgezet.",
-    "Je trainer appt 'zonde hè'. Hij meent er niks van.",
+    "Je trainer appt 'zonde hè'. Meent er niks van.",
+    "Tijd voor de samenvatting van de Vrouwen Eredivisie. Daar wordt tenminste gevoetbald.",
   ],
   twijfel: [
     "Hou je tas klaar, maar zet de wekker nog niet.",
@@ -541,13 +534,14 @@ const FUN = {
     "Vergeet je reserveshirt niet. En de sinaasappels.",
     "Er wordt gevoetbald. De kantine gaat om half twaalf open.",
     "Je knie zegt nee, het weer zegt ja. Het weer wint.",
-    "De grensrechter heeft z'n vlag al gestreken. Je moet.",
+    "De grensrechter heeft de vlag al gestreken. Je moet.",
+    "Haar in een staart, scheenbeschermers in. Geen excuses meer.",
   ],
 };
 
 const SHARE_MSG = {
   afgelast: [
-    "Mannen, {pct}% kans op afgelasting voor {wed}. Nog even wachten op de club, maar het ziet er slecht uit.",
+    "Team, {pct}% kans op afgelasting voor {wed}. Nog even wachten op de club, maar het ziet er slecht uit.",
     "{wed}: {pct}% kans dat het niet doorgaat. Henk gaat de bal niet eens laten vallen.",
     "Afgelast-alarm: {pct}% kans voor {wed}. Wie regelt de derde helft?",
     "{pct}% kans op afgelasting voor {wed}. Henk, kijk jij even naar het veld?",
@@ -562,6 +556,7 @@ const SHARE_MSG = {
     "{wed} gaat waarschijnlijk door ({pct}% kans op afgelasting). Wie neemt de sinaasappels mee?",
     "Geen smoesjes: {wed} gaat waarschijnlijk door, {pct}% kans op afgelasting. Om 09:15 bij de kantine.",
     "Kicksen poetsen: {wed} gaat waarschijnlijk door ({pct}% kans op afgelasting). Kevin, jij ook.",
+    "{wed} gaat waarschijnlijk door ({pct}% kans op afgelasting). Wie heeft de shirts nog in de wasmand?",
   ],
 };
 
@@ -684,7 +679,7 @@ const PROGRAMMA = [
   ["09:00", ["Wekker uit. Telefoon op stil. Omdraaien.", "Wakker worden van de regen. Glimlachen. Omdraaien."]],
   ["10:30", ["Ontbijt: restje pizza van gisteren.", "Appgroep lezen: 47 berichten, 0 nieuws.", "Kicksen toch even poetsen. Uit schuldgevoel."]],
   ["12:30", ["Lunch bij schoonmoeder. Ze vraagt of je nog steeds voetbalt.", "FIFA. Daar wordt het veld nooit afgekeurd.", "Wandelen. Langs het sportpark. Even kijken hoe nat het is."]],
-  ["14:30", ["Eredivisie op de bank. Roepen dat jij 'm wél had gemaakt.", "Middagdutje. Het is tenslotte rustdag.", "Het schuurtje opruimen. Grapje."]],
+  ["14:30", ["Eredivisie op de bank. Roepen dat jij 'm wél had gemaakt.", "Vrouwen Eredivisie kijken. Aantekeningen maken voor volgende week.", "Middagdutje. Het is tenslotte rustdag.", "Het schuurtje opruimen. Grapje."]],
   ["17:00", ["Toch even naar de kantine. Voor de sociale contacten.", "Derde helft zonder eerste en tweede helft.", "Bitterballen. Niet verdiend, wel genomen."]],
   ["20:00", ["Vroeg naar bed. Volgende week weer.", "Wedstrijdverslag lezen van een wedstrijd die niet gespeeld is.", "Trainer appt: 'dinsdag extra conditie'. Lekker."]],
 ];
@@ -696,6 +691,7 @@ const TAS = [
   "Handdoek",
   "Douchespul",
   "Tape voor de enkels",
+  "Haarelastiekjes, meer dan je denkt",
   "Bidon",
   "Pinpas voor de kantine",
   "Reserveveters",
@@ -741,7 +737,7 @@ function renderExtra(mood) {
       const all = [...ul.querySelectorAll("input")].every((c) => c.checked);
       done.hidden = !all;
       if (all) {
-        done.textContent = pick(["Tas compleet. Nu alleen nog winnen.", "Alles erin. Zelfs de deo. Respect.", "Henk keurt je tas goed. Je spel nog niet."]);
+        done.textContent = pick(["Tas compleet. Nu alleen nog winnen.", "Alles erin. Zelfs de deo. Respect.", "Henk keurt je tas goed. Je spel nog niet.", "Zo compleet als de keeper van EGS 6. Bijna dan."]);
         resultStage.burst();
       }
     });
