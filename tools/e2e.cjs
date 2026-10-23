@@ -196,8 +196,11 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   const tp = await touch.newPage();
   await tp.goto(BASE + "/", { waitUntil: "networkidle" });
   await tp.tap("label:has(input[name=veld][value=kunstgras])");
+  // De achtergrond loopt via een korte transitie naar inkt; wacht die af in plaats van direct te meten.
+  const segDark = await tp.waitForFunction(() => getComputedStyle(document.querySelector("input[name=veld][value=kunstgras] + span")).backgroundColor === "rgb(43, 26, 16)",
+    null, { timeout: 3000 }).then(() => true, () => false);
   const seg = await tp.$eval("input[name=veld][value=kunstgras] + span", (s) => getComputedStyle(s).backgroundColor);
-  ok(seg === "rgb(43, 26, 16)", `touch: gekozen veldtype blijft zichtbaar (${seg})`);
+  ok(segDark, `touch: gekozen veldtype blijft zichtbaar (${seg})`);
   await tp.tap("#btn-check");
   ok((await tp.$eval("#btn-check", (el) => getComputedStyle(el).backgroundImage)).includes("gradient"), "touch: knop houdt zijn goud na tik");
   const sticker = await tp.$eval(".sticker", (el) => [el.innerText.replace(/\s+/g, " ").trim(), el.getAttribute("aria-label")]);
