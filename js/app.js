@@ -17,6 +17,10 @@ const resultStage = mountStage($("#view-result .stage"), "afgelast");
 mountHotspots($("#view-home .hotspots"), "kantine");
 mountAppgroep();
 
+// De uitslag-illustratie is groot en lazy: pas ophalen zodra iemand het formulier gebruikt.
+const warmResult = () => { $("#view-result .stage img").loading = "eager"; };
+$("#form").addEventListener("focusin", warmResult, { once: true });
+
 const nl1 = new Intl.NumberFormat("nl-NL", { maximumFractionDigits: 1 });
 const nl0 = new Intl.NumberFormat("nl-NL", { maximumFractionDigits: 0 });
 const fmtDay = new Intl.DateTimeFormat("nl-NL", { weekday: "long", day: "numeric", month: "long" });
@@ -422,6 +426,7 @@ async function runCheck(q, push) {
   if (!validate(q)) return;
   busy = true;
   $("#btn-check").disabled = true;
+  warmResult();
   openKeuring();
   const started = performance.now();
 
