@@ -311,7 +311,7 @@ $(".sticker").addEventListener("click", async () => {
   window.open(`https://wa.me/?text=${enc(`${homeShareText} ${homeUrl}`)}`, "_blank", "noopener");
 });
 
-const HENK = ["Ik ben Henk. Ik fluit al sinds 1987.", "Buitenspel? Dat is een mening.", "Verlenging? Alleen in de kantine.", "Beste keeper ooit? Die van EGS 6."];
+const HENK = ["Ik ben Henk. Ik fluit al sinds 1987.", "Buitenspel? Dat is een mening.", "Verlenging? Alleen in de kantine.", "De derde keeper? Nooit van gehoord."];
 let henkI = 0;
 $(".henk-link").addEventListener("click", () => parade(HENK[henkI++ % HENK.length]));
 
@@ -517,6 +517,7 @@ const FUN = {
     "Je hamstrings sturen een bedankkaartje.",
     "De kantinejuffrouw heeft de frituur al uitgezet.",
     "Je trainer appt 'zonde hè'. Meent er niks van.",
+    "De reservekeeper is opgelucht. Weer een week niet gepasseerd.",
     "Tijd voor de samenvatting van de Vrouwen Eredivisie. Daar wordt tenminste gevoetbald.",
   ],
   twijfel: [
@@ -526,6 +527,7 @@ const FUN = {
     "Scheenbeschermers in de tas, hoop in je hart.",
     "Henk weet het ook nog niet. En Henk weet alles.",
     "Sokken aan, maar nog niet je kicksen strikken.",
+    "De derde keeper zit al omgekleed. Voor de zekerheid.",
   ],
   doorgaat: [
     "Sokken aan, scheenbeschermers in. Janken mag na afloop.",
@@ -737,7 +739,7 @@ function renderExtra(mood) {
       const all = [...ul.querySelectorAll("input")].every((c) => c.checked);
       done.hidden = !all;
       if (all) {
-        done.textContent = pick(["Tas compleet. Nu alleen nog winnen.", "Alles erin. Zelfs de deo. Respect.", "Henk keurt je tas goed. Je spel nog niet.", "Zo compleet als de keeper van EGS 6. Bijna dan."]);
+        done.textContent = pick(["Tas compleet. Nu alleen nog winnen.", "Alles erin. Zelfs de deo. Respect.", "Henk keurt je tas goed. Je spel nog niet.", "Zelfs de derde keeper heeft z'n tas al klaar."]);
         resultStage.burst();
       }
     });
