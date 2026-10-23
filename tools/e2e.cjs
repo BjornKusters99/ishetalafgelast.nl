@@ -54,7 +54,9 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   ok(await page.waitForSelector("#keuring", { state: "hidden", timeout: 3000 }).then(() => true, () => false), "keuring weer dicht");
   const word = await page.textContent("#verdict-word");
   const pct = await page.textContent("#r-pct");
-  ok(word === "Afgelast", `uitslag: ${word} ${pct}`);
+  ok(word === "Verwachting: Afgelast", `uitslag: ${word} ${pct}`);
+  ok((await page.textContent(".board-note")).includes("geen officiële afgelasting"), "disclaimer direct bij het percentage");
+  ok(/Weerbericht van .*vooruit/.test(await page.textContent("#r-horizon")), "horizon en tijdstip van het weerbericht");
   ok(/plaats=Oss/.test(page.url()) && /veld=natuurgras/.test(page.url()), "URL deelbaar: " + page.url().replace(BASE, ""));
   ok((await page.getAttribute("#share-wa", "href")).includes("wa.me/?text="), "WhatsApp-link gezet");
   ok(!(await page.isHidden("#r-week-row")), "week-rij zichtbaar");
@@ -65,7 +67,7 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   ok((await page.getAttribute(".skip", "href")) === "#verdict-word", "skiplink wijst in de uitslag naar het oordeel");
   ok((await page.textContent("#keuring-live")).includes("kans op afgelasting"), "schermlezer hoort alleen het eindoordeel");
   ok(await page.$("main #view-result"), "uitslag staat in <main>");
-  ok(await page.evaluate(() => document.title.startsWith("Afgelast")), "titel aangepast");
+  ok(await page.evaluate(() => document.title.startsWith("Verwachting: afgelast")), "titel aangepast");
   ok((await page.locator("#r-weights li").count()) === 5, "vijf wegingen getoond");
   ok((await page.textContent("#share-msg")).length > 20, "deelbericht gevuld");
   const msg1 = await page.textContent("#share-msg");
@@ -89,7 +91,7 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   await mock(p2, { t: 14, r: 0, wind: 15, r7: 2 });
   await p2.goto(url, { waitUntil: "networkidle" });
   await p2.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
-  ok((await p2.textContent("#verdict-word")) === "Gaat door", "deeplink + droog weer -> Gaat door");
+  ok((await p2.textContent("#verdict-word")) === "Verwachting: Gaat door", "deeplink + droog weer -> Gaat door");
   ok((await p2.textContent("[data-bind=pct]")).endsWith("%"), "live bord gevuld");
   ok((await p2.locator(".tas li").count()) === 10, "tas-check bij doorgaan");
 
@@ -123,6 +125,15 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   await p3.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
   ok((await p3.textContent("#r-week")).includes("gemiddelde week"), "handmatig: week ervoor als gemiddelde");
   ok(/t=-3/.test(p3.url()), "handmatig weer in URL");
+
+  // Ruim een week vooruit: geen stempel, wel een grove schatting en een terugkommoment.
+  const early = await ctx.newPage();
+  await mock(early);
+  const soon = new Date(Date.now() + 8 * 864e5).toLocaleDateString("sv-SE", { timeZone: "Europe/Amsterdam" });
+  await early.goto(BASE + "/?" + new URLSearchParams({ plaats: "Oss", datum: soon, veld: "natuurgras" }));
+  await early.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
+  ok((await early.textContent("#verdict-word")) === "Verwachting: Nog te vroeg", "8 dagen vooruit -> nog te vroeg");
+  ok((await early.textContent("#r-horizon")).includes("grove schatting"), "8 dagen vooruit -> grove schatting met terugkommoment");
 
   // plaatspagina
   const p4 = await ctx.newPage();
