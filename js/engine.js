@@ -43,6 +43,13 @@ async function getJson(url, signal) {
   }
 }
 
+// Gangbare namen die de geocoder niet kent.
+const ALIASES = { "den bosch": "'s-Hertogenbosch" };
+
+const validPlace = (r) => r && typeof r.name === "string" && r.country_code === "NL"
+  && Number.isFinite(r.latitude) && Math.abs(r.latitude) <= 90
+  && Number.isFinite(r.longitude) && Math.abs(r.longitude) <= 180;
+
 /** Zoek een Nederlandse plaats. Geeft lijst {name, region, lat, lon}. */
 export async function searchPlaces(query, signal, count = 6) {
   if (typeof query !== "string" || query.length > 80 || !Number.isInteger(count) || count < 1 || count > 6) {
@@ -50,20 +57,18 @@ export async function searchPlaces(query, signal, count = 6) {
   }
   const q = query.trim();
   if (q.length < 2) return [];
-  const url = `${GEO_URL}?name=${encodeURIComponent(q)}&count=${count * 2}&language=nl&format=json`;
+  const name = ALIASES[q.toLowerCase()] || q;
+  // Zonder landfilter verdringen buitenlandse naamgenoten (Ede, Bergen) de Nederlandse plaats.
+  const url = `${GEO_URL}?name=${encodeURIComponent(name)}&count=${count * 2}&countryCode=NL&language=nl&format=json`;
   const data = await getJson(url, signal);
   if (!data || typeof data !== "object" || (data.results !== undefined && !Array.isArray(data.results))) {
     throw new UserError("De weerdienst gaf ongeldige plaatsgegevens. Probeer het opnieuw.");
   }
-  if ((data.results || []).some((r) => !r || typeof r.name !== "string" || typeof r.country_code !== "string"
-    || !Number.isFinite(r.latitude) || Math.abs(r.latitude) > 90
-    || !Number.isFinite(r.longitude) || Math.abs(r.longitude) > 180)) {
-    throw new UserError("De weerdienst gaf ongeldige plaatsgegevens. Probeer het opnieuw.");
-  }
+  // Onbruikbare items (zoals een continent zonder land) vallen weg in plaats van alles af te keuren.
   return (data.results || [])
-    .filter((r) => r.country_code === "NL")
+    .filter(validPlace)
     .slice(0, count)
-    .map((r) => ({ name: r.name, region: r.admin1 || "", lat: r.latitude, lon: r.longitude }));
+    .map((r) => ({ name: r.name, region: typeof r.admin1 === "string" ? r.admin1 : "", lat: r.latitude, lon: r.longitude }));
 }
 
 export async function geocode(query, signal) {

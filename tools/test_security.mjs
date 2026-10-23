@@ -82,9 +82,29 @@ test("caller cancellation remains an abort instead of a timeout error", async ()
   await assert.rejects(result, { name: "AbortError" });
 });
 
-test("geocoding rejects untrusted shapes and coordinates", async () => {
-  const api = engineWith(async () => ({ ok: true, json: async () => ({ results: [{ name: "Oss", country_code: "NL", latitude: "52", longitude: 5 }] }) }));
+test("geocoding rejects an untrusted response shape", async () => {
+  const api = engineWith(async () => ({ ok: true, json: async () => ({ results: "Oss" }) }));
   await assert.rejects(api.searchPlaces("Oss"), /ongeldige plaatsgegevens/);
+});
+
+test("geocoding drops untrusted entries but keeps valid Dutch places", async () => {
+  const results = [
+    { name: "Oss", country_code: "NL", latitude: "52", longitude: 5 },
+    { name: "Europa", latitude: 48, longitude: 9 },
+    { name: "Ede", country_code: "NG", latitude: 7.7, longitude: 4.4 },
+    { name: "Ede", admin1: { x: 1 }, country_code: "NL", latitude: 52.05, longitude: 5.67 },
+  ];
+  const api = engineWith(async () => ({ ok: true, json: async () => ({ results }) }));
+  assert.deepEqual(JSON.parse(JSON.stringify(await api.searchPlaces("Ede"))), [{ name: "Ede", region: "", lat: 52.05, lon: 5.67 }]);
+});
+
+test("geocoding asks for Dutch places and knows common aliases", async () => {
+  const urls = [];
+  const api = engineWith(async (url) => { urls.push(new URL(url)); return { ok: true, json: async () => ({}) }; });
+  await api.searchPlaces("Ede");
+  await api.searchPlaces(" Den Bosch ");
+  assert.equal(urls[0].searchParams.get("countryCode"), "NL");
+  assert.equal(urls[1].searchParams.get("name"), "'s-Hertogenbosch");
 });
 
 test("form and shared links use the same numeric limits", () => {

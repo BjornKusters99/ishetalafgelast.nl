@@ -47,7 +47,8 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   await page.check('input[name=veld][value=natuurgras]', { force: true });
   await page.click("#btn-check");
   await page.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
-  ok(await page.isHidden("#keuring"), "keuring weer dicht");
+  // De overlay sluit met een korte uitfade nadat de uitslag al staat.
+  ok(await page.waitForSelector("#keuring", { state: "hidden", timeout: 3000 }).then(() => true, () => false), "keuring weer dicht");
   const word = await page.textContent("#verdict-word");
   const pct = await page.textContent("#r-pct");
   ok(word === "Afgelast", `uitslag: ${word} ${pct}`);
