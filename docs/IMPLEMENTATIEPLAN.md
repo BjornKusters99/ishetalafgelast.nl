@@ -37,7 +37,7 @@ en zet de status in de tabel hieronder op ✅.
 | T07 | [#16](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/16) | Zichtbare keuze na tik en zichtbare focusring | UX-1, A11Y-1, A11Y-2 | ✅ |
 | T08 | [#17](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/17) | Kleine toegankelijkheidsfixes | A11Y-3 t/m A11Y-8, UX-11 | ✅ |
 | T09 | [#18](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/18) | Eerlijke uitslag: woorden, disclaimer, horizon, uitleg | UX-3, UX-4, UX-10 | ✅ |
-| T10 | [#19](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/19) | Keuring snel, overslaanbaar en onafhankelijk van framerate | UX-2, BUG-8 | ☐ |
+| T10 | [#19](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/19) | Keuring snel, overslaanbaar en onafhankelijk van framerate | UX-2, BUG-8 | ✅ |
 | T11 | [#20](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/20) | Afbreekbare check en veilige terugknop | BUG-6, BUG-11 | ☐ |
 | T12 | [#21](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/21) | Plaatskeuze met regio en coördinaten, betere foutmeldingen | BUG-7, UX-6, UX-7 | ☐ |
 | T13 | [#22](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/22) | Canvas-performance en lichtere beelden | PERF-1, PERF-3, BUG-15 | ☐ |

@@ -15,6 +15,7 @@ const G = 2600; // zwaartekracht, logische px/s²
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const STEP = 1 / 60;
 const rand = (a, b) => a + Math.random() * (b - a);
 const lerp = (a, b, k) => a + (b - a) * k;
 
@@ -576,10 +577,17 @@ export class Stuitproef {
     if (this.raf || !this.visible || document.hidden) return;
     if (reduceMotion.matches) return void this.draw();
     this.last = performance.now();
+    this.acc = 0;
     const tick = (now) => {
-      const dt = Math.min(0.033, (now - this.last) / 1000);
+      // Vaste stappen op de echte klok: op een trage telefoon (of 5 fps) liep
+      // de bal anders in slow motion en duurde de keuring tien keer zo lang.
+      this.acc = Math.min(this.acc + (now - this.last) / 1000, 0.25);
       this.last = now;
-      const busy = this.step(dt);
+      let busy = true;
+      while (busy && this.acc >= STEP) {
+        busy = this.step(STEP);
+        this.acc -= STEP;
+      }
       this.draw();
       this.raf = busy && this.visible && !document.hidden ? requestAnimationFrame(tick) : 0;
     };

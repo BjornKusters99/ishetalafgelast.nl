@@ -390,14 +390,20 @@ function startChat() {
   chatTimer = setInterval(show, 1400);
 }
 
+// "Sla over" (en het vangnet hieronder) springen per check direct naar de uitslag.
+let skipKeuring = () => {};
+$("#keuring-skip").addEventListener("click", () => skipKeuring());
+const FINALE_MAX_MS = 3000;
+
 function openKeuring() {
   keuring.classList.remove("is-leaving");
   keuring.hidden = false;
+  homeStage.pause();
   $("#keuring-live").textContent = "Veldkeuring bezig.";
   homeView.inert = true;
   resultView.inert = true;
   $("#keuring-verdict").hidden = true;
-  $("#keuring-skip").hidden = true;
+  $("#keuring-skip").textContent = "Sla over";
   $("#keuring-chat").hidden = false;
   $("#keuring-title").textContent = pick(KEURING_TITLE);
   for (const s of ["geo", "weer", "model"]) {
@@ -416,6 +422,7 @@ async function closeKeuring() {
   await wait(360);
   keuring.hidden = true;
   keuringStuit.stop();
+  homeStage.resume();
   homeView.inert = false;
   resultView.inert = false;
 }
@@ -434,14 +441,16 @@ function waitForTapOr(ms) {
   });
 }
 
-async function runCheck(q, push) {
+/** quick: een gedeelde link of terug/vooruit gaat direct naar de uitslag, zonder show. */
+async function runCheck(q, push, quick = false) {
   if (busy) return;
   if (!validate(q)) return;
   busy = true;
   $("#btn-check").disabled = true;
   warmResult();
-  openKeuring();
+  if (!quick) openKeuring();
   const started = performance.now();
+  const skipped = new Promise((resolve) => { skipKeuring = resolve; });
 
   try {
     let weather;
@@ -464,30 +473,31 @@ async function runCheck(q, push) {
 
     setStep("model", "busy");
     const pred = predict(weather, q.veld);
-    // Laat minstens één volledige val zien: de keuring is het moment.
-    await wait(Math.max(0, 1300 - (performance.now() - started)));
-    await keuringStuit.finale(pred.probability, weather);
-    setStep("model", "done");
-    clearInterval(chatTimer);
-
     const v = verdictFor(pred.probability, weather, q);
-    $("#keuring-title").textContent = v.label;
-    $("#keuring-chat").hidden = true;
-    const kv = $("#keuring-verdict");
-    kv.textContent = v.keuring;
-    kv.hidden = false;
+    if (!quick) {
+      // Laat minstens één val zien: de keuring is het moment. Begrensd en over te slaan.
+      await Promise.race([wait(Math.max(0, 1300 - (performance.now() - started))), skipped]);
+      await Promise.race([keuringStuit.finale(pred.probability, weather), wait(FINALE_MAX_MS), skipped]);
+      setStep("model", "done");
+      clearInterval(chatTimer);
+      $("#keuring-title").textContent = v.label;
+      $("#keuring-chat").hidden = true;
+      const kv = $("#keuring-verdict");
+      kv.textContent = v.keuring;
+      kv.hidden = false;
+      $("#keuring-skip").textContent = "Verder";
+    }
     // Alleen het eindoordeel voorlezen, niet de wisselende grapjes tijdens het laden.
     $("#keuring-live").textContent = `${v.label}, ${Math.round(pred.probability * 100)}% kans op afgelasting.`;
-    $("#keuring-skip").hidden = false;
-    await waitForTapOr(1900);
+    if (!quick) await Promise.race([waitForTapOr(1500), skipped]);
 
     const result = { q: { ...q, city: placeName || q.city }, weather, pred, v, at: new Date() };
     if (push) history.pushState({ result: true }, "", shareUrl(result.q));
     renderResult(result);
-    await closeKeuring();
+    if (!quick) await closeKeuring();
     $("#verdict-word").focus({ preventScroll: true });
   } catch (err) {
-    await closeKeuring();
+    if (!quick) await closeKeuring();
     if (err instanceof UserError) {
       if (/kunnen we niet vinden/.test(err.message)) setFieldError(cityInput, err.message);
       else if (/dagen/.test(err.message)) setFieldError(dateInput, err.message);
@@ -914,7 +924,7 @@ window.addEventListener("popstate", () => {
   const q = fromParams(new URLSearchParams(location.search));
   if (q) {
     fillForm(q);
-    runCheck(q, false);
+    runCheck(q, false, true);
   } else {
     showHome(false);
   }
@@ -939,7 +949,7 @@ const initial = fromParams(new URLSearchParams(location.search));
 if (initial) {
   fillForm(initial);
   history.replaceState({ result: false }, "", location.href);
-  runCheck(initial, false);
+  runCheck(initial, false, true);
 }
 void homeStage;
 
