@@ -34,7 +34,7 @@ en zet de status in de tabel hieronder op ✅.
 | T04 | [#13](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/13) | Datumhorizon en archiefgrens kloppen | BUG-4, BUG-9 | ✅ |
 | T05 | [#14](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/14) | Service worker haalt verse bestanden en heeft offline-terugval | BUG-3, SEC-1, BUG-14 | ✅ |
 | T06 | [#15](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/15) | Uitslag-illustratie pas laden als hij nodig is | PERF-2 | ✅ |
-| T07 | [#16](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/16) | Zichtbare keuze na tik en zichtbare focusring | UX-1, A11Y-1, A11Y-2 | ☐ |
+| T07 | [#16](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/16) | Zichtbare keuze na tik en zichtbare focusring | UX-1, A11Y-1, A11Y-2 | ✅ |
 | T08 | [#17](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/17) | Kleine toegankelijkheidsfixes | A11Y-3 t/m A11Y-8, UX-11 | ☐ |
 | T09 | [#18](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/18) | Eerlijke uitslag: woorden, disclaimer, horizon, uitleg | UX-3, UX-4, UX-10 | ☐ |
 | T10 | [#19](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/19) | Keuring snel, overslaanbaar en onafhankelijk van framerate | UX-2, BUG-8 | ☐ |
