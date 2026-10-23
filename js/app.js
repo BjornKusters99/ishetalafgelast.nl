@@ -1,4 +1,4 @@
-import { searchPlaces, geocode, fetchWeather, predict, explain, isValidDay, horizonError, UserError, BASELINE } from "./engine.js";
+import { searchPlaces, geocode, fetchWeather, predict, explain, isValidDay, horizonError, daysAhead, UserError, BASELINE } from "./engine.js";
 import { mountStage } from "./scene.js";
 import { Stuitproef, bounceProfile, moodFor } from "./stuitproef.js";
 import { say, parade, mountHotspots, mountAppgroep } from "./eggs.js";
@@ -25,6 +25,7 @@ const nl1 = new Intl.NumberFormat("nl-NL", { maximumFractionDigits: 1 });
 const nl0 = new Intl.NumberFormat("nl-NL", { maximumFractionDigits: 0 });
 const fmtDay = new Intl.DateTimeFormat("nl-NL", { weekday: "long", day: "numeric", month: "long" });
 const fmtShort = new Intl.DateTimeFormat("nl-NL", { weekday: "short", day: "numeric", month: "short" });
+const fmtFetched = new Intl.DateTimeFormat("nl-NL", { weekday: "short", hour: "2-digit", minute: "2-digit" });
 const day = (iso) => new Date(`${iso}T12:00:00`);
 
 /* ─────────── Formulier ─────────── */
@@ -469,18 +470,18 @@ async function runCheck(q, push) {
     setStep("model", "done");
     clearInterval(chatTimer);
 
-    const v = verdictFor(pred.probability, weather);
-    $("#keuring-title").textContent = v.word;
+    const v = verdictFor(pred.probability, weather, q);
+    $("#keuring-title").textContent = v.label;
     $("#keuring-chat").hidden = true;
     const kv = $("#keuring-verdict");
     kv.textContent = v.keuring;
     kv.hidden = false;
     // Alleen het eindoordeel voorlezen, niet de wisselende grapjes tijdens het laden.
-    $("#keuring-live").textContent = `${v.word}: ${Math.round(pred.probability * 100)}% kans op afgelasting.`;
+    $("#keuring-live").textContent = `${v.label}, ${Math.round(pred.probability * 100)}% kans op afgelasting.`;
     $("#keuring-skip").hidden = false;
     await waitForTapOr(1900);
 
-    const result = { q: { ...q, city: placeName || q.city }, weather, pred, v };
+    const result = { q: { ...q, city: placeName || q.city }, weather, pred, v, at: new Date() };
     if (push) history.pushState({ result: true }, "", shareUrl(result.q));
     renderResult(result);
     await closeKeuring();
@@ -506,7 +507,7 @@ async function runCheck(q, push) {
 
 const FUN = {
   afgelast: [
-    "Bed in. Telefoon op stil. Kratje binnen handbereik.",
+    "Kratje binnen handbereik. Wel even wachten op het bericht van je club.",
     "Het veld is officieel een zwembad. Neem je zwembroek mee, niet je kicksen.",
     "De terreinmeester keek één keer naar buiten en ging weer slapen.",
     "Geen voetbal, wel derde helft. Iemand moet het bier toch opdrinken.",
@@ -536,10 +537,10 @@ const FUN = {
 
 const SHARE_MSG = {
   afgelast: [
-    "Mannen, {pct}% kans op afgelasting voor {wed}. Ik zet de wekker alvast uit.",
+    "Mannen, {pct}% kans op afgelasting voor {wed}. Nog even wachten op de club, maar het ziet er slecht uit.",
     "{wed}: {pct}% kans dat het niet doorgaat. Henk gaat de bal niet eens laten vallen.",
-    "Afgelast-alarm: {pct}% voor {wed}. Wie regelt de derde helft?",
-    "Scheids hoeft niet te komen: {pct}% kans op afgelasting voor {wed}. Ik draai me om.",
+    "Afgelast-alarm: {pct}% kans voor {wed}. Wie regelt de derde helft?",
+    "{pct}% kans op afgelasting voor {wed}. Henk, kijk jij even naar het veld?",
   ],
   twijfel: [
     "{wed}: {pct}% kans op afgelasting. Tas inpakken, wekker op snooze.",
@@ -547,19 +548,37 @@ const SHARE_MSG = {
     "{pct}% kans op afgelasting voor {wed}. Scheenbeschermers in de tas, hoop in het hart.",
   ],
   doorgaat: [
-    "Slecht nieuws voor je hamstrings: {wed} gaat gewoon door. Maar {pct}% kans op afgelasting.",
-    "{wed} gaat door ({pct}% kans op afgelasting). Wie neemt de sinaasappels mee?",
-    "Geen smoesjes: {wed} gaat door, {pct}% kans op afgelasting. Om 09:15 bij de kantine.",
-    "Kicksen poetsen: {wed} gaat door ({pct}% kans op afgelasting). Kevin, jij ook.",
+    "Slecht nieuws voor je hamstrings: {wed} gaat waarschijnlijk gewoon door ({pct}% kans op afgelasting).",
+    "{wed} gaat waarschijnlijk door ({pct}% kans op afgelasting). Wie neemt de sinaasappels mee?",
+    "Geen smoesjes: {wed} gaat waarschijnlijk door, {pct}% kans op afgelasting. Om 09:15 bij de kantine.",
+    "Kicksen poetsen: {wed} gaat waarschijnlijk door ({pct}% kans op afgelasting). Kevin, jij ook.",
   ],
 };
 
-function verdictFor(p, w) {
+// Vanaf zoveel dagen vooruit is het weerbericht te grof voor een stempel.
+const EARLY_DAYS = 6;
+
+function verdictFor(p, w, q) {
   const pr = bounceProfile(p, w);
   const mood = moodFor(p);
-  const word = mood === "afgelast" ? "Afgelast" : mood === "twijfel" ? "Twijfelgeval" : "Gaat door";
+  const early = !q.manual && daysAhead(q.date) >= EARLY_DAYS;
+  const word = early ? "Nog te vroeg" : mood === "afgelast" ? "Afgelast" : mood === "twijfel" ? "Twijfelgeval" : "Gaat door";
+  // Altijd als verwachting gelabeld: een stempel "Afgelast" las als een officiële afgelasting.
+  const label = `Verwachting: ${word.toLowerCase()}`;
   // Twijfel speelt in de slaapkamer: half wakker, wekker op snooze.
-  return { mood, word, keuring: pick(KEURING_LINES[pr.key]), scene: mood === "doorgaat" ? "doorgaat" : "afgelast" };
+  return { mood, word, label, early, keuring: pick(KEURING_LINES[pr.key]), scene: mood === "doorgaat" ? "doorgaat" : "afgelast" };
+}
+
+/** Hoe ver vooruit, en hoe betrouwbaar is het weerbericht dan? */
+function horizonText(q, at) {
+  if (q.manual) return "Eigen weerbericht, de week ervoor gerekend als gemiddeld.";
+  const n = daysAhead(q.date);
+  const fetched = `Weerbericht van ${fmtFetched.format(at)}`;
+  if (n < 0) return `${fetched}: gemeten weer, achteraf berekend.`;
+  if (n <= 2) return `${fetched}, ${n === 0 ? "vandaag" : `${n} dag${n > 1 ? "en" : ""} vooruit`}: redelijk betrouwbaar.`;
+  if (n < EARLY_DAYS) return `${fetched}, ${n} dagen vooruit: kan nog flink veranderen.`;
+  const back = new Date(day(q.date).getTime() - 3 * 864e5);
+  return `${fetched}, ${n} dagen vooruit: grove schatting. Kom vanaf ${fmtDay.format(back)} terug.`;
 }
 
 function whyText(weather, veld, p, manual) {
@@ -587,14 +606,24 @@ function whyText(weather, veld, p, manual) {
         wind: "Weinig wind, dus daar zal het niet op stuklopen.",
         veld: "Kunstgras kan beter tegen regen.",
       };
+  // Bij "gaat door" ook noemen wat de kans wél omhoog duwt: 12 mm regen is geen "geen vorst in zicht".
+  const pushUp = {
+    regen: `de ${nl1.format(w.precipitation)} mm regen op de dag zelf`,
+    week: "de natte week ervoor",
+    vorst: "de kou",
+    wind: `de windstoten tot ${nl0.format(w.wind_gusts)} km/u`,
+    veld: "het natuurgras",
+  };
+  const [against, size] = up ? [] : entries.filter(([k]) => k !== "veld" || veld === "natuurgras").sort((a, b) => b[1] - a[1])[0] || [];
+  const but = size > 0.12 ? ` Wel duwt ${pushUp[against]} de kans omhoog.` : "";
   const m = p / BASELINE;
   const comp =
     m >= 1.3
-      ? ` De modelschatting is ${nl1.format(m)} keer zo hoog als het simulatiegemiddelde.`
+      ? ` Dat is ${nl1.format(m)} keer zo hoog als op een gemiddelde speeldag in ons model.`
       : m <= 0.7
-        ? ` Het simulatiegemiddelde is ${nl0.format(BASELINE * 100)}%; deze modelschatting is lager.`
+        ? ` Op een gemiddelde speeldag rekent ons model met ${nl0.format(BASELINE * 100)}%.`
         : "";
-  return lines[key] + comp;
+  return lines[key] + but + comp;
 }
 
 const WEIGHT_LABEL = {
@@ -744,13 +773,14 @@ function updateShare() {
 
 $("#share-shuffle").addEventListener("click", updateShare);
 
-function renderResult({ q, weather: w, pred, v }) {
+function renderResult({ q, weather: w, pred, v, at }) {
   const p = pred.probability;
   const pct = Math.round(p * 100);
   const sceneEl = $(".scene--result");
   sceneEl.dataset.mood = v.scene;
   resultView.classList.remove("mood-afgelast", "mood-twijfel", "mood-doorgaat");
   resultView.classList.add(`mood-${v.mood}`);
+  resultView.classList.toggle("is-early", v.early);
   resultStage.set(v.scene);
   mountHotspots($("#view-result .hotspots"), v.scene);
 
@@ -758,7 +788,8 @@ function renderResult({ q, weather: w, pred, v }) {
   const where = q.manual ? "eigen weerbericht" : q.city;
   const when = fmtDay.format(day(q.date));
   $("#r-kicker").textContent = teams ? `${teams}, ${when}` : `${where}, ${when}`;
-  $("#verdict-word").textContent = v.word;
+  $("#verdict-word").replaceChildren(Object.assign(document.createElement("span"), { className: "board-hedge", textContent: "Verwachting:" }), ` ${v.word}`);
+  $("#r-horizon").textContent = horizonText(q, at);
 
   const hue = Math.round(110 - 105 * p);
   resultView.style.setProperty("--thermo", `hsl(${hue} 62% 44%)`);
@@ -792,7 +823,7 @@ function renderResult({ q, weather: w, pred, v }) {
   updateShare();
   renderExtra(v.mood);
 
-  document.title = `${v.word} (${pct}%) | IsHetAlAfgelast.nl`;
+  document.title = `${v.label} (${pct}%) | IsHetAlAfgelast.nl`;
 
   showView("result");
 

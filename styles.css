@@ -615,7 +615,8 @@ h1, h2, h3 { font-weight: 400; }
   color: #4a2f1c;
   overflow-wrap: anywhere;
 }
-.board-word:focus { outline: none; }
+/* Krijgt focus van het script, niet van de gebruiker: geen ring. */
+.board-word:focus { outline: none; box-shadow: none; }
 .board-word {
   display: inline-block;
   margin-top: .5cqw;
@@ -636,9 +637,17 @@ h1, h2, h3 { font-weight: 400; }
   75% { scale: 1.03; }
   100% { scale: 1; rotate: -2deg; }
 }
+.board-hedge {
+  display: block; margin-bottom: .6cqw;
+  font-family: var(--f-hand); font-size: clamp(1rem, 4.4cqw, 1.45rem); line-height: 1; letter-spacing: 0;
+  color: #4a2f1c; -webkit-text-stroke: 0; text-shadow: none;
+}
+.board-note, .board-horizon { margin-top: 2.6cqw; font-size: clamp(.8rem, 3.1cqw, .95rem); line-height: 1.3; color: #3d2615; }
+.board-horizon { margin-top: 1.2cqw; font-weight: 600; }
+.board-note a { color: var(--ink); font-weight: 600; text-decoration-thickness: 1.5px; text-underline-offset: 2px; }
 .mood-afgelast .board-word { color: var(--red); }
 .mood-doorgaat .board-word { color: #5cb336; }
-.mood-twijfel .board-word { color: var(--gold-hi); font-size: clamp(2.2rem, 12cqw, 5rem); }
+.mood-twijfel .board-word, .is-early .board-word { color: var(--gold-hi); font-size: clamp(2.2rem, 12cqw, 5rem); }
 
 .board-meter {
   display: flex; align-items: center; gap: 3.5cqw;
@@ -753,7 +762,7 @@ h1, h2, h3 { font-weight: 400; }
   }
   .board-plank::before, .board-plank::after { top: auto; bottom: 14px; }
   .board-word { font-size: clamp(2.8rem, 14cqw, 4.4rem); }
-  .mood-twijfel .board-word { font-size: clamp(2.3rem, 11.5cqw, 3.6rem); }
+  .mood-twijfel .board-word, .is-early .board-word { font-size: clamp(2.3rem, 11.5cqw, 3.6rem); }
   .board-pct strong { font-size: clamp(2.2rem, 11cqw, 3.4rem); }
   .btn-back { left: var(--s-4); right: auto; }
 }
