@@ -24,9 +24,12 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   page.on("pageerror", (e) => errs.push(e.message));
   page.on("console", (m) => m.type() === "error" && errs.push(m.text()));
   await mock(page);
+  const requested = [];
+  page.on("request", (r) => requested.push(r.url()));
 
   await page.goto(BASE + "/", { waitUntil: "networkidle" });
   ok(await page.isVisible("#view-home") && !(await page.isVisible("#view-result")), "home zichtbaar bij start");
+  ok(!requested.some((u) => u.includes("/img/scenes/afgelast")), "uitslag-illustratie niet geladen bij openen");
   ok(/^\d{4}-\d{2}-\d{2}$/.test(await page.inputValue("#date")), "datum standaard ingevuld");
   ok(await page.isChecked('input[name=veld][value=natuurgras]'), "veld standaard op gras");
   ok(!/Modder|Blubber/.test(await page.getAttribute("#home", "placeholder")), "echte clubnaam als placeholder");
@@ -56,6 +59,8 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   ok((await page.getAttribute("#share-wa", "href")).includes("wa.me/?text="), "WhatsApp-link gezet");
   ok(!(await page.isHidden("#r-week-row")), "week-rij zichtbaar");
   ok((await page.textContent("#r-kicker")).includes("vv Modder tegen Uit"), "kicker met teams");
+  ok(await page.waitForFunction(() => { const i = document.querySelector("#view-result .stage img"); return i.complete && i.naturalWidth > 0; },
+    null, { timeout: 5000 }).then(() => true, () => false), "uitslag-illustratie geladen bij uitslag");
   ok(await page.evaluate(() => document.activeElement.id) === "verdict-word", "focus op uitslag");
   ok(await page.evaluate(() => document.title.startsWith("Afgelast")), "titel aangepast");
   ok((await page.locator("#r-weights li").count()) === 5, "vijf wegingen getoond");
