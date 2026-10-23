@@ -20,8 +20,12 @@ const CORE = [
   "/img/scenes/kantine-m.webp",
 ];
 
+// "reload" slaat de HTTP-cache over (Pages: max-age=600). Anders kan een nieuwe
+// worker de JavaScript van de vorige release vastzetten tot de volgende deploy.
 self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(VERSION).then((c) => c.addAll(CORE)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(VERSION)
+    .then((c) => c.addAll(CORE.map((path) => new Request(path, { cache: "reload" }))))
+    .then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", (e) => {
@@ -52,7 +56,10 @@ self.addEventListener("fetch", (e) => {
           }
           return res;
         })
-        .catch(() => caches.open(VERSION).then((c) => c.match(url.pathname)).then((r) => r || Response.error()));
+        // Offline: deze pagina uit de cache, anders de app zelf in plaats van een browserfout.
+        .catch(() => caches.open(VERSION)
+          .then((c) => c.match(url.pathname).then((r) => r || c.match("/")))
+          .then((r) => r || Response.error()));
     e.respondWith(response);
     e.waitUntil(response.then(() => {}).catch(() => {}));
     return;
