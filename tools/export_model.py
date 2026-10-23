@@ -4,6 +4,9 @@
 Loop vanuit de backend-venv (sklearn + joblib nodig):
     <backend>/.venv/bin/python tools/export_model.py <backend>/data/model.joblib
 
+Laad alleen een zelf gebouwd, vertrouwd model: joblib kan code uitvoeren.
+Gebruik nooit een model uit een onbekende download of een fork-PR in CI.
+
 Het model is CalibratedClassifierCV(method="sigmoid") over
 StandardScaler + LogisticRegression; per fold exporteren we scaler,
 coëfficiënten en de sigmoid-calibratie (a, b). js/engine.js middelt de folds,

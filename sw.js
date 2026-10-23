@@ -1,7 +1,7 @@
 // Offline-schil: de site zelf werkt offline (weer ophalen natuurlijk niet).
 // Statische assets: cache-first. Pagina's: netwerk eerst, cache als vangnet.
-// Verhoog VERSION bij elke release die assets wijzigt.
-const VERSION = "v5-2";
+// De publicatiebuild vervangt VERSION door een hash van alle runtimebestanden.
+const VERSION = "ishetalafgelast-security-v1";
 const CORE = [
   "/",
   "/styles.css",
@@ -27,7 +27,8 @@ self.addEventListener("install", (e) => {
 self.addEventListener("activate", (e) => {
   e.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== VERSION).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => k !== VERSION
+        && (k.startsWith("ishetalafgelast-") || /^v\d+-\d+$/.test(k))).map((k) => caches.delete(k))))
       .then(() => self.clients.claim()),
   );
 });
@@ -36,27 +37,34 @@ self.addEventListener("fetch", (e) => {
   const req = e.request;
   const url = new URL(req.url);
   if (req.method !== "GET" || url.origin !== location.origin) return;
+  const page = /^\/(?:index\.html|privacy\.html|404\.html)?$/.test(url.pathname)
+    || /^\/plaatsen\/(?:[a-z-]+\.html)?$/.test(url.pathname);
+  const asset = CORE.includes(url.pathname) || /^\/img\/(?:scenes\/)?[a-z0-9-]+\.(?:webp|png|jpg)$/.test(url.pathname);
+  if (!page && !asset) return;
 
   if (req.mode === "navigate") {
-    e.respondWith(
+    const response =
       fetch(req)
         .then((res) => {
-          const copy = res.clone();
-          caches.open(VERSION).then((c) => c.put(url.pathname, copy));
+          if (res.ok && !res.redirected && res.headers.get("Content-Type")?.includes("text/html")) {
+            const copy = res.clone();
+            e.waitUntil(caches.open(VERSION).then((c) => c.put(url.pathname, copy)).catch(() => {}));
+          }
           return res;
         })
-        .catch(() => caches.match(url.pathname).then((r) => r || caches.match("/"))),
-    );
+        .catch(() => caches.open(VERSION).then((c) => c.match(url.pathname)).then((r) => r || Response.error()));
+    e.respondWith(response);
+    e.waitUntil(response.then(() => {}).catch(() => {}));
     return;
   }
 
-  e.respondWith(
-    caches.match(req).then((hit) => hit || fetch(req).then((res) => {
-      if (res.ok) {
+  const response = caches.open(VERSION).then((c) => c.match(req)).then((hit) => hit || fetch(req).then((res) => {
+      if (res.ok && !res.redirected) {
         const copy = res.clone();
-        caches.open(VERSION).then((c) => c.put(req, copy));
+        e.waitUntil(caches.open(VERSION).then((c) => c.put(req, copy)).catch(() => {}));
       }
       return res;
-    })),
-  );
+    }));
+  e.respondWith(response);
+  e.waitUntil(response.then(() => {}).catch(() => {}));
 });
