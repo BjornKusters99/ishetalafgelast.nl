@@ -62,6 +62,9 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   ok(await page.waitForFunction(() => { const i = document.querySelector("#view-result .stage img"); return i.complete && i.naturalWidth > 0; },
     null, { timeout: 5000 }).then(() => true, () => false), "uitslag-illustratie geladen bij uitslag");
   ok(await page.evaluate(() => document.activeElement.id) === "verdict-word", "focus op uitslag");
+  ok((await page.getAttribute(".skip", "href")) === "#verdict-word", "skiplink wijst in de uitslag naar het oordeel");
+  ok((await page.textContent("#keuring-live")).includes("kans op afgelasting"), "schermlezer hoort alleen het eindoordeel");
+  ok(await page.$("main #view-result"), "uitslag staat in <main>");
   ok(await page.evaluate(() => document.title.startsWith("Afgelast")), "titel aangepast");
   ok((await page.locator("#r-weights li").count()) === 5, "vijf wegingen getoond");
   ok((await page.textContent("#share-msg")).length > 20, "deelbericht gevuld");
@@ -159,7 +162,20 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   ok(seg === "rgb(43, 26, 16)", `touch: gekozen veldtype blijft zichtbaar (${seg})`);
   await tp.tap("#btn-check");
   ok((await tp.$eval("#btn-check", (el) => getComputedStyle(el).backgroundImage)).includes("gradient"), "touch: knop houdt zijn goud na tik");
+  const sticker = await tp.$eval(".sticker", (el) => [el.innerText.replace(/\s+/g, " ").trim(), el.getAttribute("aria-label")]);
+  ok(sticker[1].startsWith(sticker[0]), "sticker: toegankelijke naam begint met de zichtbare tekst");
   await touch.close();
+
+  // Lage telefoon: de knop blijft boven de vouw, teamnamen zitten achter een knop.
+  const small = await b.newContext({ locale: "nl-NL", timezoneId: "Europe/Amsterdam", reducedMotion: "reduce",
+    hasTouch: true, isMobile: true, viewport: { width: 375, height: 667 } });
+  const sp = await small.newPage();
+  await sp.goto(BASE + "/", { waitUntil: "networkidle" });
+  ok((await sp.$eval("#btn-check", (el) => el.getBoundingClientRect().top)) < 667 - 30, "375x667: knop boven de vouw");
+  ok(await sp.isHidden("#home") && await sp.isVisible("#teams-toggle"), "375x667: teamvelden achter een knop");
+  await sp.tap("#teams-toggle");
+  ok(await sp.isVisible("#home") && await sp.evaluate(() => document.activeElement.id) === "home", "teamknop toont de velden en zet de focus");
+  await small.close();
 
   for (const path of ["/HANDOVER.md", "/tools/export_model.py", "/docs/security/BEHEER.md", "/docs/IMPLEMENTATIEPLAN.md"]) {
     ok((await ctx.request.get(BASE + path)).status() === 404, "niet-publiek pad geeft 404: " + path);

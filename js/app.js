@@ -45,8 +45,18 @@ const DERBY = [
 // Op smalle schermen alleen korte namen, anders wordt de placeholder afgekapt.
 const fits = DERBY.filter(([h, a]) => innerWidth > 520 || Math.max(h.length, a.length) <= 11);
 const [phHome, phAway] = pick(fits);
-$("#home").placeholder = phHome;
-$("#away").placeholder = phAway;
+// "bijv." voorkomt dat een voorbeeldclub op een ingevulde waarde lijkt.
+$("#home").placeholder = `bijv. ${phHome}`;
+$("#away").placeholder = `bijv. ${phAway}`;
+
+// Op lage schermen staan de teamvelden achter een knop, zodat de check boven de vouw blijft.
+const teamsToggle = $("#teams-toggle");
+function showTeams(focus) {
+  form.classList.add("show-teams");
+  teamsToggle.setAttribute("aria-expanded", "true");
+  if (focus) $("#home").focus();
+}
+teamsToggle.addEventListener("click", () => showTeams(true));
 
 function nextMatchDay() {
   const d = new Date();
@@ -139,6 +149,7 @@ function fillForm(q) {
   if (q.city) cityInput.value = q.city;
   if (q.date) dateInput.value = q.date;
   $("#home").value = q.home || "";
+  if (q.home || q.away) showTeams(false);
   $("#away").value = q.away || "";
   const radio = form.querySelector(`input[name="veld"][value="${CSS.escape(q.veld || "natuurgras")}"]`);
   if (radio) radio.checked = true;
@@ -381,6 +392,7 @@ function startChat() {
 function openKeuring() {
   keuring.classList.remove("is-leaving");
   keuring.hidden = false;
+  $("#keuring-live").textContent = "Veldkeuring bezig.";
   homeView.inert = true;
   resultView.inert = true;
   $("#keuring-verdict").hidden = true;
@@ -463,6 +475,8 @@ async function runCheck(q, push) {
     const kv = $("#keuring-verdict");
     kv.textContent = v.keuring;
     kv.hidden = false;
+    // Alleen het eindoordeel voorlezen, niet de wisselende grapjes tijdens het laden.
+    $("#keuring-live").textContent = `${v.word}: ${Math.round(pred.probability * 100)}% kans op afgelasting.`;
     $("#keuring-skip").hidden = false;
     await waitForTapOr(1900);
 
@@ -847,6 +861,7 @@ function showView(which) {
   const result = which === "result";
   homeView.hidden = result;
   resultView.hidden = !result;
+  $(".skip").href = result ? "#verdict-word" : "#check";
   window.scrollTo({ top: 0, behavior: "instant" });
 }
 
