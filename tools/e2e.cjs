@@ -148,6 +148,19 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   ok((await badWeather.textContent("#toast-text")).includes("volledig weerbericht"), "onvolledig weer geeft fout, geen kans");
   ok(await badWeather.isEnabled("#btn-check"), "formulier herstelt na API-fout");
   ok((await page.getAttribute('meta[name="referrer"]', "content")) === "no-referrer", "geen querygegevens in referrer");
+
+  // Touch: een tik laat :hover plakken; de keuze en de knop moeten zichtbaar blijven.
+  const touch = await b.newContext({ locale: "nl-NL", timezoneId: "Europe/Amsterdam", reducedMotion: "reduce",
+    hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
+  const tp = await touch.newPage();
+  await tp.goto(BASE + "/", { waitUntil: "networkidle" });
+  await tp.tap("label:has(input[name=veld][value=kunstgras])");
+  const seg = await tp.$eval("input[name=veld][value=kunstgras] + span", (s) => getComputedStyle(s).backgroundColor);
+  ok(seg === "rgb(43, 26, 16)", `touch: gekozen veldtype blijft zichtbaar (${seg})`);
+  await tp.tap("#btn-check");
+  ok((await tp.$eval("#btn-check", (el) => getComputedStyle(el).backgroundImage)).includes("gradient"), "touch: knop houdt zijn goud na tik");
+  await touch.close();
+
   for (const path of ["/HANDOVER.md", "/tools/export_model.py", "/docs/security/BEHEER.md", "/docs/IMPLEMENTATIEPLAN.md"]) {
     ok((await ctx.request.get(BASE + path)).status() === 404, "niet-publiek pad geeft 404: " + path);
   }
