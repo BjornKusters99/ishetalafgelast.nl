@@ -210,6 +210,8 @@ function fromParams(p) {
 }
 
 function clampNum(v, lo, hi, dflt) {
+  // Number("") en Number(null) zijn 0: een leeg veld moet de standaardwaarde krijgen.
+  if (v == null || String(v).trim() === "") return dflt;
   const n = Number(v);
   return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : dflt;
 }
@@ -424,7 +426,8 @@ async function runCheck(q, push) {
     if (q.manual) {
       setStep("geo", "done");
       setStep("weer", "done");
-      weather = { ...q.manual, precip_7d_sum: null, precip_3d_sum: 0, precip_1d: 0, frost_days_7d: null, rain_days_7d: 0 };
+      // De week ervoor is onbekend: het model vult die met een gemiddelde week.
+      weather = { ...q.manual, precip_7d_sum: null, precip_3d_sum: null, precip_1d: null, frost_days_7d: null, rain_days_7d: null };
     } else {
       setStep("geo", "busy");
       const place = await geocode(q.city);
@@ -750,11 +753,11 @@ function renderResult({ q, weather: w, pred, v }) {
   $("#r-temp").textContent = `${nl1.format(w.temperature)} °C`;
   $("#r-precip").textContent = `${nl1.format(w.precipitation)} mm`;
   $("#r-wind").textContent = `${nl0.format(w.wind_gusts)} km/u`;
-  const weekRow = $("#r-week-row");
-  weekRow.hidden = w.precip_7d_sum == null;
   if (w.precip_7d_sum != null) {
     const frost = w.frost_days_7d ? `${w.frost_days_7d} vriesnacht${w.frost_days_7d > 1 ? "en" : ""}` : "geen vorst";
     $("#r-week").replaceChildren(`${nl0.format(w.precip_7d_sum)} mm`, Object.assign(document.createElement("small"), { textContent: frost }));
+  } else {
+    $("#r-week").replaceChildren("onbekend", Object.assign(document.createElement("small"), { textContent: "gerekend als gemiddelde week" }));
   }
 
   $("#r-fun").textContent = pick(FUN[v.mood]);
