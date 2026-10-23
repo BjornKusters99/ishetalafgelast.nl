@@ -266,8 +266,9 @@ export function mountStage(stage, initial) {
     if (animating && visible && !document.hidden) raf = requestAnimationFrame(frame);
   }
 
+  let paused = false;
   function start() {
-    if (reduceMotion.matches || raf || !visible || document.hidden) return;
+    if (paused || reduceMotion.matches || raf || !visible || document.hidden) return;
     last = performance.now();
     raf = requestAnimationFrame(frame);
   }
@@ -288,5 +289,6 @@ export function mountStage(stage, initial) {
 
   set(initial);
   start();
-  return { set: (n) => { set(n); start(); }, burst };
+  // pause/resume: achter de keuring hoeft de kantine niet door te animeren.
+  return { set: (n) => { set(n); start(); }, burst, pause: () => { paused = true; stop(); }, resume: () => { paused = false; start(); } };
 }

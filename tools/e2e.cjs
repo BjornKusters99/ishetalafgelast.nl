@@ -163,6 +163,33 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   ok(await badWeather.isEnabled("#btn-check"), "formulier herstelt na API-fout");
   ok((await page.getAttribute('meta[name="referrer"]', "content")) === "no-referrer", "geen querygegevens in referrer");
 
+  // Met animatie: de keuring is begrensd en over te slaan; een gedeelde link gaat direct naar de uitslag.
+  const anim = await b.newContext({ locale: "nl-NL", timezoneId: "Europe/Amsterdam", reducedMotion: "no-preference" });
+  const ap = await anim.newPage();
+  await mock(ap);
+  await ap.goto(BASE + "/", { waitUntil: "networkidle" });
+  await ap.fill("#city", "Oss");
+  let t0 = Date.now();
+  await ap.click("#btn-check");
+  await ap.waitForSelector("#view-result:not([hidden])", { timeout: 15000 });
+  const full = Date.now() - t0;
+  // Ruime grens: CI rendert canvas in software. Zonder plafond kwam de uitslag hier nooit binnen 30 s.
+  ok(full < 20000, `keuring met animatie is begrensd (${full} ms)`);
+  await ap.click("#btn-back");
+  await ap.waitForSelector("#view-home:not([hidden])");
+  t0 = Date.now();
+  await ap.click("#btn-check");
+  await ap.click("#keuring-skip");
+  await ap.waitForSelector("#view-result:not([hidden])", { timeout: 5000 });
+  const skip = Date.now() - t0;
+  ok(skip < full, `sla over is sneller dan de hele keuring (${skip} < ${full} ms)`);
+  const dp = await anim.newPage();
+  await mock(dp);
+  await dp.goto(ap.url());
+  await dp.waitForSelector("#view-result:not([hidden])", { timeout: 15000 });
+  ok(await dp.isHidden("#keuring"), "gedeelde link gaat direct naar de uitslag, zonder keuring");
+  await anim.close();
+
   // Touch: een tik laat :hover plakken; de keuze en de knop moeten zichtbaar blijven.
   const touch = await b.newContext({ locale: "nl-NL", timezoneId: "Europe/Amsterdam", reducedMotion: "reduce",
     hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
