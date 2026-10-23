@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import test from "node:test";
 import vm from "node:vm";
 
@@ -147,3 +147,26 @@ test("worker activation removes legacy caches but keeps unrelated apps", async (
   await pending;
   assert.deepEqual(fake.deleted, ["v5-2", "ishetalafgelast-old"]);
 });
+
+const pages = ["index.html", "404.html", "privacy.html",
+  ...(await readdir(new URL("../plaatsen/", import.meta.url))).filter((f) => f.endsWith(".html")).map((f) => `plaatsen/${f}`)];
+const API_HOSTS = ["https://geocoding-api.open-meteo.com", "https://api.open-meteo.com", "https://archive-api.open-meteo.com"];
+
+for (const page of pages) {
+  test(`${page} keeps a strict CSP before any script`, async () => {
+    const html = await readFile(new URL(`../${page}`, import.meta.url), "utf8");
+    const match = html.match(/<meta http-equiv="Content-Security-Policy" content="([^"]+)">/);
+    assert.ok(match, "CSP meta ontbreekt");
+    const csp = Object.fromEntries(match[1].split(";").map((d) => d.trim()).filter(Boolean)
+      .map((d) => { const [name, ...values] = d.split(/\s+/); return [name, values]; }));
+    assert.doesNotMatch(match[1], /unsafe-inline|unsafe-eval|\*/);
+    assert.deepEqual(csp["object-src"], ["'none'"]);
+    assert.deepEqual(csp["base-uri"], ["'none'"]);
+    assert.ok(["'self'", "'none'"].includes(csp["script-src"]?.join(" ")), "script-src alleen 'self' of 'none'");
+    for (const host of csp["connect-src"] || []) assert.ok(API_HOSTS.includes(host), `onverwachte connect-src ${host}`);
+    const script = html.indexOf("<script");
+    assert.ok(script === -1 || match.index < script, "CSP moet vóór het eerste script staan");
+    assert.doesNotMatch(html, /<script(?![^>]*\ssrc=)[^>]*>/, "geen inline scripts");
+    assert.doesNotMatch(html, /\son[a-z]+="/, "geen inline event handlers");
+  });
+}

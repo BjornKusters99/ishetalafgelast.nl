@@ -141,7 +141,7 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   ok((await badWeather.textContent("#toast-text")).includes("volledig weerbericht"), "onvolledig weer geeft fout, geen kans");
   ok(await badWeather.isEnabled("#btn-check"), "formulier herstelt na API-fout");
   ok((await page.getAttribute('meta[name="referrer"]', "content")) === "no-referrer", "geen querygegevens in referrer");
-  for (const path of ["/HANDOVER.md", "/tools/export_model.py", "/docs/security.md"]) {
+  for (const path of ["/HANDOVER.md", "/tools/export_model.py", "/docs/security/BEHEER.md", "/docs/IMPLEMENTATIEPLAN.md"]) {
     ok((await ctx.request.get(BASE + path)).status() === 404, "niet-publiek pad geeft 404: " + path);
   }
 

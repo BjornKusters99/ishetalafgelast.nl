@@ -52,7 +52,7 @@ const { chromium } = require("playwright");
     }
   });
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({ executablePath: process.env.CHROME || undefined });
   try {
     const context = await browser.newContext();
     const page = await context.newPage();
