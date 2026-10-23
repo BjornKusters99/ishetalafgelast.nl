@@ -28,27 +28,22 @@ Repositoryinstellingen gecontroleerd/aangepast op 23 oktober 2026:
   ingesteld en Pages `build_type=workflow` gebruiken. Controleer deze settings;
   aanwezigheid van YAML alleen bewijst geen succesvolle live deployment.
 
-## Nog door de eigenaar te doen
+## Periodieke accountcontrole
 
-Account- en registrarinstellingen zijn niet volledig beschikbaar via de
-gebruikte API-toegang. De agent heeft geen sleutels ingetrokken of MFA aangepast.
+De actuele status van account- en registrarcontroles staat niet in deze
+publieke repo, maar in de privé overdracht van de eigenaar.
 
-1. GitHub: controleer 2FA/passkeys, recoverycodes, actieve sessies, de drie
-   geregistreerde SSH-sleutels, OAuth/GitHub Apps en tokens. Trek alleen rechten
-   in waarvan bevestigd is dat ze niet meer nodig zijn. Bewaar recoverycodes
-   offline buiten de repo. Bescherm ook de herstelmailbox.
-2. TransIP: controleer MFA, accounttoegang, domeinverlenging en herstelgegevens.
-   DNSSEC-records zijn aanwezig, maar accountbeveiliging is niet gecontroleerd.
-3. GitHub account Settings > Pages > Verified domains: verifieer het apexdomein
-   `ishetalafgelast.nl` met de daar uitgegeven TXT-record via TransIP. Behoud de
-   TXT-record permanent. De verwachte TXT-record was tijdens de audit afwezig;
-   een geldig TLS-certificaat is geen bewijs van deze eigenaarsverificatie.
-   Geen zelfbedachte challengewaarde gebruiken of domein loskoppelen als workaround.
+1. GitHub: 2FA/passkeys, recoverycodes, actieve sessies, SSH-sleutels,
+   OAuth/GitHub Apps en tokens. Trek alleen rechten in waarvan bevestigd is
+   dat ze niet meer nodig zijn. Bewaar recoverycodes offline buiten de repo.
+   Bescherm ook de herstelmailbox.
+2. Registrar: MFA, accounttoegang, domeinverlenging en herstelgegevens.
+3. GitHub account Settings > Pages > Verified domains: het apexdomein blijft
+   geverifieerd met de daar uitgegeven TXT-record. Een geldig TLS-certificaat
+   is geen bewijs van deze eigenaarsverificatie. Geen zelfbedachte
+   challengewaarde gebruiken of domein loskoppelen als workaround.
 
-De GitHub CLI heeft brede OAuth-`repo`-rechten. Gebruik voor toekomstige
-automatisering alleen noodzakelijke repo-/deployrechten. Deze credential is
-niet vervangen: dat kan de bestaande werkomgeving onderbreken en vergt controle
-van eigenaar en huidig gebruik.
+Geef automatisering alleen de repo- en deployrechten die nodig zijn.
 
 ## Grenzen van GitHub Pages
 
