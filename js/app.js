@@ -558,14 +558,14 @@ function whyText(weather, veld, p, manual) {
         week: "De week ervoor was droog genoeg, dus het veld kan wat hebben.",
         vorst: "Geen vorst in zicht.",
         wind: "Weinig wind, dus daar zal het niet op stuklopen.",
-        veld: "Kunstgras speelt bijna altijd door.",
+        veld: "Kunstgras kan beter tegen regen.",
       };
   const m = p / BASELINE;
   const comp =
     m >= 1.3
-      ? ` De kans is ${nl1.format(m)} keer zo groot als bij een gemiddelde wedstrijd.`
+      ? ` De modelschatting is ${nl1.format(m)} keer zo hoog als het simulatiegemiddelde.`
       : m <= 0.7
-        ? ` Een gemiddelde wedstrijd heeft ${nl0.format(BASELINE * 100)}% kans, deze minder.`
+        ? ` Het simulatiegemiddelde is ${nl0.format(BASELINE * 100)}%; deze modelschatting is lager.`
         : "";
   return lines[key] + comp;
 }

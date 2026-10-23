@@ -161,8 +161,10 @@ def place_page(naam: str, prov: str) -> str:
         '        <div class="reken-lede">\n'
         f"          <p>{intro}</p>\n"
         '          <p>De scheids, laten we hem <button type="button" class="henk-link">Henk</button> noemen, '
-        "beslist pas op het veld. Ons model heeft <strong>2.100 echte amateurwedstrijden</strong> gezien, "
-        f"waarvan er <strong>364</strong> werden afgelast. De officiële beslissing ligt bij je club in {naam} "
+        "beslist pas op het veld. Ons proefmodel gebruikt <strong>2.100 gesimuleerde wedstrijden</strong> "
+        "met historische weerdata. De <strong>364 afgelastingen zijn gegenereerd door kansregels</strong>, "
+        "niet vastgesteld bij echte wedstrijden. Het percentage is nog niet gevalideerd op echte uitslagen. "
+        f"De officiële beslissing ligt bij je club in {naam} "
         "en de scheidsrechter.</p>\n"
         "        </div>\n"
         "      </header>"
