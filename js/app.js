@@ -1,6 +1,6 @@
 import { searchPlaces, geocode, fetchWeather, predict, explain, isValidDay, UserError, BASELINE } from "./engine.js";
 import { mountStage } from "./scene.js";
-import { Stuitproef, bounceProfile } from "./stuitproef.js";
+import { Stuitproef, bounceProfile, moodFor } from "./stuitproef.js";
 import { say, parade, mountHotspots, mountAppgroep } from "./eggs.js";
 
 const $ = (s, el = document) => el.querySelector(s);
@@ -532,15 +532,15 @@ const SHARE_MSG = {
 
 function verdictFor(p, w) {
   const pr = bounceProfile(p, w);
-  const mood = p >= 0.6 ? "afgelast" : p >= 0.4 ? "twijfel" : "doorgaat";
+  const mood = moodFor(p);
   const word = mood === "afgelast" ? "Afgelast" : mood === "twijfel" ? "Twijfelgeval" : "Gaat door";
   // Twijfel speelt in de slaapkamer: half wakker, wekker op snooze.
-  return { mood, word, keuring: pick(KEURING_LINES[pr.key]), scene: p >= 0.4 ? "afgelast" : "doorgaat" };
+  return { mood, word, keuring: pick(KEURING_LINES[pr.key]), scene: mood === "doorgaat" ? "doorgaat" : "afgelast" };
 }
 
 function whyText(weather, veld, p, manual) {
   const c = explain(weather, veld);
-  const up = p >= 0.4;
+  const up = moodFor(p) !== "doorgaat";
   // Veldtype alleen noemen als de gebruiker het echt koos (en het de goede kant op werkt).
   const veldTelt = up ? veld === "natuurgras" : veld === "kunstgras";
   const entries = Object.entries(c).filter(([k]) => !(manual && k === "week") && (k !== "veld" || veldTelt));
@@ -707,7 +707,7 @@ function shareMessage() {
     : `ons potje van ${fmtShort.format(day(q.date))}`;
   const pool = SHARE_MSG[v.mood];
   current.msgI = ((current.msgI ?? Math.floor(Math.random() * pool.length)) + 1) % pool.length;
-  const text = pool[current.msgI].replace("{pct}", pct).replace("{wed}", wed);
+  const text = pool[current.msgI].replace("{pct}", () => pct).replace("{wed}", () => wed);
   // Eerste letter hoofdletter, ook als {wed} vooraan staat.
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
