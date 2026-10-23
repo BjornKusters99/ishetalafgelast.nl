@@ -103,12 +103,13 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   await mock(p3);
   await p3.fill("#date", far);
   await p3.click("#btn-check");
-  await p3.waitForTimeout(1500);
-  ok((await p3.textContent("#toast-text")).includes("15 dagen"), "te ver weg -> uitleg");
+  await p3.waitForSelector("#date-err:not([hidden])", { timeout: 3000 });
+  ok((await p3.textContent("#date-err")).includes("14 dagen"), "te ver weg -> uitleg bij de datum");
+  ok(await p3.isHidden("#keuring"), "te ver weg -> geen keuring");
+  ok(await p3.$eval("#manual", (d) => d.open), "te ver weg -> weer zelf invullen staat open");
 
-  // handmatig weer, geen plaats nodig
+  // handmatig weer, geen plaats nodig (ook voor een verre datum)
   await p3.fill("#city", "");
-  await p3.click("#manual summary");
   await p3.fill("#m-temp", "-3"); await p3.fill("#m-precip", "2"); await p3.fill("#m-wind", "20");
   await p3.click("#btn-check");
   await p3.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
