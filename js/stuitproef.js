@@ -10,6 +10,8 @@
 // opwaait. Hij is getekend in "rubber-hose"-stijl (armen als slangen), zodat
 // hij de bal kan oprapen zonder te bukken; dat kan Henk namelijk niet meer.
 
+import { isIdle, onActive } from "./scene.js";
+
 const INK = "#2b1a10";
 const G = 2600; // zwaartekracht, logische px/s²
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
@@ -437,13 +439,14 @@ export class Stuitproef {
       if (this.visible) this.play();
     }).observe(canvas);
     document.addEventListener("visibilitychange", () => !document.hidden && this.play());
+    onActive(() => this.play());
     document.fonts?.load('30px "Patrick Hand"').then(() => this.draw());
   }
 
   resize() {
     const r = this.canvas.getBoundingClientRect();
     if (!r.width) return;
-    const dpr = Math.min(devicePixelRatio || 1, 2);
+    const dpr = Math.min(devicePixelRatio || 1, 1.5);
     this.canvas.width = Math.round(r.width * dpr);
     this.canvas.height = Math.round(r.height * dpr);
     // Logische breedte: smaller scherm = minder "wereld", zodat bal en scheids leesbaar blijven.
@@ -589,7 +592,7 @@ export class Stuitproef {
         this.acc -= STEP;
       }
       this.draw();
-      this.raf = busy && this.visible && !document.hidden ? requestAnimationFrame(tick) : 0;
+      this.raf = busy && this.visible && !document.hidden && !this.dozing() ? requestAnimationFrame(tick) : 0;
     };
     this.raf = requestAnimationFrame(tick);
   }
@@ -597,6 +600,11 @@ export class Stuitproef {
   stop() {
     cancelAnimationFrame(this.raf);
     this.raf = 0;
+  }
+
+  /** Uitslag staat, bal ligt stil en niemand doet iets: Henk mag even pauzeren. */
+  dozing() {
+    return this.mode === "final" && this.ball.state === "rest" && !this.card && !this.finalDone && isIdle();
   }
 
   step(dt) {

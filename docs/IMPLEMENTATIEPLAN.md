@@ -40,7 +40,7 @@ en zet de status in de tabel hieronder op ✅.
 | T10 | [#19](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/19) | Keuring snel, overslaanbaar en onafhankelijk van framerate | UX-2, BUG-8 | ✅ |
 | T11 | [#20](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/20) | Afbreekbare check en veilige terugknop | BUG-6, BUG-11 | ✅ |
 | T12 | [#21](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/21) | Plaatskeuze met regio en coördinaten, betere foutmeldingen | BUG-7, UX-6, UX-7 | ✅ |
-| T13 | [#22](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/22) | Canvas-performance en lichtere beelden | PERF-1, PERF-3, BUG-15 | ☐ |
+| T13 | [#22](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/22) | Canvas-performance en lichtere beelden | PERF-1, PERF-3, BUG-15 | ✅ |
 | T14 | [#23](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/23) | Privacyverklaring beschrijft het echte gedrag | SEC-4 | ☐ |
 | T15 | [#24](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/24) | Plaatspagina's: eigen inhoud, structured data, lastmod | SEO-1, SEO-3, SEO-5 | ☐ |
 | T16 | [#25](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/25) | CI-hygiëne en publieke beheerdocumentatie | SEC-7, SEC-6 | ✅ |
