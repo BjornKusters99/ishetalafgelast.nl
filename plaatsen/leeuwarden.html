@@ -17,6 +17,7 @@
   <meta property="og:image" content="https://www.ishetalafgelast.nl/img/og.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Getekende voetbalkantine met uitzicht op een regenachtig veld en de tekst: Gaat je potje door? Afgelastingskans voor amateurvoetbal.">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#2c1b11">
 
@@ -30,6 +31,7 @@
   <link rel="preload" href="/fonts/fredoka.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/styles.css">
   <script type="module" src="/js/app.js"></script>
+  <script type="module" src="/js/ld.js"></script>
 </head>
 <body>
   <svg class="sprite" aria-hidden="true">
@@ -97,7 +99,7 @@
           <div class="field field--city">
             <label for="city">Waar speel je?</label>
             <input id="city" name="plaats" type="text" required maxlength="80" inputmode="search"
-                   value="Leeuwarden" placeholder="Plaats of dorp" list="city-list" aria-describedby="city-err" enterkeyhint="go">
+                   value="Leeuwarden" data-lat="53.2012" data-lon="5.7999" placeholder="Plaats of dorp" list="city-list" aria-describedby="city-err" enterkeyhint="go">
             <datalist id="city-list"></datalist>
             <p class="field-err" id="city-err" hidden></p>
           </div>
@@ -253,15 +255,29 @@
     </section>
 
     <!--seo:places-->
+    <section class="places places--klimaat" aria-labelledby="klimaat-title">
+      <h2 id="klimaat-title">Voetbalweer in Leeuwarden</h2>
+      <p>Leeuwarden ligt in Friesland. Zo zag het weer er rond Leeuwarden uit in de voetbalseizoenen 2015/16 t/m 2024/25, gemiddeld per seizoen.</p>
+      <table class="klimaat-tabel">
+        <thead><tr><th scope="col">Gemiddeld per seizoen</th><th scope="col">Herfst</th><th scope="col">Winter</th><th scope="col">Voorjaar</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Zaterdagen met 5 mm regen of meer</th><td>2,1</td><td>1,4</td><td>2,1</td></tr>
+          <tr><th scope="row">Nachten met vorst</th><td>1,9</td><td>21,2</td><td>7,1</td></tr>
+          <tr><th scope="row">Dagen met windstoten vanaf 75 km/u</th><td>3,1</td><td>7,5</td><td>2,1</td></tr>
+        </tbody>
+      </table>
+      <p>Van september tot en met mei telt Leeuwarden gemiddeld 5,6 natte zaterdagen. Daarmee zit Leeuwarden in de middenmoot van onze 40 plaatsen. In de winter vriest het er gemiddeld 21,2 nachten. Daarmee hoort Leeuwarden bij het kwart met de minste vorst van onze 40 plaatsen.</p>
+      <p class="bron">Bron: Open-Meteo historische weerdata (CC BY 4.0). Herfst is september tot en met november, winter december tot en met februari, voorjaar maart tot en met mei.</p>
+    </section>
     <section class="places" aria-labelledby="places-title">
       <h2 id="places-title">In de buurt van Leeuwarden</h2>
       <ul class="place-list">
-        <li><a href="/plaatsen/groningen.html">Groningen</a></li>
-        <li><a href="/plaatsen/assen.html">Assen</a></li>
-        <li><a href="/plaatsen/zwolle.html">Zwolle</a></li>
-        <li><a href="/plaatsen/lelystad.html">Lelystad</a></li>
-        <li><a href="/plaatsen/hoorn.html">Hoorn</a></li>
-        <li><a href="/plaatsen/emmen.html">Emmen</a></li>
+        <li><a href="/plaatsen/groningen.html">Groningen</a> <span class="km">51 km</span></li>
+        <li><a href="/plaatsen/assen.html">Assen</a> <span class="km">56 km</span></li>
+        <li><a href="/plaatsen/zwolle.html">Zwolle</a> <span class="km">78 km</span></li>
+        <li><a href="/plaatsen/lelystad.html">Lelystad</a> <span class="km">79 km</span></li>
+        <li><a href="/plaatsen/hoorn.html">Hoorn</a> <span class="km">80 km</span></li>
+        <li><a href="/plaatsen/emmen.html">Emmen</a> <span class="km">88 km</span></li>
         <li><a class="more" href="/plaatsen/">Alle plaatsen</a></li>
       </ul>
     </section>
