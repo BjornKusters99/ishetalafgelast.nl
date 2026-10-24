@@ -12,7 +12,7 @@ function engineWith(fetch, timers = {}) {
   const context = vm.createContext({ fetch, URLSearchParams, AbortController, setTimeout, clearTimeout, ...timers });
   vm.runInContext(model.replace("export const MODEL", "const MODEL") + "\n"
     + engine.replace(/^import .*$/m, "").replaceAll("export ", "")
-    + "\nglobalThis.api = { fetchWeather, searchPlaces, geocode, predict, isValidDay };", context);
+    + "\nglobalThis.api = { fetchWeather, fetchWeekend, weekendPartner, searchPlaces, geocode, predict, isValidDay };", context);
   return context.api;
 }
 
@@ -259,7 +259,7 @@ test("forecast horizon is 14 days and older matches use the archive", async () =
 
 test("privacy statement describes what really leaves the browser and names no dead mailbox", async () => {
   const html = await readFile(new URL("../privacy.html", import.meta.url), "utf8");
-  for (const fact of ["Tijdens het typen", "speeldatum", "service worker", "Autoriteit Persoonsgegevens", "Wij bewaren zelf niets"]) {
+  for (const fact of ["Tijdens het typen", "speeldatum", "service worker", "Autoriteit Persoonsgegevens", "Wij bewaren zelf niets", "Onthoud mijn wedstrijd"]) {
     assert.ok(html.includes(fact), fact);
   }
   // Tot E01 (mail-DNS) is er geen werkende mailbox op het domein.
@@ -279,4 +279,25 @@ test("sitemap dates every page and pages load structured data from a file", asyn
   const index = await readFile(new URL("../index.html", import.meta.url), "utf8");
   assert.match(index, /<script type="module" src="\/js\/ld\.js"><\/script>/);
   assert.match(index, /<meta property="og:image:alt" content="[^"]{20,}">/);
+});
+
+test("weekend: Saturday and Sunday come from one call, each with its own week before", async () => {
+  const ahead = (n) => new Date(Date.now() + n * 864e5).toLocaleDateString("sv-SE", { timeZone: "Europe/Amsterdam" });
+  let n = 1;
+  while (new Date(`${ahead(n)}T12:00:00Z`).getUTCDay() !== 6) n++;
+  const [sat, sun] = [ahead(n), ahead(n + 1)];
+  const urls = [];
+  const api = engineWith(async (url) => {
+    const u = new URL(url);
+    urls.push(u);
+    const time = Array.from({ length: 9 }, (_, i) => new Date(Date.parse(`${u.searchParams.get("start_date")}T00:00:00Z`) + i * 864e5).toISOString().slice(0, 10));
+    return { ok: true, json: async () => ({ daily: { time, temperature_2m_mean: Array(9).fill(5), temperature_2m_min: Array(9).fill(1),
+      precipitation_sum: time.map((_, i) => i), wind_gusts_10m_max: Array(9).fill(40) } }) };
+  });
+  assert.equal(api.weekendPartner(sat), sun);
+  assert.equal(api.weekendPartner(sun), sat);
+  const days = await api.fetchWeekend(52, 5, sun);
+  assert.equal(urls.length, 1);
+  assert.equal(urls[0].searchParams.get("end_date"), sun);
+  assert.deepEqual([days[sat].precipitation, days[sat].precip_1d, days[sun].precipitation, days[sun].precip_7d_sum], [7, 6, 8, 28]);
 });

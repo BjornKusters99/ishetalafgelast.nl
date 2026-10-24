@@ -44,7 +44,7 @@ en zet de status in de tabel hieronder op ✅.
 | T14 | [#23](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/23) | Privacyverklaring beschrijft het echte gedrag | SEC-4 | ✅ |
 | T15 | [#24](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/24) | Plaatspagina's: eigen inhoud, structured data, lastmod | SEO-1, SEO-3, SEO-5 | ✅ |
 | T16 | [#25](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/25) | CI-hygiëne en publieke beheerdocumentatie | SEC-7, SEC-6 | ✅ |
-| T17 | [#26](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/26) | Wedstrijd onthouden, zaterdag en zondag, agenda-herinnering | UX-8, PROD-1, PROD-2, PROD-3 | ☐ |
+| T17 | [#26](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/26) | Wedstrijd onthouden, zaterdag en zondag, agenda-herinnering | UX-8, PROD-1, PROD-2, PROD-3 | ✅ |
 | T18 | [#27](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/27) | Deellink met kans en tijdstip | UX-9 | ☐ |
 | T19 | [#28](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/28) | Aftraptijd en uurweer rond de wedstrijd | UX-5 | ☐ |
 | T20 | [#29](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/29) | Banner voor officiële algemene afgelasting | PROD-4, SEO-4 | ☐ |

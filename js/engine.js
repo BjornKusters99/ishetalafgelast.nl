@@ -112,40 +112,72 @@ export async function geocode(query, signal) {
  * 30 dagen via de archief-API.
  */
 export async function fetchWeather(lat, lon, isoDate, signal) {
-  if (!isValidDay(isoDate)) throw new UserError("Kies een geldige speeldag.");
+  return (await fetchDays(lat, lon, [isoDate], signal))[isoDate];
+}
+
+/** Zaterdag hoort bij zondag en andersom; doordeweeks is er geen tweede dag. */
+export function weekendPartner(iso) {
+  const wd = parseDay(iso).getUTCDay();
+  if (wd !== 6 && wd !== 0) return null;
+  return isoDay(new Date(parseDay(iso).getTime() + (wd === 6 ? DAY_MS : -DAY_MS)));
+}
+
+/**
+ * Speeldag en, in het weekend, ook de andere weekenddag, nog steeds in één call.
+ * Geeft { [datum]: weer }; de andere dag ontbreekt als die buiten de horizon valt.
+ */
+export async function fetchWeekend(lat, lon, isoDate, signal) {
+  const other = isValidDay(isoDate) ? weekendPartner(isoDate) : null;
+  const archive = (iso) => daysAhead(iso) < ARCHIVE_BEFORE_DAYS;
+  const both = other && !horizonError(other) && archive(other) === archive(isoDate);
+  return fetchDays(lat, lon, both ? [isoDate, other] : [isoDate], signal);
+}
+
+const DAILY_LIMITS = {
+  temperature_2m_mean: [-90, 60],
+  temperature_2m_min: [-90, 60],
+  precipitation_sum: [0, 2000],
+  wind_gusts_10m_max: [0, 500],
+};
+
+async function fetchDays(lat, lon, dates, signal) {
+  for (const iso of dates) {
+    if (!isValidDay(iso)) throw new UserError("Kies een geldige speeldag.");
+  }
   if (!Number.isFinite(lat) || Math.abs(lat) > 90 || !Number.isFinite(lon) || Math.abs(lon) > 180) {
     throw new UserError("De locatie van het sportpark is ongeldig.");
   }
-  const tooFar = horizonError(isoDate);
-  if (tooFar) throw new UserError(tooFar);
-  const day = parseDay(isoDate);
-  const base = daysAhead(isoDate) < ARCHIVE_BEFORE_DAYS ? ARCHIVE_URL : FORECAST_URL;
+  for (const iso of dates) {
+    const tooFar = horizonError(iso);
+    if (tooFar) throw new UserError(tooFar);
+  }
+  const sorted = [...dates].sort();
+  const first = parseDay(sorted[0]);
+  const n = Math.round((parseDay(sorted.at(-1)) - first) / DAY_MS) + 8;
+  const base = daysAhead(sorted[0]) < ARCHIVE_BEFORE_DAYS ? ARCHIVE_URL : FORECAST_URL;
   const params = new URLSearchParams({
     latitude: lat.toFixed(4),
     longitude: lon.toFixed(4),
     daily: "temperature_2m_mean,temperature_2m_min,precipitation_sum,wind_gusts_10m_max",
     timezone: "Europe/Amsterdam",
-    start_date: isoDay(new Date(day - 7 * DAY_MS)),
-    end_date: isoDate,
+    start_date: isoDay(new Date(first - 7 * DAY_MS)),
+    end_date: sorted.at(-1),
   });
   const data = await getJson(`${base}?${params}`, signal);
   const d = data?.daily;
-  const limits = {
-    temperature_2m_mean: [-90, 60],
-    temperature_2m_min: [-90, 60],
-    precipitation_sum: [0, 2000],
-    wind_gusts_10m_max: [0, 500],
-  };
-  if (!Array.isArray(d?.time) || d.time.length !== 8
-    || d.time.some((date, i) => date !== isoDay(new Date(day - (7 - i) * DAY_MS)))
-    || Object.entries(limits).some(([key, [lo, hi]]) => !Array.isArray(d[key]) || d[key].length !== 8
+  if (!Array.isArray(d?.time) || d.time.length !== n
+    || d.time.some((date, i) => date !== isoDay(new Date(first - (7 - i) * DAY_MS)))
+    || Object.entries(DAILY_LIMITS).some(([key, [lo, hi]]) => !Array.isArray(d[key]) || d[key].length !== n
       || d[key].some((v) => !Number.isFinite(v) || v < lo || v > hi))) {
     throw new UserError("Voor deze datum is geen volledig weerbericht bekend. Vul het weer zelf in of probeer het later.");
   }
+  return Object.fromEntries(dates.map((iso) => [iso, featuresAt(d, 7 + Math.round((parseDay(iso) - first) / DAY_MS))]));
+}
 
-  const i = 7;
-  const prevPrecip = d.precipitation_sum.slice(0, i);
-  const prevMin = d.temperature_2m_min.slice(0, i);
+/** Modelinvoer voor dag i: die dag zelf en de zeven dagen ervoor. */
+function featuresAt(d, i) {
+  const prevPrecip = d.precipitation_sum.slice(i - 7, i);
+  const prevMin = d.temperature_2m_min.slice(i - 7, i);
   const sum = (a) => a.reduce((s, v) => s + v, 0);
 
   return {
