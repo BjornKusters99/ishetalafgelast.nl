@@ -1162,6 +1162,28 @@ function showSaved(q) {
   $("#saved").hidden = false;
 }
 
+/* ─────────── Officiële algemene afgelasting ─────────── */
+
+// status.json zet de beheerder met de hand; de bron moet de KNVB of Voetbal.nl zijn.
+const STATUS_SOURCE = /^https:\/\/(www\.)?(knvb|voetbal)\.nl(\/|$)/;
+function statusBanner(s, today) {
+  if (!s || s.algemeen_afgelast !== true || typeof s.tekst !== "string" || !s.tekst.trim()) return null;
+  if (typeof s.bron !== "string" || !STATUS_SOURCE.test(s.bron)) return null;
+  // Met "tot" verdwijnt de banner vanzelf; een vergeten melding blijft niet staan.
+  if (s.tot && (typeof s.tot !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(s.tot) || s.tot < today)) return null;
+  return { text: s.tekst.trim().slice(0, 200), href: s.bron };
+}
+fetch("/status.json", { cache: "no-cache", credentials: "omit" })
+  .then((r) => (r.ok ? r.json() : null))
+  .then((s) => {
+    const banner = statusBanner(s, new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Amsterdam" }));
+    if (!banner) return;
+    $("#status-text").textContent = banner.text;
+    $("#status-link").href = banner.href;
+    $("#status").hidden = false;
+  })
+  .catch(() => { /* geen status: geen banner */ });
+
 /* ─────────── Melding ─────────── */
 
 let toastTimer = 0;
