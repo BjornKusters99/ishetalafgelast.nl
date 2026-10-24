@@ -301,3 +301,13 @@ test("weekend: Saturday and Sunday come from one call, each with its own week be
   assert.equal(urls[0].searchParams.get("end_date"), sun);
   assert.deepEqual([days[sat].precipitation, days[sat].precip_1d, days[sun].precipitation, days[sun].precip_7d_sum], [7, 6, 8, 28]);
 });
+
+test("a shared link carries the probability and moment of the check, within sane bounds", () => {
+  const { fromParams } = appForm("Oss");
+  const now = Math.floor(Date.now() / 1000);
+  const shared = (extra) => fromParams(new URLSearchParams(`datum=${DATE}&plaats=Oss&${extra}`)).shared;
+  assert.equal(shared(`p=61&ts=${now - 3600}`).p, 61);
+  for (const bad of [`p=101&ts=${now}`, `p=abc&ts=${now}`, `p=61&ts=${now + 3600}`, `p=61&ts=${now - 90 * 86400}`, "p=61", `p=6.5&ts=${now}`]) {
+    assert.equal(shared(bad), undefined, bad);
+  }
+});
