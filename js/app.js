@@ -1,4 +1,4 @@
-import { searchPlaces, geocode, placeLabel, fetchWeather, predict, explain, isValidDay, horizonError, daysAhead, UserError, BASELINE } from "./engine.js";
+import { searchPlaces, geocode, placeLabel, fetchWeekend, predict, explain, isValidDay, horizonError, daysAhead, UserError, BASELINE } from "./engine.js";
 import { mountStage } from "./scene.js";
 import { Stuitproef, bounceProfile, moodFor } from "./stuitproef.js";
 import { say, parade, mountHotspots, mountAppgroep, appgroep } from "./eggs.js";
@@ -62,10 +62,12 @@ function showTeams(focus) {
 }
 teamsToggle.addEventListener("click", () => showTeams(true));
 
-function nextMatchDay() {
+/** Eerstvolgende speeldag: zaterdag of zondag, of de vaste dag van een onthouden wedstrijd. */
+function nextMatchDay(want) {
   const d = new Date();
   const dow = d.getDay(); // 0 = zondag, 6 = zaterdag
-  if (dow !== 0 && dow !== 6) d.setDate(d.getDate() + (6 - dow));
+  if (Number.isInteger(want) && want >= 0 && want <= 6) d.setDate(d.getDate() + ((want - dow + 7) % 7));
+  else if (dow !== 0 && dow !== 6) d.setDate(d.getDate() + (6 - dow));
   return d.toLocaleDateString("sv-SE");
 }
 
@@ -480,6 +482,7 @@ async function runCheck(q, push, quick = false) {
 
   try {
     let weather;
+    let other = null;
     let where = q;
     if (q.manual) {
       setStep("geo", "done");
@@ -495,7 +498,11 @@ async function runCheck(q, push, quick = false) {
       }
       setStep("geo", "done");
       setStep("weer", "busy");
-      weather = await fetchWeather(where.lat, where.lon, q.date, signal);
+      // Zaterdag en zondag komen uit dezelfde call: de andere weekenddag rekenen we gratis mee.
+      const days = await fetchWeekend(where.lat, where.lon, q.date, signal);
+      weather = days[q.date];
+      const otherDate = Object.keys(days).find((d) => d !== q.date);
+      if (otherDate) other = { date: otherDate, p: predict(days[otherDate], q.veld).probability };
       setStep("weer", "done");
     }
     keuringStuit.setWeather(weather);
@@ -521,9 +528,11 @@ async function runCheck(q, push, quick = false) {
     if (!quick) await Promise.race([waitForTapOr(1500), skipped, aborted]);
     if (signal.aborted) throw signal.reason;
 
-    const result = { q: where, weather, pred, v, at: new Date() };
+    const result = { q: where, weather, pred, v, other, at: new Date() };
     if (push) history.pushState({ result: true }, "", shareUrl(result.q));
     renderResult(result);
+    // Alleen wat de gebruiker zelf checkt, niet een link van een ander.
+    if (push) remember(result.q);
     if (overlayOwner === ctrl) await closeKeuring();
     $("#verdict-word").focus({ preventScroll: true });
   } catch (err) {
@@ -827,7 +836,7 @@ function updateShare() {
 
 $("#share-shuffle").addEventListener("click", updateShare);
 
-function renderResult({ q, weather: w, pred, v, at }) {
+function renderResult({ q, weather: w, pred, v, other, at }) {
   const p = pred.probability;
   const pct = Math.round(p * 100);
   const sceneEl = $(".scene--result");
@@ -844,6 +853,7 @@ function renderResult({ q, weather: w, pred, v, at }) {
   $("#r-kicker").textContent = teams ? `${teams}, ${when}` : `${where}, ${when}`;
   $("#verdict-word").replaceChildren(Object.assign(document.createElement("span"), { className: "board-hedge", textContent: "Verwachting:" }), ` ${v.word}`);
   $("#r-horizon").textContent = horizonText(q, at);
+  renderWeekend(q, pred.probability, other);
 
   const hue = Math.round(110 - 105 * p);
   resultView.style.setProperty("--thermo", `hsl(${hue} 62% 44%)`);
@@ -875,6 +885,7 @@ function renderResult({ q, weather: w, pred, v, at }) {
 
   current = { q, v, pct, url: shareUrl(q) };
   updateShare();
+  renderReminder(q);
   renderExtra(v.mood);
 
   document.title = `${v.label} (${pct}%) | IsHetAlAfgelast.nl`;
@@ -981,6 +992,121 @@ window.addEventListener("popstate", () => {
   }
 });
 
+/* ─────────── Weekend, herinnering en onthouden ─────────── */
+
+const fmtWeekday = new Intl.DateTimeFormat("nl-NL", { weekday: "long" });
+
+/** Zaterdag en zondag naast elkaar; de andere dag is één tik verder. */
+function renderWeekend(q, p, other) {
+  const el = $("#r-weekend");
+  el.hidden = !other;
+  if (!other) return;
+  const label = (iso, prob) => {
+    const wd = fmtWeekday.format(day(iso));
+    return `${wd[0].toUpperCase()}${wd.slice(1)} ${Math.round(prob * 100)}%`;
+  };
+  const mine = Object.assign(document.createElement("strong"), { textContent: label(q.date, p) });
+  const btn = Object.assign(document.createElement("button"), { type: "button", className: "weekend-other", textContent: label(other.date, other.p) });
+  btn.addEventListener("click", () => {
+    const next = { ...q, date: other.date };
+    fillForm(next);
+    runCheck(next, true, true);
+  });
+  el.replaceChildren(...(other.date < q.date ? [btn, " · ", mine] : [mine, " · ", btn]));
+}
+
+/** Herinnering de vrijdag ervoor om 19:45 (doordeweeks: de avond ervoor), zolang die nog komt. */
+function reminderAt(q) {
+  const at = day(q.date);
+  const dow = at.getDay();
+  at.setDate(at.getDate() - (dow === 0 ? 2 : 1));
+  at.setHours(19, 45, 0, 0);
+  return at > new Date() ? at : null;
+}
+
+function renderReminder(q) {
+  const at = reminderAt(q);
+  $("#btn-ics").hidden = !at;
+  if (at) $("#ics-label").textContent = `Herinner me ${fmtWeekday.format(at)} om 19:45`;
+}
+
+/** Een .ics met de deellink: de agenda opent de check met het nieuwste weerbericht. */
+function icsFor(q, at, url) {
+  const pad = (n) => String(n).padStart(2, "0");
+  const local = (d) => `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+  const esc = (t) => t.replace(/[\;,]/g, (c) => `\\${c}`).replace(/\r?\n/g, "\\n");
+  // Regels langer dan 75 tekens vouwen, zoals RFC 5545 vraagt.
+  const fold = (line) => line.match(/.{1,70}/gu).join("\r\n ");
+  const what = q.home || q.away ? `${q.home || "Thuis"} - ${q.away || "Uit"}` : `je wedstrijd in ${q.city || "je plaats"}`;
+  return [
+    "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//IsHetAlAfgelast.nl//NL", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
+    "BEGIN:VEVENT",
+    `UID:${crypto.randomUUID()}@ishetalafgelast.nl`,
+    `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "")}`,
+    `DTSTART:${local(at)}`,
+    "DURATION:PT15M",
+    `SUMMARY:${esc(`Check of ${what} doorgaat`)}`,
+    `DESCRIPTION:${esc(`Nieuw weerbericht, nieuwe kans: ${url}`)}`,
+    `URL:${url}`,
+    "BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:Is het al afgelast?", "TRIGGER:PT0M", "END:VALARM",
+    "END:VEVENT", "END:VCALENDAR",
+  ].map(fold).join("\r\n") + "\r\n";
+}
+
+$("#btn-ics").addEventListener("click", () => {
+  const at = current && reminderAt(current.q);
+  if (!at) return;
+  const blob = new Blob([icsFor(current.q, at, current.url)], { type: "text/calendar;charset=utf-8" });
+  const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: "opnieuw-checken.ics" });
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+
+// Alleen in de lokale opslag van dit toestel; gaat nergens heen en is uit te zetten.
+const MEMORY_KEY = "ishetalafgelast:wedstrijd";
+const rememberBox = $("#remember");
+
+function remember(q) {
+  if (q.manual || !rememberBox.checked) return;
+  try {
+    localStorage.setItem(MEMORY_KEY, JSON.stringify({ city: q.city, lat: q.lat, lon: q.lon, veld: q.veld,
+      home: q.home, away: q.away, weekday: day(q.date).getDay() }));
+  } catch { /* opslag geblokkeerd: dan onthouden we niets */ }
+}
+
+function forget() {
+  try { localStorage.removeItem(MEMORY_KEY); } catch { /* idem */ }
+  $("#saved").hidden = true;
+}
+
+/** Onthouden wedstrijd als query voor de eerstvolgende speeldag, gecontroleerd zoals een deellink. */
+function recall() {
+  let m;
+  try { m = JSON.parse(localStorage.getItem(MEMORY_KEY) || "null"); } catch { return null; }
+  if (!m || typeof m.city !== "string" || !m.city) return null;
+  const p = new URLSearchParams({ plaats: m.city, datum: nextMatchDay(m.weekday), veld: VELD_PARAM[m.veld] || "natuurgras" });
+  if (typeof m.home === "string" && m.home) p.set("thuis", m.home);
+  if (typeof m.away === "string" && m.away) p.set("uit", m.away);
+  if (Number.isFinite(m.lat) && Number.isFinite(m.lon)) {
+    p.set("lat", m.lat);
+    p.set("lon", m.lon);
+  }
+  return fromParams(p);
+}
+
+rememberBox.addEventListener("change", () => { if (!rememberBox.checked) forget(); });
+$("#btn-forget").addEventListener("click", () => {
+  forget();
+  cityInput.focus();
+});
+$("#btn-again").addEventListener("click", () => form.requestSubmit());
+
+function showSaved(q) {
+  const teams = q.home || q.away ? `${q.home || "Thuis"} - ${q.away || "Uit"}, ` : "";
+  $("#saved-what").textContent = `${teams}${q.city}, ${fmtDay.format(day(q.date))}`;
+  $("#saved").hidden = false;
+}
+
 /* ─────────── Melding ─────────── */
 
 let toastTimer = 0;
@@ -1001,6 +1127,13 @@ if (initial) {
   fillForm(initial);
   history.replaceState({ result: false }, "", location.href);
   runCheck(initial, false, true);
+} else if (!cityInput.dataset.lat) {
+  // Op de homepage staat je vorige wedstrijd klaar; een plaatspagina gaat over die plaats.
+  const saved = recall();
+  if (saved) {
+    fillForm(saved);
+    showSaved(saved);
+  }
 }
 void homeStage;
 

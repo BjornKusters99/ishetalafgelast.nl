@@ -53,6 +53,7 @@
     <symbol id="i-up" viewBox="0 0 24 24"><path d="m5 12 7-7 7 7M12 19V5"/></symbol>
     <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14M19 12l-7 7-7-7"/></symbol>
     <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
     <symbol id="i-shirt" viewBox="0 0 48 48"><path d="M17 4c1.5 3 4 4.5 7 4.5S29.5 7 31 4l11 5 4 12-8 3v20H10V24l-8-3 4-12z"/></symbol>
   </svg>
 
@@ -95,6 +96,11 @@
         <p class="lede">Wij halen het weer rond je sportpark in Dordrecht op en rekenen uit hoe groot de kans op afgelasting is.</p>
         <!--/seo:hero-->
 
+        <div class="saved" id="saved" hidden>
+          <p><span class="saved-label">Je wedstrijd</span> <span id="saved-what"></span></p>
+          <button type="button" class="btn-tiny" id="btn-again">Check opnieuw</button>
+          <button type="button" class="btn-forget" id="btn-forget">Vergeet</button>
+        </div>
         <form id="form" class="check-form" novalidate autocomplete="off">
           <div class="field field--city">
             <label for="city">Waar speel je?</label>
@@ -138,6 +144,8 @@
           <button type="submit" class="btn-cta" id="btn-check">
             <span>Is het al afgelast?</span>
           </button>
+
+          <label class="remember"><input type="checkbox" id="remember" checked> Onthoud mijn wedstrijd op dit toestel</label>
 
           <details class="manual" id="manual">
             <summary>Weer zelf invullen <svg class="ic"><use href="#i-chev"/></svg></summary>
@@ -320,6 +328,7 @@
           </div>
           <p class="board-note">Schatting op basis van het weer, geen officiële afgelasting. <a href="https://www.voetbal.nl/" target="_blank" rel="noopener">Check je club of Voetbal.nl</a>.</p>
           <p class="board-horizon" id="r-horizon"></p>
+          <p class="board-weekend" id="r-weekend" hidden></p>
         </div>
       </div>
     </section>
@@ -368,6 +377,7 @@
               <a class="btn-net" data-net="x" href="https://x.com/intent/post" target="_blank" rel="noopener" aria-label="Deel via X"><svg class="ic"><use href="#i-x"/></svg></a>
               <button type="button" class="btn-net" data-net="copy" id="btn-copy" aria-label="Kopieer link"><svg class="ic"><use href="#i-link"/></svg></button>
             </div>
+            <button type="button" class="btn-tiny" id="btn-ics" hidden><svg class="ic"><use href="#i-cal"/></svg> <span id="ics-label">Herinner me om opnieuw te checken</span></button>
           </div>
         </div>
       </div>
