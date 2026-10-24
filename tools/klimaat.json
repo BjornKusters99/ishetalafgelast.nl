@@ -1,0 +1,690 @@
+{
+ "meta": {
+  "bron": "Open-Meteo historische weerdata (CC BY 4.0)",
+  "seizoenen": "2015/16 t/m 2024/25",
+  "natte_zaterdag_mm": 5,
+  "storm_kmh": 75
+ },
+ "plaatsen": {
+  "Alkmaar": {
+   "herfst": {
+    "natte_zaterdagen": 3.0,
+    "vorstnachten": 0.4,
+    "stormdagen": 6.0
+   },
+   "winter": {
+    "natte_zaterdagen": 1.9,
+    "vorstnachten": 13.8,
+    "stormdagen": 13.8
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.7,
+    "vorstnachten": 2.4,
+    "stormdagen": 4.3
+   }
+  },
+  "Almelo": {
+   "herfst": {
+    "natte_zaterdagen": 2.0,
+    "vorstnachten": 3.7,
+    "stormdagen": 1.7
+   },
+   "winter": {
+    "natte_zaterdagen": 1.7,
+    "vorstnachten": 28.7,
+    "stormdagen": 3.2
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.8,
+    "vorstnachten": 10.1,
+    "stormdagen": 1.7
+   }
+  },
+  "Almere": {
+   "herfst": {
+    "natte_zaterdagen": 2.2,
+    "vorstnachten": 2.6,
+    "stormdagen": 2.5
+   },
+   "winter": {
+    "natte_zaterdagen": 1.7,
+    "vorstnachten": 22.2,
+    "stormdagen": 5.9
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 2.0,
+    "vorstnachten": 6.5,
+    "stormdagen": 2.8
+   }
+  },
+  "Amersfoort": {
+   "herfst": {
+    "natte_zaterdagen": 2.3,
+    "vorstnachten": 3.0,
+    "stormdagen": 1.8
+   },
+   "winter": {
+    "natte_zaterdagen": 1.9,
+    "vorstnachten": 24.8,
+    "stormdagen": 4.0
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 2.0,
+    "vorstnachten": 7.8,
+    "stormdagen": 1.8
+   }
+  },
+  "Amsterdam": {
+   "herfst": {
+    "natte_zaterdagen": 2.3,
+    "vorstnachten": 2.2,
+    "stormdagen": 1.5
+   },
+   "winter": {
+    "natte_zaterdagen": 1.8,
+    "vorstnachten": 21.8,
+    "stormdagen": 5.4
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.6,
+    "vorstnachten": 6.1,
+    "stormdagen": 1.7
+   }
+  },
+  "Apeldoorn": {
+   "herfst": {
+    "natte_zaterdagen": 2.1,
+    "vorstnachten": 3.5,
+    "stormdagen": 1.6
+   },
+   "winter": {
+    "natte_zaterdagen": 1.9,
+    "vorstnachten": 26.2,
+    "stormdagen": 3.8
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.8,
+    "vorstnachten": 9.5,
+    "stormdagen": 1.9
+   }
+  },
+  "Arnhem": {
+   "herfst": {
+    "natte_zaterdagen": 2.5,
+    "vorstnachten": 2.6,
+    "stormdagen": 1.6
+   },
+   "winter": {
+    "natte_zaterdagen": 1.8,
+    "vorstnachten": 24.5,
+    "stormdagen": 3.6
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 2.1,
+    "vorstnachten": 6.9,
+    "stormdagen": 2.1
+   }
+  },
+  "Assen": {
+   "herfst": {
+    "natte_zaterdagen": 1.6,
+    "vorstnachten": 3.4,
+    "stormdagen": 1.7
+   },
+   "winter": {
+    "natte_zaterdagen": 2.0,
+    "vorstnachten": 26.0,
+    "stormdagen": 4.1
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 2.1,
+    "vorstnachten": 10.1,
+    "stormdagen": 1.9
+   }
+  },
+  "Breda": {
+   "herfst": {
+    "natte_zaterdagen": 2.2,
+    "vorstnachten": 2.2,
+    "stormdagen": 1.5
+   },
+   "winter": {
+    "natte_zaterdagen": 1.9,
+    "vorstnachten": 23.8,
+    "stormdagen": 4.9
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.6,
+    "vorstnachten": 7.1,
+    "stormdagen": 2.3
+   }
+  },
+  "Delft": {
+   "herfst": {
+    "natte_zaterdagen": 3.1,
+    "vorstnachten": 1.9,
+    "stormdagen": 2.5
+   },
+   "winter": {
+    "natte_zaterdagen": 1.6,
+    "vorstnachten": 21.0,
+    "stormdagen": 7.8
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.3,
+    "vorstnachten": 5.8,
+    "stormdagen": 2.5
+   }
+  },
+  "Den Bosch": {
+   "herfst": {
+    "natte_zaterdagen": 2.2,
+    "vorstnachten": 2.3,
+    "stormdagen": 1.5
+   },
+   "winter": {
+    "natte_zaterdagen": 1.8,
+    "vorstnachten": 24.1,
+    "stormdagen": 3.4
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.2,
+    "vorstnachten": 6.8,
+    "stormdagen": 1.7
+   }
+  },
+  "Den Haag": {
+   "herfst": {
+    "natte_zaterdagen": 2.8,
+    "vorstnachten": 1.0,
+    "stormdagen": 3.8
+   },
+   "winter": {
+    "natte_zaterdagen": 1.8,
+    "vorstnachten": 17.5,
+    "stormdagen": 10.1
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.7,
+    "vorstnachten": 4.1,
+    "stormdagen": 3.6
+   }
+  },
+  "Deventer": {
+   "herfst": {
+    "natte_zaterdagen": 2.1,
+    "vorstnachten": 3.3,
+    "stormdagen": 1.7
+   },
+   "winter": {
+    "natte_zaterdagen": 1.7,
+    "vorstnachten": 25.2,
+    "stormdagen": 4.1
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.7,
+    "vorstnachten": 8.1,
+    "stormdagen": 2.2
+   }
+  },
+  "Dordrecht": {
+   "herfst": {
+    "natte_zaterdagen": 2.3,
+    "vorstnachten": 2.4,
+    "stormdagen": 1.5
+   },
+   "winter": {
+    "natte_zaterdagen": 1.7,
+    "vorstnachten": 23.0,
+    "stormdagen": 3.9
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.6,
+    "vorstnachten": 6.7,
+    "stormdagen": 1.8
+   }
+  },
+  "Ede": {
+   "herfst": {
+    "natte_zaterdagen": 2.4,
+    "vorstnachten": 2.9,
+    "stormdagen": 1.5
+   },
+   "winter": {
+    "natte_zaterdagen": 1.8,
+    "vorstnachten": 25.2,
+    "stormdagen": 4.0
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 2.1,
+    "vorstnachten": 8.2,
+    "stormdagen": 2.1
+   }
+  },
+  "Eindhoven": {
+   "herfst": {
+    "natte_zaterdagen": 1.9,
+    "vorstnachten": 2.9,
+    "stormdagen": 1.3
+   },
+   "winter": {
+    "natte_zaterdagen": 1.5,
+    "vorstnachten": 25.6,
+    "stormdagen": 3.8
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.5,
+    "vorstnachten": 8.8,
+    "stormdagen": 2.0
+   }
+  },
+  "Emmen": {
+   "herfst": {
+    "natte_zaterdagen": 1.5,
+    "vorstnachten": 3.6,
+    "stormdagen": 1.7
+   },
+   "winter": {
+    "natte_zaterdagen": 1.8,
+    "vorstnachten": 27.6,
+    "stormdagen": 4.5
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.6,
+    "vorstnachten": 9.9,
+    "stormdagen": 2.3
+   }
+  },
+  "Enschede": {
+   "herfst": {
+    "natte_zaterdagen": 1.6,
+    "vorstnachten": 3.6,
+    "stormdagen": 1.6
+   },
+   "winter": {
+    "natte_zaterdagen": 1.8,
+    "vorstnachten": 29.5,
+    "stormdagen": 3.3
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.5,
+    "vorstnachten": 10.3,
+    "stormdagen": 1.6
+   }
+  },
+  "Gouda": {
+   "herfst": {
+    "natte_zaterdagen": 2.8,
+    "vorstnachten": 2.0,
+    "stormdagen": 2.0
+   },
+   "winter": {
+    "natte_zaterdagen": 1.3,
+    "vorstnachten": 21.6,
+    "stormdagen": 4.9
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.7,
+    "vorstnachten": 5.9,
+    "stormdagen": 2.0
+   }
+  },
+  "Groningen": {
+   "herfst": {
+    "natte_zaterdagen": 1.8,
+    "vorstnachten": 2.8,
+    "stormdagen": 1.9
+   },
+   "winter": {
+    "natte_zaterdagen": 1.6,
+    "vorstnachten": 25.2,
+    "stormdagen": 4.7
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.8,
+    "vorstnachten": 8.9,
+    "stormdagen": 1.9
+   }
+  },
+  "Haarlem": {
+   "herfst": {
+    "natte_zaterdagen": 2.8,
+    "vorstnachten": 0.6,
+    "stormdagen": 4.3
+   },
+   "winter": {
+    "natte_zaterdagen": 1.9,
+    "vorstnachten": 15.3,
+    "stormdagen": 10.6
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.5,
+    "vorstnachten": 3.7,
+    "stormdagen": 3.6
+   }
+  },
+  "Heerlen": {
+   "herfst": {
+    "natte_zaterdagen": 2.2,
+    "vorstnachten": 3.1,
+    "stormdagen": 2.2
+   },
+   "winter": {
+    "natte_zaterdagen": 1.8,
+    "vorstnachten": 27.8,
+    "stormdagen": 6.4
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.6,
+    "vorstnachten": 8.7,
+    "stormdagen": 2.6
+   }
+  },
+  "Helmond": {
+   "herfst": {
+    "natte_zaterdagen": 1.7,
+    "vorstnachten": 3.4,
+    "stormdagen": 1.3
+   },
+   "winter": {
+    "natte_zaterdagen": 1.7,
+    "vorstnachten": 26.2,
+    "stormdagen": 3.4
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 2.0,
+    "vorstnachten": 8.7,
+    "stormdagen": 1.5
+   }
+  },
+  "Hilversum": {
+   "herfst": {
+    "natte_zaterdagen": 2.4,
+    "vorstnachten": 2.4,
+    "stormdagen": 1.9
+   },
+   "winter": {
+    "natte_zaterdagen": 1.9,
+    "vorstnachten": 23.0,
+    "stormdagen": 4.9
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 2.0,
+    "vorstnachten": 6.4,
+    "stormdagen": 1.9
+   }
+  },
+  "Hoorn": {
+   "herfst": {
+    "natte_zaterdagen": 1.9,
+    "vorstnachten": 1.1,
+    "stormdagen": 3.0
+   },
+   "winter": {
+    "natte_zaterdagen": 1.6,
+    "vorstnachten": 17.6,
+    "stormdagen": 8.4
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.8,
+    "vorstnachten": 4.0,
+    "stormdagen": 2.6
+   }
+  },
+  "Leeuwarden": {
+   "herfst": {
+    "natte_zaterdagen": 2.1,
+    "vorstnachten": 1.9,
+    "stormdagen": 3.1
+   },
+   "winter": {
+    "natte_zaterdagen": 1.4,
+    "vorstnachten": 21.2,
+    "stormdagen": 7.5
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 2.1,
+    "vorstnachten": 7.1,
+    "stormdagen": 2.1
+   }
+  },
+  "Leiden": {
+   "herfst": {
+    "natte_zaterdagen": 2.8,
+    "vorstnachten": 1.0,
+    "stormdagen": 3.7
+   },
+   "winter": {
+    "natte_zaterdagen": 1.6,
+    "vorstnachten": 18.3,
+    "stormdagen": 9.4
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.6,
+    "vorstnachten": 5.0,
+    "stormdagen": 3.4
+   }
+  },
+  "Lelystad": {
+   "herfst": {
+    "natte_zaterdagen": 2.5,
+    "vorstnachten": 2.1,
+    "stormdagen": 2.6
+   },
+   "winter": {
+    "natte_zaterdagen": 1.6,
+    "vorstnachten": 21.1,
+    "stormdagen": 6.7
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.9,
+    "vorstnachten": 5.7,
+    "stormdagen": 3.0
+   }
+  },
+  "Maastricht": {
+   "herfst": {
+    "natte_zaterdagen": 2.0,
+    "vorstnachten": 3.1,
+    "stormdagen": 1.3
+   },
+   "winter": {
+    "natte_zaterdagen": 1.6,
+    "vorstnachten": 26.4,
+    "stormdagen": 4.4
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 2.0,
+    "vorstnachten": 7.9,
+    "stormdagen": 1.5
+   }
+  },
+  "Nieuwegein": {
+   "herfst": {
+    "natte_zaterdagen": 2.3,
+    "vorstnachten": 2.0,
+    "stormdagen": 1.8
+   },
+   "winter": {
+    "natte_zaterdagen": 1.5,
+    "vorstnachten": 23.4,
+    "stormdagen": 4.5
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.9,
+    "vorstnachten": 6.1,
+    "stormdagen": 2.3
+   }
+  },
+  "Nijmegen": {
+   "herfst": {
+    "natte_zaterdagen": 1.9,
+    "vorstnachten": 2.5,
+    "stormdagen": 1.5
+   },
+   "winter": {
+    "natte_zaterdagen": 1.8,
+    "vorstnachten": 24.8,
+    "stormdagen": 4.4
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 2.0,
+    "vorstnachten": 6.6,
+    "stormdagen": 2.6
+   }
+  },
+  "Oss": {
+   "herfst": {
+    "natte_zaterdagen": 2.2,
+    "vorstnachten": 2.8,
+    "stormdagen": 1.5
+   },
+   "winter": {
+    "natte_zaterdagen": 1.8,
+    "vorstnachten": 24.2,
+    "stormdagen": 3.8
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 2.0,
+    "vorstnachten": 6.6,
+    "stormdagen": 2.0
+   }
+  },
+  "Rotterdam": {
+   "herfst": {
+    "natte_zaterdagen": 2.5,
+    "vorstnachten": 1.8,
+    "stormdagen": 2.0
+   },
+   "winter": {
+    "natte_zaterdagen": 1.5,
+    "vorstnachten": 20.5,
+    "stormdagen": 5.5
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.6,
+    "vorstnachten": 5.5,
+    "stormdagen": 2.1
+   }
+  },
+  "Roosendaal": {
+   "herfst": {
+    "natte_zaterdagen": 2.3,
+    "vorstnachten": 2.0,
+    "stormdagen": 1.7
+   },
+   "winter": {
+    "natte_zaterdagen": 1.8,
+    "vorstnachten": 22.0,
+    "stormdagen": 5.0
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.5,
+    "vorstnachten": 6.3,
+    "stormdagen": 2.2
+   }
+  },
+  "Spijkenisse": {
+   "herfst": {
+    "natte_zaterdagen": 2.8,
+    "vorstnachten": 1.6,
+    "stormdagen": 2.0
+   },
+   "winter": {
+    "natte_zaterdagen": 1.6,
+    "vorstnachten": 21.1,
+    "stormdagen": 4.8
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.6,
+    "vorstnachten": 6.1,
+    "stormdagen": 1.9
+   }
+  },
+  "Tilburg": {
+   "herfst": {
+    "natte_zaterdagen": 2.2,
+    "vorstnachten": 2.5,
+    "stormdagen": 1.5
+   },
+   "winter": {
+    "natte_zaterdagen": 1.9,
+    "vorstnachten": 25.0,
+    "stormdagen": 3.6
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.6,
+    "vorstnachten": 7.7,
+    "stormdagen": 2.1
+   }
+  },
+  "Utrecht": {
+   "herfst": {
+    "natte_zaterdagen": 2.3,
+    "vorstnachten": 2.2,
+    "stormdagen": 1.8
+   },
+   "winter": {
+    "natte_zaterdagen": 1.5,
+    "vorstnachten": 23.4,
+    "stormdagen": 4.5
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.9,
+    "vorstnachten": 6.1,
+    "stormdagen": 2.3
+   }
+  },
+  "Vlaardingen": {
+   "herfst": {
+    "natte_zaterdagen": 3.0,
+    "vorstnachten": 1.9,
+    "stormdagen": 2.1
+   },
+   "winter": {
+    "natte_zaterdagen": 1.6,
+    "vorstnachten": 21.6,
+    "stormdagen": 6.1
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.5,
+    "vorstnachten": 5.9,
+    "stormdagen": 2.1
+   }
+  },
+  "Zwolle": {
+   "herfst": {
+    "natte_zaterdagen": 1.9,
+    "vorstnachten": 2.4,
+    "stormdagen": 1.8
+   },
+   "winter": {
+    "natte_zaterdagen": 1.8,
+    "vorstnachten": 24.2,
+    "stormdagen": 4.6
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.5,
+    "vorstnachten": 6.9,
+    "stormdagen": 2.1
+   }
+  },
+  "Alphen aan den Rijn": {
+   "herfst": {
+    "natte_zaterdagen": 2.7,
+    "vorstnachten": 2.2,
+    "stormdagen": 2.0
+   },
+   "winter": {
+    "natte_zaterdagen": 1.4,
+    "vorstnachten": 21.7,
+    "stormdagen": 4.9
+   },
+   "voorjaar": {
+    "natte_zaterdagen": 1.5,
+    "vorstnachten": 6.1,
+    "stormdagen": 1.8
+   }
+  }
+ }
+}

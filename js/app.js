@@ -80,6 +80,8 @@ let suggestTimer = 0;
 let suggestCtrl = null;
 // "Hengelo (Gelderland)" -> coördinaten van die suggestie, zodat de check precies die plaats neemt.
 const picked = new Map();
+// Plaatspagina's hebben de coördinaten al in de pagina: daar hoeft niets opgezocht.
+if (cityInput.dataset.lat) picked.set(cityInput.value, { lat: Number(cityInput.dataset.lat), lon: Number(cityInput.dataset.lon) });
 cityInput.addEventListener("input", () => {
   setFieldError(cityInput, "");
   clearTimeout(suggestTimer);

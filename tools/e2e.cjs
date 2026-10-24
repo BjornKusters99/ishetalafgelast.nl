@@ -139,8 +139,18 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
 
   // plaatspagina
   const p4 = await ctx.newPage();
+  await mock(p4);
+  const p4Geo = [];
+  p4.on("request", (r) => r.url().includes("geocoding-api") && p4Geo.push(r.url()));
   await p4.goto(BASE + "/plaatsen/utrecht.html", { waitUntil: "networkidle" });
   ok((await p4.inputValue("#city")) === "Utrecht", "plaatspagina vooringevuld");
+  const ld = JSON.parse(await p4.$eval('script[type="application/ld+json"]', (s) => s.textContent));
+  const crumbs = ld["@graph"].find((x) => x["@type"] === "BreadcrumbList");
+  ok(crumbs?.itemListElement.map((c) => c.name).join(" > ") === "IsHetAlAfgelast.nl > Plaatsen > Utrecht", "plaatspagina: broodkruimels in JSON-LD");
+  ok(ld["@graph"].some((x) => x["@type"] === "WebApplication" && x.url.endsWith("/plaatsen/utrecht.html")), "plaatspagina: WebApplication in JSON-LD");
+  await p4.click("#btn-check");
+  await p4.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
+  ok(p4Geo.length === 0 && /lat=52\.0907/.test(p4.url()), "plaatspagina checkt met eigen coördinaten, zonder zoekopdracht");
 
   // Invoer uit een gedeelde link blijft tekst, ook als die HTML bevat.
   const xss = await ctx.newPage();

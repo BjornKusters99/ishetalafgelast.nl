@@ -17,6 +17,7 @@
   <meta property="og:image" content="https://www.ishetalafgelast.nl/img/og.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Getekende voetbalkantine met uitzicht op een regenachtig veld en de tekst: Gaat je potje door? Afgelastingskans voor amateurvoetbal.">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#2c1b11">
 
@@ -30,6 +31,7 @@
   <link rel="preload" href="/fonts/fredoka.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/styles.css">
   <script type="module" src="/js/app.js"></script>
+  <script type="module" src="/js/ld.js"></script>
 </head>
 <body>
   <svg class="sprite" aria-hidden="true">
@@ -97,7 +99,7 @@
           <div class="field field--city">
             <label for="city">Waar speel je?</label>
             <input id="city" name="plaats" type="text" required maxlength="80" inputmode="search"
-                   value="Den Haag" placeholder="Plaats of dorp" list="city-list" aria-describedby="city-err" enterkeyhint="go">
+                   value="Den Haag" data-lat="52.0705" data-lon="4.3007" placeholder="Plaats of dorp" list="city-list" aria-describedby="city-err" enterkeyhint="go">
             <datalist id="city-list"></datalist>
             <p class="field-err" id="city-err" hidden></p>
           </div>
@@ -253,15 +255,29 @@
     </section>
 
     <!--seo:places-->
+    <section class="places places--klimaat" aria-labelledby="klimaat-title">
+      <h2 id="klimaat-title">Voetbalweer in Den Haag</h2>
+      <p>Den Haag ligt in Zuid-Holland. Zo zag het weer er rond Den Haag uit in de voetbalseizoenen 2015/16 t/m 2024/25, gemiddeld per seizoen.</p>
+      <table class="klimaat-tabel">
+        <thead><tr><th scope="col">Gemiddeld per seizoen</th><th scope="col">Herfst</th><th scope="col">Winter</th><th scope="col">Voorjaar</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Zaterdagen met 5 mm regen of meer</th><td>2,8</td><td>1,8</td><td>1,7</td></tr>
+          <tr><th scope="row">Nachten met vorst</th><td>1</td><td>17,5</td><td>4,1</td></tr>
+          <tr><th scope="row">Dagen met windstoten vanaf 75 km/u</th><td>3,8</td><td>10,1</td><td>3,6</td></tr>
+        </tbody>
+      </table>
+      <p>Van september tot en met mei telt Den Haag gemiddeld 6,3 natte zaterdagen. Daarmee hoort Den Haag bij het natste kwart van onze 40 plaatsen. In de winter vriest het er gemiddeld 17,5 nachten. Daarmee hoort Den Haag bij het kwart met de minste vorst van onze 40 plaatsen.</p>
+      <p class="bron">Bron: Open-Meteo historische weerdata (CC BY 4.0). Herfst is september tot en met november, winter december tot en met februari, voorjaar maart tot en met mei.</p>
+    </section>
     <section class="places" aria-labelledby="places-title">
       <h2 id="places-title">In de buurt van Den Haag</h2>
       <ul class="place-list">
-        <li><a href="/plaatsen/delft.html">Delft</a></li>
-        <li><a href="/plaatsen/leiden.html">Leiden</a></li>
-        <li><a href="/plaatsen/vlaardingen.html">Vlaardingen</a></li>
-        <li><a href="/plaatsen/rotterdam.html">Rotterdam</a></li>
-        <li><a href="/plaatsen/alphen-aan-den-rijn.html">Alphen aan den Rijn</a></li>
-        <li><a href="/plaatsen/spijkenisse.html">Spijkenisse</a></li>
+        <li><a href="/plaatsen/delft.html">Delft</a> <span class="km">8 km</span></li>
+        <li><a href="/plaatsen/leiden.html">Leiden</a> <span class="km">17 km</span></li>
+        <li><a href="/plaatsen/vlaardingen.html">Vlaardingen</a> <span class="km">18 km</span></li>
+        <li><a href="/plaatsen/rotterdam.html">Rotterdam</a> <span class="km">20 km</span></li>
+        <li><a href="/plaatsen/alphen-aan-den-rijn.html">Alphen aan den Rijn</a> <span class="km">25 km</span></li>
+        <li><a href="/plaatsen/spijkenisse.html">Spijkenisse</a> <span class="km">25 km</span></li>
         <li><a class="more" href="/plaatsen/">Alle plaatsen</a></li>
       </ul>
     </section>

@@ -17,6 +17,7 @@
   <meta property="og:image" content="https://www.ishetalafgelast.nl/img/og.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Getekende voetbalkantine met uitzicht op een regenachtig veld en de tekst: Gaat je potje door? Afgelastingskans voor amateurvoetbal.">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#2c1b11">
 
@@ -30,6 +31,7 @@
   <link rel="preload" href="/fonts/fredoka.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/styles.css">
   <script type="module" src="/js/app.js"></script>
+  <script type="module" src="/js/ld.js"></script>
 </head>
 <body>
   <svg class="sprite" aria-hidden="true">
@@ -97,7 +99,7 @@
           <div class="field field--city">
             <label for="city">Waar speel je?</label>
             <input id="city" name="plaats" type="text" required maxlength="80" inputmode="search"
-                   value="Hoorn" placeholder="Plaats of dorp" list="city-list" aria-describedby="city-err" enterkeyhint="go">
+                   value="Hoorn" data-lat="52.6422" data-lon="5.0593" placeholder="Plaats of dorp" list="city-list" aria-describedby="city-err" enterkeyhint="go">
             <datalist id="city-list"></datalist>
             <p class="field-err" id="city-err" hidden></p>
           </div>
@@ -253,15 +255,29 @@
     </section>
 
     <!--seo:places-->
+    <section class="places places--klimaat" aria-labelledby="klimaat-title">
+      <h2 id="klimaat-title">Voetbalweer in Hoorn</h2>
+      <p>Hoorn ligt in Noord-Holland. Zo zag het weer er rond Hoorn uit in de voetbalseizoenen 2015/16 t/m 2024/25, gemiddeld per seizoen.</p>
+      <table class="klimaat-tabel">
+        <thead><tr><th scope="col">Gemiddeld per seizoen</th><th scope="col">Herfst</th><th scope="col">Winter</th><th scope="col">Voorjaar</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Zaterdagen met 5 mm regen of meer</th><td>1,9</td><td>1,6</td><td>1,8</td></tr>
+          <tr><th scope="row">Nachten met vorst</th><td>1,1</td><td>17,6</td><td>4</td></tr>
+          <tr><th scope="row">Dagen met windstoten vanaf 75 km/u</th><td>3</td><td>8,4</td><td>2,6</td></tr>
+        </tbody>
+      </table>
+      <p>Van september tot en met mei telt Hoorn gemiddeld 5,3 natte zaterdagen. Daarmee hoort Hoorn bij het droogste kwart van onze 40 plaatsen. In de winter vriest het er gemiddeld 17,6 nachten. Daarmee hoort Hoorn bij het kwart met de minste vorst van onze 40 plaatsen.</p>
+      <p class="bron">Bron: Open-Meteo historische weerdata (CC BY 4.0). Herfst is september tot en met november, winter december tot en met februari, voorjaar maart tot en met mei.</p>
+    </section>
     <section class="places" aria-labelledby="places-title">
       <h2 id="places-title">In de buurt van Hoorn</h2>
       <ul class="place-list">
-        <li><a href="/plaatsen/alkmaar.html">Alkmaar</a></li>
-        <li><a href="/plaatsen/lelystad.html">Lelystad</a></li>
-        <li><a href="/plaatsen/amsterdam.html">Amsterdam</a></li>
-        <li><a href="/plaatsen/almere.html">Almere</a></li>
-        <li><a href="/plaatsen/haarlem.html">Haarlem</a></li>
-        <li><a href="/plaatsen/hilversum.html">Hilversum</a></li>
+        <li><a href="/plaatsen/alkmaar.html">Alkmaar</a> <span class="km">21 km</span></li>
+        <li><a href="/plaatsen/lelystad.html">Lelystad</a> <span class="km">31 km</span></li>
+        <li><a href="/plaatsen/amsterdam.html">Amsterdam</a> <span class="km">32 km</span></li>
+        <li><a href="/plaatsen/almere.html">Almere</a> <span class="km">35 km</span></li>
+        <li><a href="/plaatsen/haarlem.html">Haarlem</a> <span class="km">40 km</span></li>
+        <li><a href="/plaatsen/hilversum.html">Hilversum</a> <span class="km">46 km</span></li>
         <li><a class="more" href="/plaatsen/">Alle plaatsen</a></li>
       </ul>
     </section>
