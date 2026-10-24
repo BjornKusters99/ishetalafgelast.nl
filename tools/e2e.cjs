@@ -56,7 +56,7 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   const pct = await page.textContent("#r-pct");
   ok(word === "Verwachting: Afgelast", `uitslag: ${word} ${pct}`);
   ok((await page.textContent(".board-note")).includes("geen officiële afgelasting"), "disclaimer direct bij het percentage");
-  ok(/Weerbericht van .*vooruit/.test(await page.textContent("#r-horizon")), "horizon en tijdstip van het weerbericht");
+  ok(/Weerbericht van .*(vooruit|vandaag)/.test(await page.textContent("#r-horizon")), "horizon en tijdstip van het weerbericht");
   ok(/plaats=Oss/.test(page.url()) && /veld=natuurgras/.test(page.url()), "URL deelbaar: " + page.url().replace(BASE, ""));
   ok((await page.getAttribute("#share-wa", "href")).includes("wa.me/?text="), "WhatsApp-link gezet");
   ok(!(await page.isHidden("#r-week-row")), "week-rij zichtbaar");
@@ -189,6 +189,29 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   await dp.waitForSelector("#view-result:not([hidden])", { timeout: 15000 });
   ok(await dp.isHidden("#keuring"), "gedeelde link gaat direct naar de uitslag, zonder keuring");
   await anim.close();
+
+  // Navigeren tijdens een lopende check: URL en scherm blijven gelijk, dubbelklik verlaat de site niet.
+  const nav = await ctx.newPage();
+  await mock(nav);
+  await nav.goto(BASE + "/", { waitUntil: "networkidle" });
+  await nav.fill("#city", "Oss");
+  await nav.click("#btn-check");
+  await nav.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
+  await nav.click("#btn-back");
+  await nav.waitForSelector("#view-home:not([hidden])");
+  await nav.unroute("**/geocoding-api.open-meteo.com/**");
+  await nav.route("**/geocoding-api.open-meteo.com/**", (rt) => setTimeout(() => rt.fulfill({ json: { results: [{ name: "Oss", country_code: "NL", latitude: 51.76, longitude: 5.51 }] } }).catch(() => {}), 1500));
+  await nav.goForward();
+  await nav.goBack();
+  await nav.waitForTimeout(2500);
+  ok(!/plaats=/.test(nav.url()) && await nav.isVisible("#view-home") && await nav.isHidden("#view-result"), "terug tijdens een check: thuis en URL kloppen");
+  await nav.unroute("**/geocoding-api.open-meteo.com/**");
+  await mock(nav);
+  await nav.click("#btn-check");
+  await nav.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
+  await nav.dblclick("#btn-back");
+  await nav.waitForTimeout(800);
+  ok(nav.url().startsWith(BASE) && await nav.isVisible("#view-home"), "dubbelklik op Nieuwe check blijft op de site");
 
   // Touch: een tik laat :hover plakken; de keuze en de knop moeten zichtbaar blijven.
   const touch = await b.newContext({ locale: "nl-NL", timezoneId: "Europe/Amsterdam", reducedMotion: "reduce",

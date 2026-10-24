@@ -329,7 +329,9 @@ if (reken) {
 
 const keuring = $("#keuring");
 const keuringStuit = new Stuitproef($("#keuring-canvas"));
-let busy = false;
+// De lopende check; een nieuwe check of navigatie breekt hem af.
+let run = null;
+let overlayOwner = null;
 
 const STEP_TEXT = {
   geo: ["Sportpark zoeken", "Veld 4 zoeken (achter de kantine)", "Navigeren naar het sportpark", "Kleedkamersleutel zoeken"],
@@ -435,12 +437,20 @@ function waitForTapOr(ms) {
 
 /** quick: een gedeelde link of terug/vooruit gaat direct naar de uitslag, zonder show. */
 async function runCheck(q, push, quick = false) {
-  if (busy) return;
   if (!validate(q)) return;
-  busy = true;
+  run?.abort();
+  const ctrl = new AbortController();
+  run = ctrl;
+  const { signal } = ctrl;
+  // Elke wachtstap stopt zodra de check is afgebroken (terug/vooruit, nieuwe link).
+  const aborted = new Promise((_, reject) => signal.addEventListener("abort", () => reject(signal.reason), { once: true }));
+  aborted.catch(() => {});
   $("#btn-check").disabled = true;
   warmResult();
-  if (!quick) openKeuring();
+  if (!quick) {
+    openKeuring();
+    overlayOwner = ctrl;
+  }
   const started = performance.now();
   const skipped = new Promise((resolve) => { skipKeuring = resolve; });
 
@@ -454,11 +464,11 @@ async function runCheck(q, push, quick = false) {
       weather = { ...q.manual, precip_7d_sum: null, precip_3d_sum: null, precip_1d: null, frost_days_7d: null, rain_days_7d: null };
     } else {
       setStep("geo", "busy");
-      const place = await geocode(q.city);
+      const place = await geocode(q.city, signal);
       placeName = place.name;
       setStep("geo", "done");
       setStep("weer", "busy");
-      weather = await fetchWeather(place.lat, place.lon, q.date);
+      weather = await fetchWeather(place.lat, place.lon, q.date, signal);
       setStep("weer", "done");
     }
     keuringStuit.setWeather(weather);
@@ -468,8 +478,8 @@ async function runCheck(q, push, quick = false) {
     const v = verdictFor(pred.probability, weather, q);
     if (!quick) {
       // Laat minstens één val zien: de keuring is het moment. Begrensd en over te slaan.
-      await Promise.race([wait(Math.max(0, 1300 - (performance.now() - started))), skipped]);
-      await Promise.race([keuringStuit.finale(pred.probability, weather), wait(FINALE_MAX_MS), skipped]);
+      await Promise.race([wait(Math.max(0, 1300 - (performance.now() - started))), skipped, aborted]);
+      await Promise.race([keuringStuit.finale(pred.probability, weather), wait(FINALE_MAX_MS), skipped, aborted]);
       setStep("model", "done");
       clearInterval(chatTimer);
       $("#keuring-title").textContent = v.label;
@@ -481,15 +491,18 @@ async function runCheck(q, push, quick = false) {
     }
     // Alleen het eindoordeel voorlezen, niet de wisselende grapjes tijdens het laden.
     $("#keuring-live").textContent = `${v.label}, ${Math.round(pred.probability * 100)}% kans op afgelasting.`;
-    if (!quick) await Promise.race([waitForTapOr(1500), skipped]);
+    if (!quick) await Promise.race([waitForTapOr(1500), skipped, aborted]);
+    if (signal.aborted) throw signal.reason;
 
     const result = { q: { ...q, city: placeName || q.city }, weather, pred, v, at: new Date() };
     if (push) history.pushState({ result: true }, "", shareUrl(result.q));
     renderResult(result);
-    if (!quick) await closeKeuring();
+    if (overlayOwner === ctrl) await closeKeuring();
     $("#verdict-word").focus({ preventScroll: true });
   } catch (err) {
-    if (!quick) await closeKeuring();
+    if (overlayOwner === ctrl) await closeKeuring();
+    // Afgebroken door navigatie of een nieuwere check: die bepaalt wat er te zien is.
+    if (signal.aborted) return;
     if (err instanceof UserError) {
       if (/kunnen we niet vinden/.test(err.message)) setFieldError(cityInput, err.message);
       else if (/dagen/.test(err.message)) setFieldError(dateInput, err.message);
@@ -500,8 +513,11 @@ async function runCheck(q, push, quick = false) {
     }
     showHome(false);
   } finally {
-    busy = false;
-    $("#btn-check").disabled = false;
+    if (overlayOwner === ctrl) overlayOwner = null;
+    if (run === ctrl) {
+      run = null;
+      $("#btn-check").disabled = false;
+    }
   }
 }
 
@@ -910,20 +926,27 @@ function showHome(focus) {
   if (focus) cityInput.focus({ preventScroll: true });
 }
 
+// Een dubbele klik deed twee keer history.back() en verliet de site.
+let goingBack = false;
 $("#btn-back").addEventListener("click", () => {
-  if (history.state?.result) history.back();
-  else {
+  if (history.state?.result) {
+    if (goingBack) return;
+    goingBack = true;
+    history.back();
+  } else {
     history.replaceState(null, "", location.pathname);
     showHome(true);
   }
 });
 
 window.addEventListener("popstate", () => {
+  goingBack = false;
   const q = fromParams(new URLSearchParams(location.search));
   if (q) {
     fillForm(q);
     runCheck(q, false, true);
   } else {
+    run?.abort();
     showHome(false);
   }
 });
