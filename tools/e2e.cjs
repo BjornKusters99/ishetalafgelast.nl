@@ -372,6 +372,21 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   ok((await ko.textContent("#r-precip")).includes("hele dag") && await ko.inputValue("#kickoff") === "10:30", "dagwaarden gelabeld, aftrap in het formulier");
   await ko.close();
 
+  // Algemene afgelasting: banner uit status.json op home en uitslag; standaard uit.
+  ok(await p4.isHidden("#status"), "status.json staat uit: geen banner");
+  const st = await ctx.newPage();
+  await mock(st);
+  await st.route("**/status.json", (rt) => rt.fulfill({ json: { algemeen_afgelast: true,
+    tekst: "De KNVB heeft alle amateurwedstrijden van dit weekend afgelast.", bron: "https://www.knvb.nl/", tot: "" } }));
+  await st.goto(BASE + "/", { waitUntil: "networkidle" });
+  ok(await st.isVisible("#status") && (await st.textContent("#status-text")).includes("afgelast")
+    && await st.getAttribute("#status-link", "href") === "https://www.knvb.nl/", "algemene afgelasting: banner met KNVB-bron op home");
+  await st.fill("#city", "Oss");
+  await st.click("#btn-check");
+  await st.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
+  ok(await st.isVisible("#status"), "banner ook bij de uitslag");
+  await st.close();
+
   // Kantine-canvas: hooguit 1,5x pixels, stil tijdens het typen en na inactiviteit.
   const hi = await b.newContext({ locale: "nl-NL", timezoneId: "Europe/Amsterdam", reducedMotion: "no-preference",
     deviceScaleFactor: 2, viewport: { width: 1280, height: 800 } });

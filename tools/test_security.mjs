@@ -225,7 +225,7 @@ test("worker activation removes legacy caches but keeps unrelated apps", async (
 
 const pages = ["index.html", "404.html", "privacy.html",
   ...(await readdir(new URL("../plaatsen/", import.meta.url))).filter((f) => f.endsWith(".html")).map((f) => `plaatsen/${f}`)];
-const API_HOSTS = ["https://geocoding-api.open-meteo.com", "https://api.open-meteo.com", "https://archive-api.open-meteo.com"];
+const API_HOSTS = ["'self'", "https://geocoding-api.open-meteo.com", "https://api.open-meteo.com", "https://archive-api.open-meteo.com"];
 
 for (const page of pages) {
   test(`${page} keeps a strict CSP before any script`, async () => {
@@ -336,4 +336,16 @@ test("hourly forecast is context: requested from the forecast API and split per 
   assert.equal(urls[0].searchParams.get("hourly"), "precipitation,precipitation_probability,wind_gusts_10m");
   assert.deepEqual(JSON.parse(JSON.stringify(weather.hours[14])), { precip: 1.4, prob: null, gust: 44 });
   assert.equal(weather.precip_7d_sum, 28);
+});
+
+test("general cancellation banner only shows with text, a KNVB or Voetbal.nl source and an end date not passed", () => {
+  const context = vm.createContext({});
+  vm.runInContext(app.slice(app.indexOf("const STATUS_SOURCE"), app.indexOf('fetch("/status.json"')) + ";globalThis.f = statusBanner;", context);
+  const on = { algemeen_afgelast: true, tekst: "Alle amateurwedstrijden dit weekend afgelast.", bron: "https://www.knvb.nl/nieuws/x", tot: "2026-10-25" };
+  assert.deepEqual(JSON.parse(JSON.stringify(context.f(on, "2026-10-24"))), { text: on.tekst, href: on.bron });
+  assert.ok(context.f({ ...on, bron: "https://www.voetbal.nl/" }, "2026-10-24"));
+  for (const off of [{ ...on, algemeen_afgelast: false }, { ...on, tekst: " " }, { ...on, bron: "https://knvb.nl.evil.example/" },
+    { ...on, bron: "javascript:alert(1)" }, { ...on, bron: "http://www.knvb.nl/" }, { ...on, tot: "2026-10-23" }, { ...on, tot: "morgen" }, null]) {
+    assert.equal(context.f(off, "2026-10-24"), null, JSON.stringify(off));
+  }
 });
