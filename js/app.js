@@ -1,4 +1,4 @@
-import { searchPlaces, geocode, fetchWeather, predict, explain, isValidDay, horizonError, daysAhead, UserError, BASELINE } from "./engine.js";
+import { searchPlaces, geocode, placeLabel, fetchWeather, predict, explain, isValidDay, horizonError, daysAhead, UserError, BASELINE } from "./engine.js";
 import { mountStage } from "./scene.js";
 import { Stuitproef, bounceProfile, moodFor } from "./stuitproef.js";
 import { say, parade, mountHotspots, mountAppgroep, appgroep } from "./eggs.js";
@@ -75,16 +75,20 @@ const cityInput = $("#city");
 const cityList = $("#city-list");
 let suggestTimer = 0;
 let suggestCtrl = null;
+// "Hengelo (Gelderland)" -> coördinaten van die suggestie, zodat de check precies die plaats neemt.
+const picked = new Map();
 cityInput.addEventListener("input", () => {
   setFieldError(cityInput, "");
   clearTimeout(suggestTimer);
+  if (picked.has(cityInput.value)) return;
   suggestTimer = setTimeout(async () => {
     suggestCtrl?.abort();
     suggestCtrl = new AbortController();
     try {
       const hits = await searchPlaces(cityInput.value, suggestCtrl.signal);
+      for (const h of hits) picked.set(placeLabel(h), { lat: h.lat, lon: h.lon });
       cityList.replaceChildren(
-        ...hits.map((h) => Object.assign(document.createElement("option"), { value: h.name, label: h.region })),
+        ...hits.map((h) => Object.assign(document.createElement("option"), { value: placeLabel(h) })),
       );
     } catch { /* suggesties zijn optioneel */ }
   }, 260);
@@ -130,8 +134,12 @@ function setFieldError(input, msg) {
 
 function readForm() {
   const manual = $("#manual").open;
+  const city = cityInput.value.trim().slice(0, 80);
+  const at = picked.get(city);
   return {
-    city: cityInput.value.trim().slice(0, 80),
+    city,
+    lat: at ? at.lat : null,
+    lon: at ? at.lon : null,
     date: dateInput.value,
     home: $("#home").value.trim().slice(0, 40),
     away: $("#away").value.trim().slice(0, 40),
@@ -148,6 +156,7 @@ function readForm() {
 
 function fillForm(q) {
   if (q.city) cityInput.value = q.city;
+  if (q.city && q.lat != null) picked.set(q.city, { lat: q.lat, lon: q.lon });
   if (q.date) dateInput.value = q.date;
   $("#home").value = q.home || "";
   if (q.home || q.away) showTeams(false);
@@ -196,6 +205,10 @@ const VELD_PARAM = { natuurgras: "natuurgras", kunstgras: "kunstgras", unknown: 
 function toParams(q) {
   const p = new URLSearchParams();
   if (q.city) p.set("plaats", q.city);
+  if (q.lat != null && !q.manual) {
+    p.set("lat", q.lat.toFixed(4));
+    p.set("lon", q.lon.toFixed(4));
+  }
   p.set("datum", q.date);
   if (q.home) p.set("thuis", q.home);
   if (q.away) p.set("uit", q.away);
@@ -211,8 +224,14 @@ function toParams(q) {
 function fromParams(p) {
   if (!p.get("datum")) return null;
   const v = p.get("veld");
+  // Alleen coördinaten binnen (ruim) Nederland; anders zoeken we de plaatsnaam op.
+  const lat = Number(p.get("lat"));
+  const lon = Number(p.get("lon"));
+  const inNL = p.has("lat") && p.has("lon") && lat >= 50.5 && lat <= 53.8 && lon >= 3 && lon <= 7.5;
   const q = {
     city: (p.get("plaats") || "").slice(0, 80),
+    lat: inNL ? lat : null,
+    lon: inNL ? lon : null,
     date: p.get("datum"),
     home: (p.get("thuis") || "").slice(0, 40),
     away: (p.get("uit") || "").slice(0, 40),
@@ -456,7 +475,7 @@ async function runCheck(q, push, quick = false) {
 
   try {
     let weather;
-    let placeName = q.city;
+    let where = q;
     if (q.manual) {
       setStep("geo", "done");
       setStep("weer", "done");
@@ -464,11 +483,14 @@ async function runCheck(q, push, quick = false) {
       weather = { ...q.manual, precip_7d_sum: null, precip_3d_sum: null, precip_1d: null, frost_days_7d: null, rain_days_7d: null };
     } else {
       setStep("geo", "busy");
-      const place = await geocode(q.city, signal);
-      placeName = place.name;
+      // Een gekozen suggestie of deellink heeft de coördinaten al: geen naamgenoot uit een andere provincie.
+      if (q.lat == null) {
+        const hit = await geocode(q.city, signal);
+        where = { ...q, city: placeLabel(hit), lat: hit.lat, lon: hit.lon };
+      }
       setStep("geo", "done");
       setStep("weer", "busy");
-      weather = await fetchWeather(place.lat, place.lon, q.date, signal);
+      weather = await fetchWeather(where.lat, where.lon, q.date, signal);
       setStep("weer", "done");
     }
     keuringStuit.setWeather(weather);
@@ -494,7 +516,7 @@ async function runCheck(q, push, quick = false) {
     if (!quick) await Promise.race([waitForTapOr(1500), skipped, aborted]);
     if (signal.aborted) throw signal.reason;
 
-    const result = { q: { ...q, city: placeName || q.city }, weather, pred, v, at: new Date() };
+    const result = { q: where, weather, pred, v, at: new Date() };
     if (push) history.pushState({ result: true }, "", shareUrl(result.q));
     renderResult(result);
     if (overlayOwner === ctrl) await closeKeuring();
@@ -503,15 +525,18 @@ async function runCheck(q, push, quick = false) {
     if (overlayOwner === ctrl) await closeKeuring();
     // Afgebroken door navigatie of een nieuwere check: die bepaalt wat er te zien is.
     if (signal.aborted) return;
+    // Een veldfout staat bij het veld, met de focus erop; niet nog eens in een toast.
+    let field = null;
     if (err instanceof UserError) {
-      if (/kunnen we niet vinden/.test(err.message)) setFieldError(cityInput, err.message);
-      else if (/dagen/.test(err.message)) setFieldError(dateInput, err.message);
-      showToast(err.message);
+      field = /kunnen we niet vinden/.test(err.message) ? cityInput : /dagen/.test(err.message) ? dateInput : null;
+      if (field) setFieldError(field, err.message);
+      else showToast(err.message);
     } else {
       console.error(err);
       showToast("Er ging iets mis bij de keuring. Probeer het nog een keer.");
     }
     showHome(false);
+    field?.focus();
   } finally {
     if (overlayOwner === ctrl) overlayOwner = null;
     if (run === ctrl) {
