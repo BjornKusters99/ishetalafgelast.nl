@@ -41,6 +41,38 @@ const SCENES = {
 
 const rand = (a, b) => a + Math.random() * (b - a);
 const CONFETTI = ["#c4392a", "#e7ac3c", "#f3e6cb", "#4f9d2f", "#8fc6e4", "#f2c55f"];
+// Regendruppels in een paar transparantieniveaus: één stroke per niveau in plaats van per druppel.
+const DROP_ALPHA = [0.3, 0.42, 0.54];
+// Zonder interactie stopt de animatie; elke tik, toets of scroll start hem weer.
+export const IDLE_MS = 12000;
+const FRAME_MS = 1000 / 30;
+
+// Lampgloed één keer tekenen; per frame alleen nog drawImage met wisselende alpha.
+let glowSprite = null;
+function glow() {
+  if (glowSprite) return glowSprite;
+  glowSprite = document.createElement("canvas");
+  glowSprite.width = glowSprite.height = 300;
+  const g2 = glowSprite.getContext("2d");
+  const g = g2.createRadialGradient(150, 150, 4, 150, 150, 150);
+  g.addColorStop(0, "rgba(255, 214, 140, 1)");
+  g.addColorStop(1, "rgba(255, 214, 140, 0)");
+  g2.fillStyle = g;
+  g2.fillRect(0, 0, 300, 300);
+  return glowSprite;
+}
+
+let lastActive = performance.now();
+const awake = new Set();
+for (const type of ["pointerdown", "keydown", "scroll", "wheel", "touchstart"]) {
+  addEventListener(type, () => {
+    lastActive = performance.now();
+    for (const wake of awake) wake();
+  }, { passive: true, capture: true });
+}
+export const isIdle = (now = performance.now()) => now - lastActive > IDLE_MS;
+/** Registreer een start-functie die bij nieuwe activiteit weer moet lopen. */
+export function onActive(fn) { awake.add(fn); }
 
 export function mountStage(stage, initial) {
   const canvas = stage.querySelector(".stage-fx");
@@ -103,13 +135,14 @@ export function mountStage(stage, initial) {
       y: scatter ? rand(y, y + h) : rand(y - 60, y),
       len: rand(12, 26),
       v: rand(820, 1200),
-      a: rand(0.28, 0.55),
+      a: Math.floor(Math.random() * DROP_ALPHA.length),
     };
   }
 
   function resize() {
     const r = stage.getBoundingClientRect();
-    const dpr = Math.min(devicePixelRatio || 1, 2);
+    // Boven 1,5 zie je regen en gloed niet scherper, maar telefoons tekenen wel bijna 2x zoveel pixels.
+    const dpr = Math.min(devicePixelRatio || 1, 1.5);
     canvas.width = Math.max(1, Math.round(r.width * dpr));
     canvas.height = Math.max(1, Math.round(r.height * dpr));
     scale = canvas.width / cfg.w;
@@ -143,6 +176,12 @@ export function mountStage(stage, initial) {
 
   function frame(now) {
     raf = 0;
+    if (isIdle(now) && !confetti.length) return;
+    // 30 beelden per seconde is genoeg voor regen en flikkerende lampen.
+    if (now - last < FRAME_MS - 2) {
+      raf = requestAnimationFrame(frame);
+      return;
+    }
     const dt = Math.min(0.05, (now - last) / 1000 || 0.016);
     last = now;
     const t = now / 1000;
@@ -154,12 +193,8 @@ export function mountStage(stage, initial) {
       ctx.save();
       ctx.globalCompositeOperation = "lighter";
       for (const [i, [x, y]] of cfg.lamps.entries()) {
-        const a = 0.13 + 0.04 * Math.sin(t * 1.7 + i * 2) + (Math.random() < 0.02 ? -0.06 : 0);
-        const g = ctx.createRadialGradient(x, y, 4, x, y, 150);
-        g.addColorStop(0, `rgba(255, 214, 140, ${a})`);
-        g.addColorStop(1, "rgba(255, 214, 140, 0)");
-        ctx.fillStyle = g;
-        ctx.fillRect(x - 150, y - 150, 300, 300);
+        ctx.globalAlpha = 0.13 + 0.04 * Math.sin(t * 1.7 + i * 2) + (Math.random() < 0.02 ? -0.06 : 0);
+        ctx.drawImage(glow(), x - 150, y - 150);
       }
       ctx.restore();
     }
@@ -189,10 +224,15 @@ export function mountStage(stage, initial) {
         d.x += d.v * 0.16 * dt;
         const [, py, , ph] = d.pane;
         if (d.y - d.len > py + ph) Object.assign(d, newDrop(d.pane, false));
-        ctx.globalAlpha = d.a;
+      }
+      for (const [level, alpha] of DROP_ALPHA.entries()) {
+        ctx.globalAlpha = alpha;
         ctx.beginPath();
-        ctx.moveTo(d.x, d.y);
-        ctx.lineTo(d.x - d.len * 0.16, d.y - d.len);
+        for (const d of drops) {
+          if (d.a !== level) continue;
+          ctx.moveTo(d.x, d.y);
+          ctx.lineTo(d.x - d.len * 0.16, d.y - d.len);
+        }
         ctx.stroke();
       }
       ctx.globalAlpha = 1;
@@ -266,12 +306,14 @@ export function mountStage(stage, initial) {
     if (animating && visible && !document.hidden) raf = requestAnimationFrame(frame);
   }
 
-  let paused = false;
+  // Redenen om stil te staan (keuring, typen); pas als ze allemaal weg zijn loopt hij weer.
+  const holds = new Set();
   function start() {
-    if (paused || reduceMotion.matches || raf || !visible || document.hidden) return;
+    if (holds.size || reduceMotion.matches || raf || !visible || document.hidden || (isIdle() && !confetti.length)) return;
     last = performance.now();
     raf = requestAnimationFrame(frame);
   }
+  onActive(start);
 
   function stop() {
     cancelAnimationFrame(raf);
@@ -289,6 +331,11 @@ export function mountStage(stage, initial) {
 
   set(initial);
   start();
-  // pause/resume: achter de keuring hoeft de kantine niet door te animeren.
-  return { set: (n) => { set(n); start(); }, burst, pause: () => { paused = true; stop(); }, resume: () => { paused = false; start(); } };
+  // pause/resume: achter de keuring of tijdens het typen hoeft de kantine niet door te animeren.
+  return {
+    set: (n) => { set(n); start(); },
+    burst,
+    pause: (why = "keuring") => { holds.add(why); stop(); },
+    resume: (why = "keuring") => { holds.delete(why); start(); },
+  };
 }

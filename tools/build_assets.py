@@ -157,9 +157,17 @@ def scroll() -> None:
     save_webp(out, IMG / "scroll.webp", quality=86)
 
 
+def logo_small(logo: Image.Image) -> None:
+    """Logo voor telefoons: daar staat het 118-190 px breed, 480 px is te veel."""
+    small = logo.copy()
+    small.thumbnail((240, 124), Image.LANCZOS)
+    save_webp(small, IMG / "logo-240.webp", quality=90)
+
+
 def logo_and_icons() -> None:
     logo = Image.open(ART / "logo.webp").convert("RGBA")
     save_webp(logo, IMG / "logo.webp", quality=90)
+    logo_small(logo)
 
     # Embleem (bal + wolk) links in het logo → app-icoon op donker hout.
     emblem = logo.crop((0, 0, 190, 248))

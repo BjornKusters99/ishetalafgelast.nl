@@ -277,6 +277,31 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   ok(await sp.isVisible("#home") && await sp.evaluate(() => document.activeElement.id) === "home", "teamknop toont de velden en zet de focus");
   await small.close();
 
+  // Kantine-canvas: hooguit 1,5x pixels, stil tijdens het typen en na inactiviteit.
+  const hi = await b.newContext({ locale: "nl-NL", timezoneId: "Europe/Amsterdam", reducedMotion: "no-preference",
+    deviceScaleFactor: 2, viewport: { width: 1280, height: 800 } });
+  const hp = await hi.newPage();
+  await mock(hp);
+  await hp.goto(BASE + "/", { waitUntil: "networkidle" });
+  const fx = "#view-home .stage-fx";
+  ok(await hp.$eval(fx, (c) => c.width <= Math.ceil(c.getBoundingClientRect().width * 1.5)), "kantine-canvas hooguit 1,5x pixeldichtheid");
+  const moving = async () => {
+    const before = await hp.$eval(fx, (c) => c.toDataURL());
+    await hp.waitForTimeout(400);
+    return before !== await hp.$eval(fx, (c) => c.toDataURL());
+  };
+  ok(await moving(), "kantine animeert na openen");
+  await hp.focus("#city");
+  ok(!(await moving()), "kantine staat stil tijdens het typen");
+  await hp.locator("#city").blur();
+  ok(await moving(), "kantine loopt weer na het typen");
+  // focus() en blur() tellen niet als interactie: 12 s na het laden stopt de animatie.
+  await hp.waitForTimeout(12500);
+  ok(!(await moving()), "kantine stopt na 12 s zonder interactie");
+  await hp.mouse.wheel(0, 1);
+  ok(await moving(), "scrollen wekt de kantine weer");
+  await hi.close();
+
   for (const path of ["/HANDOVER.md", "/tools/export_model.py", "/docs/security/BEHEER.md", "/docs/IMPLEMENTATIEPLAN.md"]) {
     ok((await ctx.request.get(BASE + path)).status() === 404, "niet-publiek pad geeft 404: " + path);
   }

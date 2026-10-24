@@ -15,6 +15,7 @@ const CORE = [
   "/fonts/fredoka.woff2",
   "/fonts/patrick-hand.woff2",
   "/img/logo.webp",
+  "/img/logo-240.webp",
   "/img/scroll.webp",
   "/img/scenes/kantine-d.webp",
   "/img/scenes/kantine-m.webp",

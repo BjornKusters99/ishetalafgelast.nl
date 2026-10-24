@@ -310,7 +310,7 @@ export function parade(text = "PRRRT! Iedereen naar de kantine!") {
   cv.setAttribute("aria-hidden", "true");
   document.body.append(cv);
   if (live) live.textContent = `Henk: ${text}`;
-  const dpr = Math.min(devicePixelRatio || 1, 2);
+  const dpr = Math.min(devicePixelRatio || 1, 1.5);
   const H = Math.min(300, innerHeight * 0.42);
   cv.width = innerWidth * dpr;
   cv.height = H * dpr;

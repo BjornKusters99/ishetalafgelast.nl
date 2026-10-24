@@ -217,7 +217,7 @@ def doc_page(title: str, desc: str, path: str, body: str, *, noindex: bool = Fal
     </div>
     <header class="topbar">
       <a class="brand" href="/" aria-label="IsHetAlAfgelast.nl, naar de homepage">
-        <img src="/img/logo.webp" alt="" width="480" height="248">
+        <img src="/img/logo.webp" srcset="/img/logo-240.webp 240w, /img/logo.webp 480w" sizes="clamp(118px, 13vw, 190px)" alt="" width="480" height="248">
       </a>
       <nav class="topnav" aria-label="Hoofdmenu">
         <a href="/">Check je wedstrijd</a>
@@ -228,7 +228,7 @@ def doc_page(title: str, desc: str, path: str, body: str, *, noindex: bool = Fal
     </main>
   </section>
   <footer class="site-footer">
-    <img src="/img/logo.webp" alt="IsHetAlAfgelast.nl" width="480" height="248" loading="lazy">
+    <img src="/img/logo.webp" srcset="/img/logo-240.webp 240w, /img/logo.webp 480w" sizes="132px" alt="IsHetAlAfgelast.nl" width="480" height="248" loading="lazy">
     <p>Voor iedereen die op zondagochtend in de kelderklasse speelt.</p>
     <nav aria-label="Footer">
       <a href="/plaatsen/">Plaatsen</a>
