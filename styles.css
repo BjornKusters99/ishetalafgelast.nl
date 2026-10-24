@@ -1156,7 +1156,8 @@ html.balbezit, html.balbezit body, html.balbezit a, html.balbezit button, html.b
 
 .toast {
   position: fixed; z-index: 60;
-  left: 50%; bottom: max(var(--s-5), env(safe-area-inset-bottom));
+  /* Bovenin: onderin lag hij op kleine schermen over de checkknop. */
+  left: 50%; top: max(var(--s-5), env(safe-area-inset-top));
   translate: -50% 0;
   display: flex; align-items: flex-start; gap: var(--s-2);
   width: min(100% - 32px, 520px);
