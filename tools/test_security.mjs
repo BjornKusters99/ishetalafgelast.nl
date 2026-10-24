@@ -256,3 +256,12 @@ test("forecast horizon is 14 days and older matches use the archive", async () =
     assert.equal(urls.at(-1).host, host, `dag ${n}`);
   }
 });
+
+test("privacy statement describes what really leaves the browser and names no dead mailbox", async () => {
+  const html = await readFile(new URL("../privacy.html", import.meta.url), "utf8");
+  for (const fact of ["Tijdens het typen", "speeldatum", "service worker", "Autoriteit Persoonsgegevens", "Wij bewaren zelf niets"]) {
+    assert.ok(html.includes(fact), fact);
+  }
+  // Tot E01 (mail-DNS) is er geen werkende mailbox op het domein.
+  assert.doesNotMatch(html, /mailto:/);
+});
