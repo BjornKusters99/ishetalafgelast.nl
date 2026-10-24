@@ -85,8 +85,21 @@ export async function searchPlaces(query, signal, count = 6) {
     .map((r) => ({ name: r.name, region: typeof r.admin1 === "string" ? r.admin1 : "", lat: r.latitude, lon: r.longitude }));
 }
 
+/** Zo tonen en onthouden we een plaats: "Hengelo (Gelderland)". */
+export const placeLabel = (p) => (p.region ? `${p.name} (${p.region})` : p.name);
+
+/** "Hengelo (Gelderland)" -> naam en provincie; een kale naam heeft geen regio. */
+export function splitPlace(text) {
+  const m = /^(.+?)\s*\(([^()]+)\)$/.exec(text.trim());
+  return m ? { name: m[1], region: m[2].trim() } : { name: text.trim(), region: "" };
+}
+
+/** Eerste treffer; bij "naam (provincie)" de treffer in die provincie. */
 export async function geocode(query, signal) {
-  const [hit] = await searchPlaces(query, signal, 1);
+  const { name, region } = splitPlace(query);
+  const hits = await searchPlaces(name, signal, region ? 6 : 1);
+  const want = region.toLowerCase();
+  const hit = (want && hits.find((h) => h.region.toLowerCase() === want)) || hits[0];
   if (!hit) {
     throw new UserError(`"${query}" kunnen we niet vinden. Probeer de plaatsnaam waar het sportpark ligt.`);
   }

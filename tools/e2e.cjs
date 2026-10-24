@@ -102,8 +102,10 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   await p3.goto(BASE + "/", { waitUntil: "networkidle" });
   await p3.fill("#city", "Xyzzy");
   await p3.click("#btn-check");
-  await p3.waitForSelector("#toast:not([hidden])", { timeout: 8000 });
-  ok((await p3.textContent("#toast-text")).includes("niet vinden"), "onbekende plaats -> toast");
+  await p3.waitForSelector("#city-err:not([hidden])", { timeout: 8000 });
+  ok((await p3.textContent("#city-err")).includes("niet vinden"), "onbekende plaats -> melding bij het veld");
+  ok(await p3.isHidden("#toast"), "geen tweede melding in een toast");
+  ok(await p3.evaluate(() => document.activeElement?.id) === "city", "focus op het plaatsveld");
   ok(await p3.isVisible("#view-home"), "blijft op home");
 
   // te ver weg
@@ -199,19 +201,53 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   await nav.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
   await nav.click("#btn-back");
   await nav.waitForSelector("#view-home:not([hidden])");
-  await nav.unroute("**/geocoding-api.open-meteo.com/**");
-  await nav.route("**/geocoding-api.open-meteo.com/**", (rt) => setTimeout(() => rt.fulfill({ json: { results: [{ name: "Oss", country_code: "NL", latitude: 51.76, longitude: 5.51 }] } }).catch(() => {}), 1500));
+  // Vooruit start een check met de coördinaten uit de URL; een traag weerbericht houdt hem bezig.
+  const slowWeather = (rt) => setTimeout(() => rt.fallback().catch(() => {}), 1500);
+  await nav.route("**/api.open-meteo.com/**", slowWeather);
   await nav.goForward();
   await nav.goBack();
   await nav.waitForTimeout(2500);
   ok(!/plaats=/.test(nav.url()) && await nav.isVisible("#view-home") && await nav.isHidden("#view-result"), "terug tijdens een check: thuis en URL kloppen");
-  await nav.unroute("**/geocoding-api.open-meteo.com/**");
-  await mock(nav);
+  await nav.unroute("**/api.open-meteo.com/**", slowWeather);
   await nav.click("#btn-check");
   await nav.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
   await nav.dblclick("#btn-back");
   await nav.waitForTimeout(800);
   ok(nav.url().startsWith(BASE) && await nav.isVisible("#view-home"), "dubbelklik op Nieuwe check blijft op de site");
+
+  // Twee plaatsen met dezelfde naam: de gekozen suggestie bepaalt het weer, ook via de deellink.
+  const twins = (rt) => rt.fulfill({ json: { results: [
+    { name: "Hengelo", admin1: "Overijssel", country_code: "NL", latitude: 52.27, longitude: 6.79 },
+    { name: "Hengelo", admin1: "Gelderland", country_code: "NL", latitude: 52.05, longitude: 6.31 },
+  ] } });
+  const hg = await ctx.newPage();
+  await mock(hg);
+  await hg.unroute("**/geocoding-api.open-meteo.com/**");
+  await hg.route("**/geocoding-api.open-meteo.com/**", twins);
+  const hgCalls = [];
+  hg.on("request", (r) => { const u = new URL(r.url()); if (u.hostname.endsWith("open-meteo.com")) hgCalls.push(u); });
+  await hg.goto(BASE + "/", { waitUntil: "networkidle" });
+  await hg.fill("#city", "Hengelo");
+  await hg.waitForSelector('#city-list option[value="Hengelo (Gelderland)"]', { state: "attached" });
+  // Een keuze uit de datalist zet de waarde en vuurt een input-event, net als fill().
+  await hg.fill("#city", "Hengelo (Gelderland)");
+  await hg.click("#btn-check");
+  await hg.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
+  const hgWeather = hgCalls.filter((u) => u.hostname === "api.open-meteo.com").pop();
+  ok(hgWeather?.searchParams.get("latitude") === "52.0500", "gekozen Hengelo (Gelderland) krijgt het weer van Gelderland");
+  ok(/lat=52\.05/.test(hg.url()) && /Gelderland/.test(decodeURIComponent(hg.url())), "deellink houdt provincie en coördinaten");
+  const shared = await ctx.newPage();
+  await mock(shared);
+  await shared.unroute("**/geocoding-api.open-meteo.com/**");
+  await shared.route("**/geocoding-api.open-meteo.com/**", twins);
+  const sharedCalls = [];
+  shared.on("request", (r) => { const u = new URL(r.url()); if (u.hostname.endsWith("open-meteo.com")) sharedCalls.push(u); });
+  await shared.goto(hg.url(), { waitUntil: "networkidle" });
+  await shared.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
+  ok(sharedCalls.length > 0 && sharedCalls.every((u) => u.hostname === "api.open-meteo.com" && u.searchParams.get("latitude") === "52.0500"),
+    "ontvanger van de deellink krijgt dezelfde plaats, zonder opnieuw te zoeken");
+  await hg.close();
+  await shared.close();
 
   // Touch: een tik laat :hover plakken; de keuze en de knop moeten zichtbaar blijven.
   const touch = await b.newContext({ locale: "nl-NL", timezoneId: "Europe/Amsterdam", reducedMotion: "reduce",

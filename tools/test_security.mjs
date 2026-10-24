@@ -12,7 +12,7 @@ function engineWith(fetch, timers = {}) {
   const context = vm.createContext({ fetch, URLSearchParams, AbortController, setTimeout, clearTimeout, ...timers });
   vm.runInContext(model.replace("export const MODEL", "const MODEL") + "\n"
     + engine.replace(/^import .*$/m, "").replaceAll("export ", "")
-    + "\nglobalThis.api = { fetchWeather, searchPlaces, predict, isValidDay };", context);
+    + "\nglobalThis.api = { fetchWeather, searchPlaces, geocode, predict, isValidDay };", context);
   return context.api;
 }
 
@@ -107,10 +107,46 @@ test("geocoding asks for Dutch places and knows common aliases", async () => {
   assert.equal(urls[1].searchParams.get("name"), "'s-Hertogenbosch");
 });
 
+test("geocoding a label with a province picks the place in that province", async () => {
+  const results = [
+    { name: "Hengelo", admin1: "Overijssel", country_code: "NL", latitude: 52.27, longitude: 6.79 },
+    { name: "Hengelo", admin1: "Gelderland", country_code: "NL", latitude: 52.05, longitude: 6.31 },
+  ];
+  const urls = [];
+  const api = engineWith(async (url) => { urls.push(new URL(url)); return { ok: true, json: async () => ({ results }) }; });
+  assert.equal((await api.geocode("Hengelo (Gelderland)")).lat, 52.05);
+  assert.equal(urls[0].searchParams.get("name"), "Hengelo");
+  assert.equal((await api.geocode("Hengelo")).lat, 52.27);
+});
+
+function appForm(city, picked = new Map()) {
+  const context = vm.createContext({ URLSearchParams, Number, $: () => ({ open: false, value: "" }), picked,
+    cityInput: { value: city }, dateInput: { value: DATE }, form: { elements: { veld: { value: "natuurgras" } } } });
+  const readForm = app.slice(app.indexOf("function readForm()"), app.indexOf("function fillForm("));
+  const params = app.slice(app.indexOf("const VELD_PARAM"), app.indexOf("const shareUrl"));
+  vm.runInContext(readForm + params + ";globalThis.api = {readForm, toParams, fromParams};", context);
+  return context.api;
+}
+
+test("a chosen suggestion keeps its province and coordinates in the shared link", () => {
+  const api = appForm("Hengelo (Gelderland)", new Map([["Hengelo (Gelderland)", { lat: 52.05031, lon: 6.30969 }]]));
+  const back = api.fromParams(api.toParams(api.readForm()));
+  assert.deepEqual([back.city, back.lat, back.lon], ["Hengelo (Gelderland)", 52.0503, 6.3097]);
+  assert.equal(appForm("Hengelo").readForm().lat, null);
+});
+
+test("shared coordinates outside the Netherlands or incomplete are ignored", () => {
+  const { fromParams } = appForm("Oss");
+  for (const extra of ["lat=48.85&lon=2.35", "lat=abc&lon=5.5", "lat=51.7", "lat=&lon="]) {
+    const q = fromParams(new URLSearchParams(`datum=${DATE}&plaats=Oss&${extra}`));
+    assert.deepEqual([q.lat, q.lon], [null, null], extra);
+  }
+});
+
 test("form and shared links use the same numeric limits", () => {
   const values = { "#manual": { open: true }, "#home": { value: "Team" }, "#away": { value: "Uit" },
     "#m-temp": { value: "999" }, "#m-precip": { value: "-5" }, "#m-wind": { value: "999" } };
-  const context = vm.createContext({ URLSearchParams, Number, $: (selector) => values[selector],
+  const context = vm.createContext({ URLSearchParams, Number, $: (selector) => values[selector], picked: new Map(),
     cityInput: { value: "Oss" }, dateInput: { value: DATE }, form: { elements: { veld: { value: "natuurgras" } } } });
   const readForm = app.slice(app.indexOf("function readForm()"), app.indexOf("function fillForm("));
   const params = app.slice(app.indexOf("function fromParams("), app.indexOf("const shareUrl"));
