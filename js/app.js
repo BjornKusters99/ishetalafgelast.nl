@@ -253,6 +253,12 @@ function fromParams(p) {
       wind_gusts: clampNum(p.get("w"), 0, 200, 30),
     };
   }
+  // Een gedeelde link draagt de kans en het moment van de check; de ontvanger ziet beide naast de kans van nu.
+  const ts = Number(p.get("ts")) * 1000;
+  if (/^\d{1,3}$/.test(p.get("p") || "") && Number(p.get("p")) <= 100
+    && Number.isInteger(ts) && ts <= Date.now() + 5 * 60e3 && ts > Date.now() - 60 * 864e5) {
+    q.shared = { p: Number(p.get("p")), at: new Date(ts) };
+  }
   return q;
 }
 
@@ -264,6 +270,8 @@ function clampNum(v, lo, hi, dflt) {
 }
 
 const shareUrl = (q) => `${location.origin}${location.pathname}?${toParams(q)}`;
+// Alleen de link die je deelt krijgt kans en tijdstip; de adresbalk blijft zonder.
+const sharedUrl = (q, pct, at) => `${shareUrl(q)}&p=${pct}&ts=${Math.floor(at.getTime() / 1000)}`;
 
 /* ─────────── Delen ─────────── */
 
@@ -854,6 +862,12 @@ function renderResult({ q, weather: w, pred, v, other, at }) {
   $("#verdict-word").replaceChildren(Object.assign(document.createElement("span"), { className: "board-hedge", textContent: "Verwachting:" }), ` ${v.word}`);
   $("#r-horizon").textContent = horizonText(q, at);
   renderWeekend(q, pred.probability, other);
+  const shared = $("#r-shared");
+  shared.hidden = !q.shared;
+  if (q.shared) {
+    const now = Math.round(pred.probability * 100);
+    shared.textContent = `Gedeeld ${fmtFetched.format(q.shared.at)}: ${q.shared.p}% · nu ${now === q.shared.p ? "ook " : ""}${now}%`;
+  }
 
   const hue = Math.round(110 - 105 * p);
   resultView.style.setProperty("--thermo", `hsl(${hue} 62% 44%)`);
@@ -883,7 +897,7 @@ function renderResult({ q, weather: w, pred, v, other, at }) {
   $("#r-why").textContent = whyText(w, q.veld, p, !!q.manual);
   renderWeights(w, q.veld, !!q.manual);
 
-  current = { q, v, pct, url: shareUrl(q) };
+  current = { q, v, pct, url: sharedUrl(q, pct, at) };
   updateShare();
   renderReminder(q);
   renderExtra(v.mood);
@@ -1008,7 +1022,7 @@ function renderWeekend(q, p, other) {
   const mine = Object.assign(document.createElement("strong"), { textContent: label(q.date, p) });
   const btn = Object.assign(document.createElement("button"), { type: "button", className: "weekend-other", textContent: label(other.date, other.p) });
   btn.addEventListener("click", () => {
-    const next = { ...q, date: other.date };
+    const next = { ...q, date: other.date, shared: null };
     fillForm(next);
     runCheck(next, true, true);
   });

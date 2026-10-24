@@ -339,6 +339,24 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   ok(await mp.evaluate(() => localStorage.getItem("ishetalafgelast:wedstrijd")) === null, "vinkje uit: niets onthouden");
   await mem.close();
 
+  // Deellink met kans en tijdstip: de ontvanger ziet de kans van toen naast die van nu.
+  const sh = await ctx.newPage();
+  await mock(sh);
+  const sharedAt = Math.floor(Date.now() / 1000) - 3600;
+  await sh.goto(BASE + "/?" + new URLSearchParams({ plaats: "Oss", lat: "51.76", lon: "5.51", datum: new Date().toISOString().slice(0, 10),
+    veld: "natuurgras", p: "61", ts: String(sharedAt) }), { waitUntil: "networkidle" });
+  await sh.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
+  const sharedLine = await sh.textContent("#r-shared");
+  ok(/^Gedeeld \w+ \d\d:\d\d: 61% · nu (ook )?\d+%$/.test(sharedLine), "ontvanger ziet kans van toen en nu: " + sharedLine);
+  const waLink = decodeURIComponent(await sh.getAttribute("#share-wa", "href"));
+  ok(/[?&]p=\d+&ts=\d+/.test(waLink), "doorgedeelde link krijgt eigen kans en tijdstip");
+  await sh.click("#btn-back");
+  await sh.waitForSelector("#view-home:not([hidden])");
+  await sh.click("#btn-check");
+  await sh.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
+  ok(await sh.isHidden("#r-shared") && !/[?&]p=/.test(sh.url()), "eigen check: geen gedeeld-regel, adresbalk zonder kans");
+  await sh.close();
+
   // Kantine-canvas: hooguit 1,5x pixels, stil tijdens het typen en na inactiviteit.
   const hi = await b.newContext({ locale: "nl-NL", timezoneId: "Europe/Amsterdam", reducedMotion: "no-preference",
     deviceScaleFactor: 2, viewport: { width: 1280, height: 800 } });
