@@ -112,7 +112,10 @@
 
           <div class="field field--date">
             <label for="date">Wanneer?</label>
-            <input id="date" name="datum" type="date" required aria-describedby="date-err date-hint">
+            <div class="when">
+              <input id="date" name="datum" type="date" required aria-describedby="date-err date-hint">
+              <input id="kickoff" name="aftrap" type="time" value="14:00" step="300" aria-label="Aftraptijd" title="Aftraptijd">
+            </div>
             <p class="field-err" id="date-err" hidden></p>
             <p class="field-hint" id="date-hint" hidden></p>
           </div>
@@ -341,6 +344,10 @@
         <div><dt><svg class="ic"><use href="#i-wind"/></svg>Windstoten</dt><dd id="r-wind">-</dd></div>
         <div id="r-week-row"><dt><svg class="ic"><use href="#i-week"/></svg>Week ervoor</dt><dd id="r-week">-</dd></div>
       </dl>
+      <div class="hours" id="r-hours" hidden>
+        <p class="hours-title" id="r-hours-title"></p>
+        <table class="hours-table" id="r-hours-table"></table>
+      </div>
     </section>
 
     <section class="scroll rapport" aria-labelledby="rapport-title">
