@@ -2,6 +2,7 @@
 //   python3 -m http.server 8765 --directory _site
 //   npm run test:e2e (Playwright/Chromium vooraf installeren)
 const { chromium } = require("playwright");
+const fs = require("fs");
 const exe = process.env.CHROME || undefined;
 const BASE = process.env.BASE || "http://127.0.0.1:8765";
 let fails = 0;
@@ -10,9 +11,11 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   return Promise.all([
     page.route("**/geocoding-api.open-meteo.com/**", (rt) => rt.fulfill({ json: geo ? { results: [{ name: "Oss", admin1: "Noord-Brabant", country_code: "NL", latitude: 51.76, longitude: 5.51 }] } : {} })),
     page.route("**/api.open-meteo.com/**", (rt) => {
-      const end = new URL(rt.request().url()).searchParams.get("end_date");
-      const days = []; for (let i = 7; i >= 0; i--) days.push(new Date(new Date(end + "T00:00:00Z") - i * 864e5).toISOString().slice(0, 10));
-      rt.fulfill({ json: { daily: { time: days, temperature_2m_mean: days.map(() => t), temperature_2m_min: days.map((_, i) => (i < frost ? -3 : t - 2)), precipitation_sum: days.map((_, i) => (i === 7 ? r : r7 / 7)), wind_gusts_10m_max: days.map(() => wind) } } });
+      // Van start_date t/m end_date: 8 dagen, of 9 als zaterdag en zondag samen komen.
+      const sp = new URL(rt.request().url()).searchParams;
+      const days = [];
+      for (let d = Date.parse(sp.get("start_date") + "T00:00:00Z"); d <= Date.parse(sp.get("end_date") + "T00:00:00Z"); d += 864e5) days.push(new Date(d).toISOString().slice(0, 10));
+      rt.fulfill({ json: { daily: { time: days, temperature_2m_mean: days.map(() => t), temperature_2m_min: days.map((_, i) => (i < frost ? -3 : t - 2)), precipitation_sum: days.map((_, i) => (i >= 7 ? r : r7 / 7)), wind_gusts_10m_max: days.map(() => wind) } } });
     }),
   ]);
 }
@@ -286,6 +289,55 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   await sp.tap("#teams-toggle");
   ok(await sp.isVisible("#home") && await sp.evaluate(() => document.activeElement.id) === "home", "teamknop toont de velden en zet de focus");
   await small.close();
+
+  // Wedstrijd onthouden, zaterdag en zondag naast elkaar, agenda-herinnering.
+  const mem = await b.newContext({ locale: "nl-NL", timezoneId: "Europe/Amsterdam", reducedMotion: "reduce", acceptDownloads: true });
+  const mp = await mem.newPage();
+  await mock(mp);
+  const mpGeo = [];
+  mp.on("request", (r) => r.url().includes("geocoding-api") && mpGeo.push(r.url()));
+  const ahead = (n) => new Date(Date.now() + n * 864e5).toLocaleDateString("sv-SE", { timeZone: "Europe/Amsterdam" });
+  let toSunday = 3;
+  while (new Date(ahead(toSunday) + "T12:00:00Z").getUTCDay() !== 0) toSunday++;
+  const sunday = ahead(toSunday);
+  const saturday = ahead(toSunday - 1);
+  await mp.goto(BASE + "/", { waitUntil: "networkidle" });
+  ok(await mp.isHidden("#saved"), "eerste bezoek: geen onthouden wedstrijd");
+  await mp.fill("#city", "Oss");
+  await mp.fill("#date", sunday);
+  await mp.fill("#home", "vv Modder");
+  await mp.click("#btn-check");
+  await mp.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
+  const weekend = await mp.textContent("#r-weekend");
+  ok(/^Zaterdag \d+% · Zondag \d+%$/.test(weekend) && (await mp.textContent("#r-weekend strong")).startsWith("Zondag"),
+    "zaterdag en zondag naast elkaar: " + weekend);
+  ok((await mp.textContent("#ics-label")).includes("vrijdag om 19:45"), "herinnering voor vrijdag 19:45");
+  const [dl] = await Promise.all([mp.waitForEvent("download"), mp.click("#btn-ics")]);
+  const ics = fs.readFileSync(await dl.path(), "utf8").replace(/\r\n /g, "");
+  ok(ics.startsWith("BEGIN:VCALENDAR") && ics.includes(`DTSTART:${ahead(toSunday - 2).replaceAll("-", "")}T194500`)
+    && ics.includes(`datum=${sunday}`), "agenda-bestand: vrijdag 19:45 met deeplink naar de check");
+  await mp.click(".weekend-other");
+  await mp.waitForFunction((d) => location.search.includes(`datum=${d}`), saturday);
+  ok((await mp.textContent("#r-weekend strong")).startsWith("Zaterdag"), "tik op de andere dag toont zaterdag");
+  ok(await mp.evaluate(() => JSON.parse(localStorage.getItem("ishetalafgelast:wedstrijd")).weekday) === 6, "wedstrijd onthouden met speeldag");
+
+  await mp.goto(BASE + "/", { waitUntil: "networkidle" });
+  const geoBefore = mpGeo.length;
+  ok(await mp.isVisible("#saved") && (await mp.textContent("#saved-what")).includes("vv Modder"), "terugkomen: je wedstrijd staat klaar");
+  ok(await mp.inputValue("#home") === "vv Modder" && new Date(await mp.inputValue("#date") + "T12:00:00").getDay() === 6,
+    "formulier ingevuld voor de eerstvolgende zaterdag");
+  await mp.click("#btn-again");
+  await mp.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
+  ok(mpGeo.length === geoBefore, "check opnieuw gebruikt de onthouden coördinaten");
+  await mp.click("#btn-back");
+  await mp.waitForSelector("#view-home:not([hidden])");
+  await mp.click("#btn-forget");
+  ok(await mp.isHidden("#saved") && await mp.evaluate(() => localStorage.getItem("ishetalafgelast:wedstrijd")) === null, "vergeet wist de wedstrijd");
+  await mp.uncheck("#remember");
+  await mp.click("#btn-check");
+  await mp.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
+  ok(await mp.evaluate(() => localStorage.getItem("ishetalafgelast:wedstrijd")) === null, "vinkje uit: niets onthouden");
+  await mem.close();
 
   // Kantine-canvas: hooguit 1,5x pixels, stil tijdens het typen en na inactiviteit.
   const hi = await b.newContext({ locale: "nl-NL", timezoneId: "Europe/Amsterdam", reducedMotion: "no-preference",
