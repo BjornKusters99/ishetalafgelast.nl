@@ -144,7 +144,7 @@ test("shared coordinates outside the Netherlands or incomplete are ignored", () 
 });
 
 test("form and shared links use the same numeric limits", () => {
-  const values = { "#manual": { open: true }, "#home": { value: "Team" }, "#away": { value: "Uit" },
+  const values = { "#manual": { open: true }, "#home": { value: "Team" }, "#away": { value: "Uit" }, "#kickoff": { value: "14:00" },
     "#m-temp": { value: "999" }, "#m-precip": { value: "-5" }, "#m-wind": { value: "999" } };
   const context = vm.createContext({ URLSearchParams, Number, $: (selector) => values[selector], picked: new Map(),
     cityInput: { value: "Oss" }, dateInput: { value: DATE }, form: { elements: { veld: { value: "natuurgras" } } } });
@@ -310,4 +310,30 @@ test("a shared link carries the probability and moment of the check, within sane
   for (const bad of [`p=101&ts=${now}`, `p=abc&ts=${now}`, `p=61&ts=${now + 3600}`, `p=61&ts=${now - 90 * 86400}`, "p=61", `p=6.5&ts=${now}`]) {
     assert.equal(shared(bad), undefined, bad);
   }
+});
+
+test("kickoff time is validated and only lands in the link when it is not 14:00", () => {
+  const { fromParams, toParams } = appForm("Oss");
+  assert.equal(fromParams(new URLSearchParams(`datum=${DATE}&aftrap=10:30`)).kickoff, "10:30");
+  for (const bad of ["25:00", "9:30", "10:3", "<b>", ""]) {
+    assert.equal(fromParams(new URLSearchParams(`datum=${DATE}&aftrap=${bad}`)).kickoff, "14:00", bad);
+  }
+  assert.equal(toParams({ date: DATE, kickoff: "14:00" }).has("aftrap"), false);
+  assert.equal(toParams({ date: DATE, kickoff: "10:30" }).get("aftrap"), "10:30");
+});
+
+test("hourly forecast is context: requested from the forecast API and split per day", async () => {
+  const urls = [];
+  const time = Array.from({ length: 8 }, (_, i) => `2026-10-${18 + i}`);
+  const hourTimes = time.flatMap((d) => Array.from({ length: 24 }, (_, h) => `${d}T${String(h).padStart(2, "0")}:00`));
+  const api = engineWith(async (url) => {
+    urls.push(new URL(url));
+    return { ok: true, json: async () => ({ ...dailyData(), hourly: { time: hourTimes,
+      precipitation: hourTimes.map((_, i) => (i % 24) / 10), precipitation_probability: hourTimes.map(() => 120),
+      wind_gusts_10m: hourTimes.map(() => 44) } }) };
+  });
+  const weather = await api.fetchWeather(52, 5, DATE);
+  assert.equal(urls[0].searchParams.get("hourly"), "precipitation,precipitation_probability,wind_gusts_10m");
+  assert.deepEqual(JSON.parse(JSON.stringify(weather.hours[14])), { precip: 1.4, prob: null, gust: 44 });
+  assert.equal(weather.precip_7d_sum, 28);
 });

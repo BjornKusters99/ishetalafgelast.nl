@@ -267,6 +267,8 @@ h1, h2, h3 { font-weight: 400; }
 .field input:focus { outline: none; background: #fdf6e6; box-shadow: 0 0 0 3px var(--ink), 0 0 0 6px var(--focus); }
 .field input[aria-invalid="true"] { border-color: var(--red); box-shadow: 0 0 0 3px rgb(196 57 42 / .25); }
 .field input[type="date"] { min-width: 0; }
+.when { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+.field input[type="time"] { min-width: 0; width: 8.4em; }
 .field input[type="date"]::-webkit-calendar-picker-indicator { opacity: .7; cursor: pointer; }
 
 .field-err {
@@ -841,6 +843,23 @@ h1, h2, h3 { font-weight: 400; }
   text-shadow: 0 0 18px rgb(242 197 95 / .35);
   font-variant-numeric: tabular-nums;
 }
+/* Uurweer rond de aftrap: context, het oordeel rekent met de hele dag */
+.hours {
+  width: 100%; max-width: 1180px; margin: 0 auto;
+  padding: 0 clamp(var(--s-2), 3vw, var(--s-7)) var(--s-4);
+}
+.hours-title {
+  margin-bottom: var(--s-2); text-align: center;
+  font-size: .78rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--cream-2);
+}
+.hours-table {
+  width: 100%; max-width: 640px; margin: 0 auto;
+  border-collapse: collapse; font-size: .88rem; font-variant-numeric: tabular-nums;
+}
+.hours-table th, .hours-table td { padding: 4px 5px; text-align: center; white-space: nowrap; }
+.hours-table th[scope="row"] { text-align: left; font-weight: 500; color: var(--cream-2); white-space: normal; }
+.hours-table thead th { font-weight: 600; color: var(--cream-2); }
+.hours-table .is-kickoff { color: var(--gold-hi); background: rgb(242 197 95 / .12); }
 .conditions dd small {
   display: block; margin-top: 4px;
   font-family: var(--f-ui); font-size: .78rem; color: var(--cream-2); text-shadow: none;

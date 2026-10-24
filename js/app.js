@@ -148,6 +148,7 @@ function readForm() {
     lat: at ? at.lat : null,
     lon: at ? at.lon : null,
     date: dateInput.value,
+    kickoff: validKickoff($("#kickoff").value),
     home: $("#home").value.trim().slice(0, 40),
     away: $("#away").value.trim().slice(0, 40),
     veld: form.elements.veld.value || "natuurgras",
@@ -161,7 +162,11 @@ function readForm() {
   };
 }
 
+// Aftrap: standaard 14:00, alleen hele uren en minuten.
+const validKickoff = (v) => (/^([01]\d|2[0-3]):[0-5]\d$/.test(v || "") ? v : "14:00");
+
 function fillForm(q) {
+  $("#kickoff").value = validKickoff(q.kickoff);
   if (q.city) cityInput.value = q.city;
   if (q.city && q.lat != null) picked.set(q.city, { lat: q.lat, lon: q.lon });
   if (q.date) dateInput.value = q.date;
@@ -217,6 +222,7 @@ function toParams(q) {
     p.set("lon", q.lon.toFixed(4));
   }
   p.set("datum", q.date);
+  if (q.kickoff && q.kickoff !== "14:00") p.set("aftrap", q.kickoff);
   if (q.home) p.set("thuis", q.home);
   if (q.away) p.set("uit", q.away);
   p.set("veld", VELD_PARAM[q.veld] || "natuurgras");
@@ -240,6 +246,7 @@ function fromParams(p) {
     lat: inNL ? lat : null,
     lon: inNL ? lon : null,
     date: p.get("datum"),
+    kickoff: validKickoff(p.get("aftrap")),
     home: (p.get("thuis") || "").slice(0, 40),
     away: (p.get("uit") || "").slice(0, 40),
     // Oude links zonder veld-parameter bedoelden "geen idee".
@@ -883,9 +890,12 @@ function renderResult({ q, weather: w, pred, v, other, at }) {
   };
   for (const el of resultView.querySelectorAll("[data-bind]")) el.textContent = bind[el.dataset.bind];
 
-  $("#r-temp").textContent = `${nl1.format(w.temperature)} °C`;
-  $("#r-precip").textContent = `${nl1.format(w.precipitation)} mm`;
-  $("#r-wind").textContent = `${nl0.format(w.wind_gusts)} km/u`;
+  // Het oordeel rekent met dagwaarden; dat staat er nu ook bij.
+  const small = (text) => Object.assign(document.createElement("small"), { textContent: text });
+  $("#r-temp").replaceChildren(`${nl1.format(w.temperature)} °C`, small(q.manual ? "eigen invoer" : "gemiddeld, hele dag"));
+  $("#r-precip").replaceChildren(`${nl1.format(w.precipitation)} mm`, small(q.manual ? "eigen invoer" : "hele dag"));
+  $("#r-wind").replaceChildren(`${nl0.format(w.wind_gusts)} km/u`, small(q.manual ? "eigen invoer" : "hoogste, hele dag"));
+  renderHours(w, q);
   if (w.precip_7d_sum != null) {
     const frost = w.frost_days_7d ? `${w.frost_days_7d} vriesnacht${w.frost_days_7d > 1 ? "en" : ""}` : "geen vorst";
     $("#r-week").replaceChildren(`${nl0.format(w.precip_7d_sum)} mm`, Object.assign(document.createElement("small"), { textContent: frost }));
@@ -1006,6 +1016,36 @@ window.addEventListener("popstate", () => {
   }
 });
 
+/** Uurweer van 3 uur vóór tot 2 uur na de aftrap, als context bij het dagoordeel. */
+function renderHours(w, q) {
+  const k = Number(validKickoff(q.kickoff).slice(0, 2));
+  const hours = w.hours ? [-3, -2, -1, 0, 1, 2].map((d) => k + d).filter((h) => h >= 0 && h <= 23 && w.hours[h]) : [];
+  $("#r-hours").hidden = !hours.length;
+  if (!hours.length) return;
+  $("#r-hours-title").textContent = `Rond de aftrap (${validKickoff(q.kickoff)})`;
+  const el = (tag, props) => Object.assign(document.createElement(tag), props);
+  const mark = (h) => (h === k ? "is-kickoff" : "");
+  const dash = (v, f) => (v == null ? "–" : f(v));
+  const head = el("tr", {});
+  head.append(el("th", { scope: "col", textContent: "Uur" }),
+    ...hours.map((h) => el("th", { scope: "col", className: mark(h), textContent: `${String(h).padStart(2, "0")}:00` })));
+  const row = (label, f) => {
+    const tr = el("tr", {});
+    tr.append(el("th", { scope: "row", textContent: label }), ...hours.map((h) => el("td", { className: mark(h), textContent: f(w.hours[h]) })));
+    return tr;
+  };
+  const thead = el("thead", {});
+  thead.append(head);
+  const tbody = el("tbody", {});
+  tbody.append(
+    // Eenheden in het rijlabel: zo past de strook ook op een smalle telefoon.
+    row("Regen (mm)", (x) => dash(x.precip, (v) => nl1.format(v))),
+    row("Kans op regen", (x) => dash(x.prob, (v) => `${nl0.format(v)}%`)),
+    row("Windstoten (km/u)", (x) => dash(x.gust, (v) => nl0.format(v))),
+  );
+  $("#r-hours-table").replaceChildren(thead, tbody);
+}
+
 /* ─────────── Weekend, herinnering en onthouden ─────────── */
 
 const fmtWeekday = new Intl.DateTimeFormat("nl-NL", { weekday: "long" });
@@ -1083,7 +1123,7 @@ const rememberBox = $("#remember");
 function remember(q) {
   if (q.manual || !rememberBox.checked) return;
   try {
-    localStorage.setItem(MEMORY_KEY, JSON.stringify({ city: q.city, lat: q.lat, lon: q.lon, veld: q.veld,
+    localStorage.setItem(MEMORY_KEY, JSON.stringify({ city: q.city, lat: q.lat, lon: q.lon, veld: q.veld, kickoff: q.kickoff,
       home: q.home, away: q.away, weekday: day(q.date).getDay() }));
   } catch { /* opslag geblokkeerd: dan onthouden we niets */ }
 }
@@ -1099,6 +1139,7 @@ function recall() {
   try { m = JSON.parse(localStorage.getItem(MEMORY_KEY) || "null"); } catch { return null; }
   if (!m || typeof m.city !== "string" || !m.city) return null;
   const p = new URLSearchParams({ plaats: m.city, datum: nextMatchDay(m.weekday), veld: VELD_PARAM[m.veld] || "natuurgras" });
+  if (typeof m.kickoff === "string") p.set("aftrap", m.kickoff);
   if (typeof m.home === "string" && m.home) p.set("thuis", m.home);
   if (typeof m.away === "string" && m.away) p.set("uit", m.away);
   if (Number.isFinite(m.lat) && Number.isFinite(m.lon)) {
