@@ -22,7 +22,7 @@
   <meta name="theme-color" content="#2c1b11">
 
   <meta name="referrer" content="no-referrer">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src https://geocoding-api.open-meteo.com https://api.open-meteo.com https://archive-api.open-meteo.com; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://geocoding-api.open-meteo.com https://api.open-meteo.com https://archive-api.open-meteo.com; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none';">
 
   <link rel="icon" href="/img/icon-48.png" type="image/png">
   <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
@@ -62,6 +62,11 @@
   <p class="sr-only" id="keuring-live" role="status"></p>
 
   <main id="main">
+    <div class="status-banner" id="status" role="status" hidden>
+      <svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>
+      <p><strong>Algemene afgelasting.</strong> <span id="status-text"></span>
+      <a id="status-link" href="https://www.knvb.nl/" target="_blank" rel="noopener">Lees het bericht</a></p>
+    </div>
   <!-- ═══════════ Home ═══════════ -->
   <div id="view-home" class="view">
     <section class="scene scene--home" aria-labelledby="title">

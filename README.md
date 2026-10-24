@@ -101,6 +101,25 @@ Resterende eigenaarstaken, hostingbeperkingen en incidentherstel staan in
 `docs/security/BEHEER.md`. Een private repo, betaalde hosting of backend is niet
 automatisch nodig voor deze statische site.
 
+## Algemene afgelasting melden
+
+Legt de KNVB het amateurvoetbal in een regio of het hele land stil, zet dan
+`status.json` aan via een gewone PR:
+
+```json
+{
+  "algemeen_afgelast": true,
+  "tekst": "De KNVB heeft alle amateurwedstrijden van dit weekend afgelast.",
+  "bron": "https://www.knvb.nl/nieuws/...",
+  "tot": "2026-11-29"
+}
+```
+
+Home en uitslag tonen dan een rode banner met de tekst (maximaal 200 tekens)
+en een link naar de bron. Alleen `https://` op `knvb.nl` of `voetbal.nl` telt;
+een andere bron, een lege tekst of een `tot` in het verleden laat de banner weg.
+Met `tot` verdwijnt hij vanzelf. Daarna weer `"algemeen_afgelast": false`.
+
 ## Easter eggs
 
 Hotspot-coördinaten staan in `js/eggs.js` (`SPOTS`) als percentages van de

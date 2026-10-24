@@ -47,7 +47,7 @@ en zet de status in de tabel hieronder op ✅.
 | T17 | [#26](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/26) | Wedstrijd onthouden, zaterdag en zondag, agenda-herinnering | UX-8, PROD-1, PROD-2, PROD-3 | ✅ |
 | T18 | [#27](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/27) | Deellink met kans en tijdstip | UX-9 | ✅ |
 | T19 | [#28](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/28) | Aftraptijd en uurweer rond de wedstrijd | UX-5 | ✅ |
-| T20 | [#29](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/29) | Banner voor officiële algemene afgelasting | PROD-4, SEO-4 | ☐ |
+| T20 | [#29](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/29) | Banner voor officiële algemene afgelasting | PROD-4, SEO-4 | ✅ |
 | E01 | [#30](https://github.com/BjornKusters99/ishetalafgelast.nl/issues/30) | Mail-DNS voor het domein (eigenaar) | SEC-2 | ☐ |
 
 ## Taken
