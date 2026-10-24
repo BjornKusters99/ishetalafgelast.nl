@@ -12,10 +12,12 @@ dit script opnieuw.
 """
 from __future__ import annotations
 
+import json
 import logging
 import math
 import html
 import re
+from functools import cache
 from pathlib import Path
 from urllib.parse import quote
 
@@ -28,6 +30,10 @@ BASE_URL = "https://www.ishetalafgelast.nl"
 # Adverteren staat voorlopig uit. Op True zetten om sponsor.html weer te
 # genereren, in de sitemap op te nemen en in de footer te linken.
 SPONSOR_LIVE = False
+
+# <lastmod> in de sitemap. Met de hand bijwerken bij een inhoudelijke wijziging
+# van de pagina's: CI eist dat de gegenereerde bestanden gelijk blijven.
+LASTMOD = "2026-10-24"
 
 # (naam, provincie, lat, lon) — coördinaten sync met backend DUTCH_CITIES
 PLAATSEN: list[tuple[str, str, float, float]] = [
@@ -108,6 +114,69 @@ def plaats_link(naam: str) -> str:
     return f'<a href="/plaatsen/{slug(naam)}.html">{naam}</a>'
 
 
+@cache
+def klimaat() -> dict:
+    """Seizoensweer per plaats, gemaakt met tools/klimaat.py."""
+    return json.loads((ROOT / "tools" / "klimaat.json").read_text(encoding="utf-8"))
+
+
+def nl(v: float) -> str:
+    return f"{v:.1f}".replace(".", ",").removesuffix(",0")
+
+
+def rang(naam: str, waarde) -> int:
+    """Plek van naam als alle plaatsen op waarde(plaats) aflopend staan (1 = hoogst)."""
+    eigen = waarde(klimaat()["plaatsen"][naam])
+    return 1 + sum(waarde(k) > eigen for k in klimaat()["plaatsen"].values())
+
+
+def plek(naam: str, r: int, n: int, hoog: str, laag: str) -> str:
+    if r <= n // 4:
+        return f"Daarmee hoort {naam} bij {hoog} van onze {n} plaatsen."
+    if r > n - n // 4:
+        return f"Daarmee hoort {naam} bij {laag} van onze {n} plaatsen."
+    return f"Daarmee zit {naam} in de middenmoot van onze {n} plaatsen."
+
+
+def klimaat_sectie(naam: str, prov: str) -> str:
+    data = klimaat()
+    k = data["plaatsen"][naam]
+    meta = data["meta"]
+    n = len(data["plaatsen"])
+    rijen = [
+        ("natte_zaterdagen", f"Zaterdagen met {meta['natte_zaterdag_mm']} mm regen of meer"),
+        ("vorstnachten", "Nachten met vorst"),
+        ("stormdagen", f"Dagen met windstoten vanaf {meta['storm_kmh']} km/u"),
+    ]
+    body = "\n".join(
+        f'          <tr><th scope="row">{label}</th>'
+        + "".join(f"<td>{nl(k[s][key])}</td>" for s in ("herfst", "winter", "voorjaar"))
+        + "</tr>"
+        for key, label in rijen
+    )
+    nat = sum(k[s]["natte_zaterdagen"] for s in k)
+    r_nat = rang(naam, lambda x: sum(x[s]["natte_zaterdagen"] for s in x))
+    r_vorst = rang(naam, lambda x: x["winter"]["vorstnachten"])
+    zin_nat = plek(naam, r_nat, n, "het natste kwart", "het droogste kwart")
+    zin_vorst = plek(naam, r_vorst, n, "het kwart met de meeste vorst", "het kwart met de minste vorst")
+    return (
+        '    <section class="places places--klimaat" aria-labelledby="klimaat-title">\n'
+        f'      <h2 id="klimaat-title">Voetbalweer in {naam}</h2>\n'
+        f"      <p>{naam} ligt in {prov}. Zo zag het weer er rond {naam} uit in de voetbalseizoenen "
+        f"{meta['seizoenen']}, gemiddeld per seizoen.</p>\n"
+        '      <table class="klimaat-tabel">\n'
+        '        <thead><tr><th scope="col">Gemiddeld per seizoen</th>'
+        '<th scope="col">Herfst</th><th scope="col">Winter</th><th scope="col">Voorjaar</th></tr></thead>\n'
+        f"        <tbody>\n{body}\n        </tbody>\n"
+        "      </table>\n"
+        f"      <p>Van september tot en met mei telt {naam} gemiddeld {nl(nat)} natte zaterdagen. {zin_nat} "
+        f"In de winter vriest het er gemiddeld {nl(k['winter']['vorstnachten'])} nachten. {zin_vorst}</p>\n"
+        f'      <p class="bron">Bron: {meta["bron"]}. Herfst is september tot en met november, winter december '
+        "tot en met februari, voorjaar maart tot en met mei.</p>\n"
+        "    </section>\n"
+    )
+
+
 TEMPLATE = (ROOT / "index.html").read_text(encoding="utf-8")
 NO_SCRIPT_CSP = (
     '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; '
@@ -169,11 +238,15 @@ def place_page(naam: str, prov: str) -> str:
         "        </div>\n"
         "      </header>"
     ))
+    coord = {p[0]: (p[2], p[3]) for p in PLAATSEN}
     buren = "\n".join(
-        f'        <li><a href="/plaatsen/{slug(n)}.html">{n}</a></li>' for n in dichtstbijzijnde(entry, 6)
+        f'        <li><a href="/plaatsen/{slug(n)}.html">{n}</a> '
+        f'<span class="km">{round(afstand(coord[naam], coord[n]))} km</span></li>'
+        for n in dichtstbijzijnde(entry, 6)
     )
     out = swap(out, "places", (
-        '    <section class="places" aria-labelledby="places-title">\n'
+        klimaat_sectie(naam, prov)
+        + '    <section class="places" aria-labelledby="places-title">\n'
         f'      <h2 id="places-title">In de buurt van {naam}</h2>\n'
         '      <ul class="place-list">\n'
         f"{buren}\n"
@@ -184,7 +257,8 @@ def place_page(naam: str, prov: str) -> str:
     city = 'placeholder="Plaats of dorp"'
     if city not in out:
         raise ValueError("plaats-input niet gevonden in index.html")
-    return out.replace(city, f'value="{html.escape(naam)}" {city}', 1)
+    # Vaste coördinaten: de check hoeft de plaats niet op te zoeken.
+    return out.replace(city, f'value="{html.escape(naam)}" data-lat="{entry[2]}" data-lon="{entry[3]}" {city}', 1)
 
 
 def doc_page(title: str, desc: str, path: str, body: str, *, noindex: bool = False) -> str:
@@ -346,7 +420,8 @@ def sitemap() -> str:
         urls.insert(2, f"{BASE_URL}/sponsor.html")
     urls += [f"{BASE_URL}/plaatsen/{quote(slug(n))}.html" for n, _, _, _ in PLAATSEN]
     body = "\n".join(
-        f"  <url><loc>{u}</loc><changefreq>weekly</changefreq><priority>{'1.0' if i == 0 else '0.7'}</priority></url>"
+        f"  <url><loc>{u}</loc><lastmod>{LASTMOD}</lastmod><changefreq>weekly</changefreq>"
+        f"<priority>{'1.0' if i == 0 else '0.7'}</priority></url>"
         for i, u in enumerate(urls)
     )
     return f"""<?xml version="1.0" encoding="UTF-8"?>

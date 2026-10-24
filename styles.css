@@ -538,6 +538,21 @@ h1, h2, h3 { font-weight: 400; }
 }
 .place-list a:hover { color: var(--gold-hi); }
 .place-list a.more { color: var(--gold); }
+.place-list .km { font-family: var(--f-ui); font-size: .9rem; color: var(--cream-2); }
+
+/* Plaatspagina: seizoensweer */
+.places--klimaat { padding-bottom: 0; }
+.places p { max-width: 62ch; margin-bottom: var(--s-3); color: var(--cream-2); }
+.places .bron { font-size: .85rem; }
+.klimaat-tabel {
+  width: 100%; max-width: 720px; margin: var(--s-3) 0 var(--s-4);
+  border-collapse: collapse; font-variant-numeric: tabular-nums;
+}
+.klimaat-tabel th, .klimaat-tabel td {
+  padding: 8px 10px; border-bottom: 1px solid var(--wood-700); text-align: right;
+}
+.klimaat-tabel th[scope="row"], .klimaat-tabel thead th:first-child { text-align: left; font-weight: 500; }
+.klimaat-tabel thead th { font-family: var(--f-display); font-weight: 400; color: var(--gold-hi); }
 
 /* ═══════════ Uitslag ═══════════
    Drie lagen, elk met een eigen vorm:

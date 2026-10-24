@@ -265,3 +265,18 @@ test("privacy statement describes what really leaves the browser and names no de
   // Tot E01 (mail-DNS) is er geen werkende mailbox op het domein.
   assert.doesNotMatch(html, /mailto:/);
 });
+
+test("place pages carry their own coordinates, season weather and distances", async () => {
+  const html = await readFile(new URL("../plaatsen/oss.html", import.meta.url), "utf8");
+  assert.match(html, /id="city"[^>]*value="Oss" data-lat="51\.7649" data-lon="5\.5181"/);
+  assert.match(html, /<table class="klimaat-tabel">/);
+  assert.match(html, /<span class="km">\d+ km<\/span>/);
+});
+
+test("sitemap dates every page and pages load structured data from a file", async () => {
+  const sitemap = await readFile(new URL("../sitemap.xml", import.meta.url), "utf8");
+  assert.equal(sitemap.match(/<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/g)?.length, sitemap.match(/<url>/g).length);
+  const index = await readFile(new URL("../index.html", import.meta.url), "utf8");
+  assert.match(index, /<script type="module" src="\/js\/ld\.js"><\/script>/);
+  assert.match(index, /<meta property="og:image:alt" content="[^"]{20,}">/);
+});
