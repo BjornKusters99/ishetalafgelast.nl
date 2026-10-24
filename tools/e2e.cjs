@@ -15,7 +15,9 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
       const sp = new URL(rt.request().url()).searchParams;
       const days = [];
       for (let d = Date.parse(sp.get("start_date") + "T00:00:00Z"); d <= Date.parse(sp.get("end_date") + "T00:00:00Z"); d += 864e5) days.push(new Date(d).toISOString().slice(0, 10));
-      rt.fulfill({ json: { daily: { time: days, temperature_2m_mean: days.map(() => t), temperature_2m_min: days.map((_, i) => (i < frost ? -3 : t - 2)), precipitation_sum: days.map((_, i) => (i >= 7 ? r : r7 / 7)), wind_gusts_10m_max: days.map(() => wind) } } });
+      const hours = sp.has("hourly") ? days.flatMap((d) => Array.from({ length: 24 }, (_, h) => `${d}T${String(h).padStart(2, "0")}:00`)) : null;
+      rt.fulfill({ json: { daily: { time: days, temperature_2m_mean: days.map(() => t), temperature_2m_min: days.map((_, i) => (i < frost ? -3 : t - 2)), precipitation_sum: days.map((_, i) => (i >= 7 ? r : r7 / 7)), wind_gusts_10m_max: days.map(() => wind) },
+        ...(hours && { hourly: { time: hours, precipitation: hours.map(() => r / 24), precipitation_probability: hours.map(() => 70), wind_gusts_10m: hours.map(() => wind) } }) } });
     }),
   ]);
 }
@@ -356,6 +358,19 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   await sh.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
   ok(await sh.isHidden("#r-shared") && !/[?&]p=/.test(sh.url()), "eigen check: geen gedeeld-regel, adresbalk zonder kans");
   await sh.close();
+
+  // Aftraptijd en uurweer: context rond de aftrap, de dagwaarden heten "hele dag".
+  const ko = await ctx.newPage();
+  await mock(ko);
+  await ko.goto(BASE + "/?" + new URLSearchParams({ plaats: "Oss", lat: "51.76", lon: "5.51", datum: new Date().toISOString().slice(0, 10),
+    veld: "natuurgras", aftrap: "10:30" }), { waitUntil: "networkidle" });
+  await ko.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
+  const hourHead = await ko.$$eval("#r-hours-table thead th", (ths) => ths.map((th) => th.textContent));
+  ok(await ko.textContent("#r-hours-title") === "Rond de aftrap (10:30)"
+    && hourHead.join(" ") === "Uur 07:00 08:00 09:00 10:00 11:00 12:00", "uurweer van 3 uur voor tot 2 uur na de aftrap: " + hourHead.join(" "));
+  ok(await ko.textContent("#r-hours-table thead .is-kickoff") === "10:00", "aftrapuur gemarkeerd");
+  ok((await ko.textContent("#r-precip")).includes("hele dag") && await ko.inputValue("#kickoff") === "10:30", "dagwaarden gelabeld, aftrap in het formulier");
+  await ko.close();
 
   // Kantine-canvas: hooguit 1,5x pixels, stil tijdens het typen en na inactiviteit.
   const hi = await b.newContext({ locale: "nl-NL", timezoneId: "Europe/Amsterdam", reducedMotion: "no-preference",

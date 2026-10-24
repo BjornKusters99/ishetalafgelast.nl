@@ -163,6 +163,8 @@ async function fetchDays(lat, lon, dates, signal) {
     start_date: isoDay(new Date(first - 7 * DAY_MS)),
     end_date: sorted.at(-1),
   });
+  // Uurweer rond de aftrap is context; het model rekent met dagwaarden. Het archief heeft geen regenkans.
+  if (base === FORECAST_URL) params.set("hourly", "precipitation,precipitation_probability,wind_gusts_10m");
   const data = await getJson(`${base}?${params}`, signal);
   const d = data?.daily;
   if (!Array.isArray(d?.time) || d.time.length !== n
@@ -171,7 +173,32 @@ async function fetchDays(lat, lon, dates, signal) {
       || d[key].some((v) => !Number.isFinite(v) || v < lo || v > hi))) {
     throw new UserError("Voor deze datum is geen volledig weerbericht bekend. Vul het weer zelf in of probeer het later.");
   }
-  return Object.fromEntries(dates.map((iso) => [iso, featuresAt(d, 7 + Math.round((parseDay(iso) - first) / DAY_MS))]));
+  const hours = hourlyByDay(data.hourly);
+  return Object.fromEntries(dates.map((iso) => {
+    const w = featuresAt(d, 7 + Math.round((parseDay(iso) - first) / DAY_MS));
+    if (hours[iso]) w.hours = hours[iso];
+    return [iso, w];
+  }));
+}
+
+/**
+ * Uurweer per dag als { [datum]: [uur 0-23] -> { precip, prob, gust } }. Alleen context:
+ * onbruikbare waarden worden null en een rommelige respons laat de check niet falen.
+ */
+function hourlyByDay(h) {
+  if (!Array.isArray(h?.time)) return {};
+  const ok = (v, hi) => (Number.isFinite(v) && v >= 0 && v <= hi ? v : null);
+  const out = {};
+  h.time.forEach((t, i) => {
+    const m = typeof t === "string" && /^(\d{4}-\d{2}-\d{2})T(\d{2}):00$/.exec(t);
+    if (!m || Number(m[2]) > 23) return;
+    (out[m[1]] ||= Array(24).fill(null))[Number(m[2])] = {
+      precip: ok(h.precipitation?.[i], 200),
+      prob: ok(h.precipitation_probability?.[i], 100),
+      gust: ok(h.wind_gusts_10m?.[i], 500),
+    };
+  });
+  return out;
 }
 
 /** Modelinvoer voor dag i: die dag zelf en de zeven dagen ervoor. */
