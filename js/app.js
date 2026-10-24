@@ -14,6 +14,9 @@ const homeView = $("#view-home");
 const resultView = $("#view-result");
 const homeStage = mountStage($("#view-home .stage"), "kantine");
 const resultStage = mountStage($("#view-result .stage"), "afgelast");
+// Tijdens het typen staat de kantine stil: dat scheelt telefoons rekenwerk.
+form.addEventListener("focusin", (e) => e.target.matches("input") && homeStage.pause("invoer"));
+form.addEventListener("focusout", () => homeStage.resume("invoer"));
 mountHotspots($("#view-home .hotspots"), "kantine");
 mountAppgroep();
 

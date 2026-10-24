@@ -162,8 +162,8 @@ a { color: inherit; }
 .topnav a {
   padding: 10px 14px; border-radius: 999px;
   color: var(--cream); font-weight: 500; font-size: .95rem; text-decoration: none;
-  background: rgb(23 13 8 / .55);
-  backdrop-filter: blur(6px);
+  /* Geen backdrop-blur: die moest bij elk regenframe van de kantine opnieuw. */
+  background: rgb(23 13 8 / .72);
   transition: background-color var(--d-1) ease;
 }
 .topnav a:hover { background: rgb(23 13 8 / .8); }
