@@ -157,12 +157,14 @@ def place_page(naam: str, prov: str) -> str:
     out = swap(out, "intro", (
         '      <header class="reken-head">\n'
         f'        <p class="overline">Het rekenwerk voor {naam}</p>\n'
-        f'        <h2 id="reken-title">Afgelast in {naam}? Wij weten het eerder dan de scheids</h2>\n'
+        f'        <h2 id="reken-title">Afgelast in {naam}? Een experimentele schatting</h2>\n'
         '        <div class="reken-lede">\n'
         f"          <p>{intro}</p>\n"
         '          <p>De scheids, laten we hem <button type="button" class="henk-link">Henk</button> noemen, '
-        "beslist pas op het veld. Ons model heeft <strong>2.100 echte amateurwedstrijden</strong> gezien, "
-        f"waarvan er <strong>364</strong> werden afgelast. De officiële beslissing ligt bij je club in {naam} "
+        "beslist pas op het veld. Ons proefmodel gebruikt <strong>2.100 gesimuleerde wedstrijden</strong> "
+        "met historische weerdata. De <strong>364 afgelastingen zijn gegenereerd door kansregels</strong>, "
+        "niet vastgesteld bij echte wedstrijden. Het percentage is nog niet gevalideerd op echte uitslagen. "
+        f"De officiële beslissing ligt bij je club in {naam} "
         "en de scheidsrechter.</p>\n"
         "        </div>\n"
         "      </header>"

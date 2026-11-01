@@ -32,7 +32,8 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   ok(!/Modder|Blubber/.test(await page.getAttribute("#home", "placeholder")), "echte clubnaam als placeholder");
   ok(!(await page.$('a[href="/sponsor.html"]')), "geen adverteren-link");
   ok((await page.getAttribute('.deelband [data-net=wa]', "href")).includes("wa.me/?text="), "deelband WhatsApp gezet");
-  ok((await page.$$eval('.deelband [data-net]', (els) => els.map((e) => e.dataset.net).join(","))) === "wa,ig,fb,tt,x,copy", "deelknoppen: WhatsApp, Instagram, Facebook, TikTok, X, kopiëren");
+  ok((await page.$$eval('.deelband .share-row > *', (els) => els.map((e) => e.dataset.net || e.dataset.social).join(","))) === "wa,ig,fb,tt,copy", "knoppen: WhatsApp, Instagram, Facebook, TikTok, kopiëren");
+  ok((await page.$$eval('[data-social]', (els) => els.every((e) => e.href.includes("ishetalafgelast.nl")))), "socials linken naar eigen profielen");
   ok(await page.locator(".hotspot:visible").count() > 3, "easter-egg hotspots aanwezig");
 
   // validatie

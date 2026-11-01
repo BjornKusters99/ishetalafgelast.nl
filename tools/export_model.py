@@ -51,6 +51,7 @@ def main(model_path: Path) -> None:
     }
     OUT.write_text(
         "// Gegenereerd uit voetbal-voorspel-model/data/model.joblib (model v2).\n"
+        "// Labels zijn synthetisch; praktijkkans is niet gevalideerd.\n"
         "// CalibratedClassifierCV(sigmoid, 5 folds) over StandardScaler + LogisticRegression.\n"
         "// Opnieuw exporteren na hertrainen: zie tools/export_model.py.\n"
         f"export const MODEL = {json.dumps(spec, separators=(',', ':'))};\n",
