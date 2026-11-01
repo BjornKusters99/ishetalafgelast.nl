@@ -14,3 +14,7 @@ desktop.ini
 
 # Windows/WSL metadata rommel
 *Zone.Identifier
+
+# Lokale overdracht en securitydocs: repo is openbaar
+OVERDRACHT.md
+docs/security-github-pages/
