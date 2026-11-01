@@ -25,6 +25,18 @@ Bovenop het ruwe model zitten twee bewuste correcties in `predict()`:
 
 Standaard staat het formulier op gras.
 
+### Onderzoeksstatus
+
+De huidige trainingsset bestaat volledig uit 2.100 synthetische wedstrijden.
+De weerdata is historisch; de 364 afgelastingslabels zijn door kansregels
+gegenereerd. De gepubliceerde modelscores bewijzen daarom geen nauwkeurigheid
+of betrouwbare percentages bij echte voetbalwedstrijden. Het kunstgraseffect
+en de mix voor onbekend veldtype zijn evenmin onafhankelijk gevalideerd.
+
+Modelonderzoek staat in `docs/modelonderzoek/onderzoek.md`. Kandidaten worden
+op de gelijknamige featurebranch in `voetbal-voorspel-model` onderzocht; het
+productiemodel wordt niet vervangen zonder onafhankelijke praktijkvalidatie.
+
 Geen server, geen cookies, geen trackers. Gedeelde links (`?plaats=…&datum=…`)
 rekenen de uitslag opnieuw uit.
 
@@ -64,6 +76,13 @@ python3 tools/gen_pages.py
 Na het wijzigen van assets: verhoog `VERSION` in `sw.js`.
 
 ## Lokaal testen
+
+```bash
+node --test tools/test_engine.mjs
+```
+
+Deze offline regressietests controleren Python/JavaScript-pariteit, de
+veldtypemix en numerieke grenzen. Ze bewijzen geen voorspelkwaliteit.
 
 ```
 python3 -m http.server 8765

@@ -1,97 +1,184 @@
-# Handover: IsHetAlAfgelast.nl v5
+# Overdracht: modelonderzoek IsHetAlAfgelast.nl
 
-Voor de volgende agent (of een nieuwe sessie zonder chatgeschiedenis). Lees
-dit eerst, dan `README.md`, dan pas de code. Verwijder dit bestand zodra de
-openstaande punten zijn afgehandeld.
+## Start hier
 
-## Wat er in v5 is gedaan
+Lees dit bestand, daarna:
 
-Feedbackronde van de eigenaar, volledig verwerkt:
+1. `README.md`
+2. `docs/modelonderzoek/onderzoek.md`
+3. backend `../ishetalafgelastfe/voetbal-voorspel-model/HANDOVER.md`
+4. `js/engine.js`, `js/model.js` en backend
+   `src/voorspelmodel/core/model.py`
 
-1. **Adverteren uit.** `SPONSOR_LIVE = False` in `tools/gen_pages.py`:
-   geen `sponsor.html`, geen footerlink, niet in de sitemap. Tekst staat nog
-   in `SPONSOR`, één vlag om terug te zetten.
-2. **Echte clubnamen** als placeholder (Quick Boys - Katwijk, Spakenburg -
-   IJsselmeervogels, enz., `DERBY` in `js/app.js`). Wisselt per bezoek; op
-   smalle schermen alleen korte namen.
-3. **Delen vanaf de start.** Ronde groene sticker op de perkamentrol
-   ("Gooi in de appgroep!", native share op mobiel), gele deelband op de
-   homepage (WhatsApp, Instagram, Facebook, TikTok, X, link kopiëren; Instagram en TikTok kopiëren het bericht en openen de app, want die hebben geen deel-link), en op de uitslag
-   een deelstrook met een fake WhatsApp-bubbel en "Ander berichtje".
-4. **Veldtype-bug opgelost.** Oorzaak: in de trainingsdata is
-   `is_natuurgras + is_kunstgras` altijd 1. "Geen idee" zette beide op 0, dus
-   buiten de trainingsverdeling: 20 mm regen + natte week gaf 23% i.p.v. ~60%.
-   Nu: "geen idee" = gewogen mix (aandeel gras uit de data, ~70%), kunstgras-
-   effect gedempt naar 75% in logit-ruimte, standaard staat gras aan. Zie
-   `predict()` in `js/engine.js`. `predictRaw()` is nog exact het Python-model
-   (voor pariteitstests).
-5. **Henk.** De stuitproef heeft nu een getekende kelderklasse-scheids
-   (`drawReferee()` in `js/stuitproef.js`): bierbuik die uit een te klein
-   shirt puilt, knoopjes die het begeven, bezemsnor, overkammer die opwaait
-   met de echte windstoten, rode neus (roder als het koud is), koude adem,
-   modderspatten op zijn tenue bij prut, zweetdruppel tijdens het laden.
-   Houdt de bal vast, laat los, en reageert per uitslag (doorspelen-gebaar,
-   schouders op, handen in de lucht bij ijs, achter de oren krabben). Tik op
-   Henk: gele kaart, gele kaart, rood.
-6. **Uitslagpagina opnieuw ingedeeld** in vaste lagen: scène + bord tot net
-   boven de vouw, scorebord-band met het weer óp de vouw, keuringsrapport op
-   perkament (stuitproef 7/12 links, verslag + "wat de doorslag gaf"-balken
-   rechts, deelstrook over de volle breedte), daarna een extraatje: bij
-   afgelast "Je zondag, opnieuw ingedeeld" (shuffle), bij doorgaan/twijfel een
-   tas-check (alles aangevinkt = confetti). Twijfel (40 tot 60%) gebruikt nu de
-   slaapkamer-scène. Uitslagwoord landt als stempel.
-7. **Nieuwe afgelast-art** (door eigenaar aangeleverd, 3:2 PNG) ingebouwd;
-   regen/rimpels/Zzz-coördinaten in `js/scene.js` opnieuw gemeten.
-8. **Laadscherm** wisselt titels en stapteksten per run, plus een
-   appgroep-ticker ("Rinus: vroeger speelden we gewoon door"). Uitslagteksten
-   per keuring-type in drievoud.
-9. **Homepage-uitleg** heet nu "Het rekenwerk achter de uitslag", met een
-   appgroep-mock ("Meer gezeur laden") en de factoren als basisopstelling met
-   rugnummers en invloedsbalken. Volgorde komt uit het model zelf (week ervoor
-   > vorst > veldtype > wind > regen op de dag); de oude tekst zette regen
-   ten onrechte op 1.
-10. **Easter eggs** (`js/eggs.js`): hotspots in alle drie de illustraties
-    (tap: drie keer klikken voor bier, beker, lampen = stroomstoring,
-    vaantje = muis wordt een bal, slaper, drijvende ballen, geit, kip,
-    cameraman, ...), Henk-parade (typ `henk`, Konami-code, of klik "Henk" in de
-    tekst), datum-grap bij doordeweekse dag, team-grap bij thuis = uit,
-    console-bericht.
+Werkdirectory: `/home/bkusters/code/prive/ishetalafgelast.nl`.
+Backenddirectory: `/home/bkusters/code/prive/ishetalafgelastfe/voetbal-voorspel-model`.
 
-Ook afgevinkt uit de vorige handover: OG-afbeelding opnieuw gegenereerd (titel
-kleiner zodat hij binnen de rol past), spetterkleur bij bevroren veld, twijfel-
-bord leesbaarheid gecontroleerd, contrast gemeten (`--ink-3` en de groene
-deelknop donkerder gemaakt, nu ≥ 4.5:1), e2e-test staat in de repo
-(`tools/e2e.cjs`, 34 checks, groen).
+## Branch- en gitstatus
 
-## Nog te doen
+Actieve branch in beide repositories:
 
-1. **Analytics-keuze (issue #4)**, ongewijzigd: Plausible of GoatCounter,
-   daarna CSP in `index.html` én `NO_SCRIPT_CSP` in `tools/gen_pages.py`.
-2. **Model hertrainen (backend issue #6).** Als dat gebeurt: export opnieuw
-   draaien, pariteit checken met `predictRaw()`, en kijken of de correcties
-   in `predict()` (mix + `KUNSTGRAS_WEIGHT`) nog nodig zijn. Ideaal: het model
-   leert zelf een "onbekend"-categorie en een realistischer kunstgraseffect.
-3. **Niet getest:** Firefox/Safari (canvas `roundRect` in de Henk-parade
-   vereist Safari 16+), offline-gedrag van de service worker, echte telefoon
-   (touch op hotspots, native share-sheet).
-4. **`art/` in de deploy** (~9 MB nu met de PNG's). Werkt, maar een GitHub
-   Action die alleen de publieke bestanden publiceert is netter.
-5. **Hotspots zijn aria-hidden en niet focusbaar** (bewust: puur decoratief,
-   geen extra tabstops voor de check). De teksten gaan wel naar een stille
-   live-regio. De Henk-parade is ook via de knop "Henk" in de tekst bereikbaar.
+```text
+feat/verbeterde-afgelastingsvoorspelling
+```
 
-## Opbouw (kort; details in README)
+`main`/`master` is niet aangepast. Er is niet gecommit en niet gepusht.
 
-- Scène-systeem: `.scene` + `.stage` met `--ar`, `--sw`, `--sh`, `--sx`.
-  Hotspots en canvas-effecten in percentages / bronpixels van de illustratie.
-- Bij nieuwe art: `SCENES` in `js/scene.js`, `SPOTS` in `js/eggs.js`,
-  `.board`/`.dg-*` in `styles.css` opnieuw meten met een pixelrooster
-  (PIL: lijnen + labels om de 50 px over het bronbeeld).
-- `index.html` is het sjabloon voor alle plaatspagina's: na wijzigen
-  `python3 tools/gen_pages.py`. Na assetwijzigingen `VERSION` in `sw.js`
-  ophogen (nu `v5-2`).
+Frontend bevat veel oncommitte wijzigingen. Die waren deels al aanwezig vóór
+dit onderzoek, met name wijzigingen rond social/share-knoppen en `docs/`
+voor Azure-hosting. Niet resetten, stashen of overschrijven zonder expliciete
+toestemming. Backend bevat nieuwe, nog niet getrackte onderzoeksbestanden.
 
-## Status bij overdracht
+## Definitieve conclusie
 
-Alles gecommit op `master`, **nog niet gepusht** (push = live via GitHub
-Pages). Backend-repo niet aangeraakt.
+Geen modelverbetering bewezen. Productiemodel niet vervangen.
+
+De dataset bevat 2.100 records met 364 positieve labels. Alle IDs beginnen
+met `SYN_`; labels zijn gegenereerd door de simulator
+`src/voorspelmodel/scripts/generate_training_data.py` en zijn geen echte
+KNVB-uitkomsten. `cancellation_reasons.csv` bevat 158 andere IDs en heeft
+nul overlap. Scores zijn dus hoogstens scores tegen een zelfgeschreven
+simulatiemechanisme.
+
+Geselecteerde kandidaat: temporeel gekalibreerde
+`HistGradientBoostingClassifier`.
+
+Ongeziene holdout 2024/25:
+
+| Metric | Baseline | Kandidaat |
+| --- | ---: | ---: |
+| Brier loss | 0,089345 | 0,090657 |
+| Log loss | 0,296668 | 0,313109 |
+| ROC-AUC | 0,844314 | 0,813073 |
+| Average precision | 0,488685 | 0,486471 |
+
+Paired week-bootstrap, 2.000 trekkingen:
+
+* Brier kandidaat minus baseline: `+0,001312`, 95%-BI
+  `[-0,003852, +0,005531]`.
+* Log loss kandidaat minus baseline: `+0,016441`, 95%-BI
+  `[+0,002185, +0,029156]`.
+
+Kandidaat heeft hogere precisie bij drempel 0,5, maar iets lagere recall.
+Dat maakt kanspercentages niet beter. De promotiegate faalt bewust.
+
+## Wat deze taak wijzigde
+
+### Frontend
+
+* `index.html` en alle `plaatsen/*.html`: claim “2.100 echte wedstrijden”
+  vervangen door transparante tekst over synthetische simulaties.
+* `tools/gen_pages.py`: template aangepast; draai dit bij nieuwe SEO-pagina’s.
+* `js/app.js`: tekst noemt modelschatting/simulatiegemiddelde.
+* `js/model.js`: comment toegevoegd dat labels synthetisch zijn.
+* `tools/export_model.py`: waarschuwing toegevoegd vóór exportclaims.
+* `tools/test_engine.mjs`: 12 offline Node-tests voor Python/JS-pariteit,
+  veldtypemix, correctie en numerieke grenzen.
+* `README.md`: onderzoeksstatus en testinstructies toegevoegd.
+* `sw.js`: versie verhoogd naar `v5-4`.
+* `docs/modelonderzoek/onderzoek.md`: volledig onderzoeksrapport.
+* `docs/modelonderzoek/weerbron-probes.json`: controleerbare openbare
+  API-probes.
+
+### Backend
+
+* `src/voorspelmodel/scripts/evaluate_candidates.py`: reproduceerbaar
+  onderzoeksscript met chronologische splits, 7-daagse gap, fit-only
+  preprocessing, temporele kalibratie, Brier/log loss/AUC/AP,
+  reliability-bins, paired bootstrap en fail-closed promotiegate.
+* `tests/unit/test_model_research.py`: validatie-, leakage-, kandidaat-,
+  bootstrap-, provenance- en reproduceerbaarheidstests.
+* `data/modelonderzoek-2026-10-23-final/`: definitieve evidence-artifacts.
+* `data/model.joblib` en `data/training_dataset.csv` niet vervangen.
+* Geen boosting-browserexport gebouwd: browser ondersteunt momenteel alleen
+  geëxporteerde logistic folds en kandidaat is bovendien slechter.
+
+## Tests
+
+Frontend:
+
+```bash
+node --test tools/test_engine.mjs
+git diff --check
+```
+
+E2E met lokale server, Playwright Chromium en mockweer:
+
+```bash
+python3 -m http.server 8765
+NODE_PATH=/home/bkusters/code/prive/ishetalafgelast-azure/node_modules \
+CHROME=/home/bkusters/.cache/ms-playwright/chromium-1248/chrome-linux64/chrome \
+node tools/e2e.cjs
+```
+
+Verwacht: 12 modeltests groen en `ALLES GROEN` voor E2E.
+
+Backend:
+
+```bash
+cd /home/bkusters/code/prive/ishetalafgelastfe/voetbal-voorspel-model
+OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 .venv/bin/python -m pytest -q
+```
+
+Verwacht: 53 tests groen.
+
+## Onafhankelijke onderzoeksrerun
+
+Backend-root:
+
+```bash
+OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 PYTHONPATH=src \
+.venv/bin/python -m voorspelmodel.scripts.evaluate_candidates \
+  --dataset data/modelonderzoek-2026-10-23-final/input_dataset.csv \
+  --deployed-json data/modelonderzoek-2026-10-23-final/deployed_model.json \
+  --output /tmp/opencode/modelonderzoek-nieuwe-rerun \
+  --bootstrap 2000
+```
+
+Outputdirectory moet nieuw zijn; script weigert overschrijven.
+Zelfde inputs/omgeving geven dezelfde JSON/CSV-evidence. Script registreert
+hashes, versies, selectie, holdout, bootstrap en promotiegate.
+
+Promotie hoort nu te tonen:
+
+```json
+{
+  "eligible": false,
+  "action": "research_only_do_not_export_or_deploy"
+}
+```
+
+## Niet doen
+
+* Geen kandidaat exporteren naar `js/model.js`.
+* Geen `data/model.joblib` overschrijven.
+* Geen simulatiecijfers als echte wedstrijdnauwkeurigheid publiceren.
+* Holdout 2024/25 niet opnieuw gebruiken voor feature/modelselectie.
+* Geen historische reanalyse verwarren met forecast die toen beschikbaar was.
+* Geen synthetische labels stilzwijgend als echte labels behandelen.
+* Geen bestaande dirty changes resetten.
+
+## Eerstvolgende echte stap
+
+Verzamel met toestemming een onafhankelijke, gelabelde dataset met:
+
+* geplande datum en kickofftijd;
+* sportpark, werkelijk veldtype en categorie;
+* gespeeld, weer/veld-afgelast, andere reden of onbekend;
+* afgelastingstijdstip en bron-URL;
+* forecastwaarden met uitgiftetijd vóór de wedstrijd;
+* expliciete negatieve voorbeelden, niet alleen afgelaste wedstrijden;
+* herplanningen apart, met oorspronkelijke wedstrijddatum.
+
+Audit daarna labeldefinitie en rechten. Pas vervolgens modeltraining aan,
+test chronologisch op een onaangeroerd seizoen en eis consistente winst op
+Brier én log loss voordat browserexport of productie wordt gewijzigd.
+
+## Productiecontext
+
+Frontend draait statisch op GitHub Pages; browser doet geocoding, weer en
+modelinferentie. Backend is aparte Flask/Render-repo en bevat offline
+training/scraping tooling. Zie `README.md` voor deploydetails.
+
+Huidige frontendcorrecties `KUNSTGRAS_WEIGHT = 0.75` en onbekend-veld-mix
+zijn niet onafhankelijk gevalideerd. Houd die apart van toekomstige echte
+modelvalidatie.

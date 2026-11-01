@@ -1,0 +1,36 @@
+{
+  "checked_on": "2026-10-23",
+  "location": {"latitude": 52.3702, "longitude": 4.8952},
+  "purpose": "Public read-only reachability and source-difference probe, not forecast accuracy evaluation",
+  "reanalysis": {
+    "url": "https://archive-api.open-meteo.com/v1/archive?start_date=2025-01-12&end_date=2025-01-12&hourly=temperature_2m,precipitation,wind_gusts_10m&latitude=52.3702&longitude=4.8952&timezone=Europe/Amsterdam&wind_speed_unit=kmh&precipitation_unit=mm",
+    "http_status": 200,
+    "n_hours": 24,
+    "first_temperatures_c": [0.3, 0.6, 0.7, 0.8],
+    "first_times": ["2025-01-12T00:00", "2025-01-12T01:00", "2025-01-12T02:00", "2025-01-12T03:00"]
+  },
+  "historical_forecast": {
+    "url": "https://historical-forecast-api.open-meteo.com/v1/forecast?start_date=2025-01-12&end_date=2025-01-12&hourly=temperature_2m,precipitation,wind_gusts_10m&models=icon_seamless&latitude=52.3702&longitude=4.8952&timezone=Europe/Amsterdam&wind_speed_unit=kmh&precipitation_unit=mm",
+    "http_status": 200,
+    "n_hours": 24,
+    "first_temperatures_c": [1.3, 1.1, 1.7, 2.0],
+    "first_times": ["2025-01-12T00:00", "2025-01-12T01:00", "2025-01-12T02:00", "2025-01-12T03:00"]
+  },
+  "previous_run": {
+    "url": "https://previous-runs-api.open-meteo.com/v1/forecast?start_date=2025-01-12&end_date=2025-01-12&hourly=temperature_2m_previous_day1,precipitation_previous_day1,wind_gusts_10m_previous_day1&models=icon_seamless&latitude=52.3702&longitude=4.8952&timezone=Europe/Amsterdam&wind_speed_unit=kmh&precipitation_unit=mm",
+    "http_status": 200,
+    "n_hours": 24,
+    "first_temperatures_c": [1.4, 1.5, 0.9, 0.8],
+    "first_times": ["2025-01-12T00:00", "2025-01-12T01:00", "2025-01-12T02:00", "2025-01-12T03:00"]
+  },
+  "single_run": {
+    "url": "https://single-runs-api.open-meteo.com/v1/forecast?run=2025-01-11T00:00&forecast_days=2&hourly=temperature_2m,precipitation,wind_gusts_10m&models=ecmwf_ifs&latitude=52.3702&longitude=4.8952&timezone=Europe/Amsterdam&wind_speed_unit=kmh&precipitation_unit=mm",
+    "http_status": 200,
+    "n_hours": 48,
+    "first_temperatures_c": [0.3, -0.3, -0.4, -0.3],
+    "first_times": ["2025-01-11T02:00", "2025-01-11T03:00", "2025-01-11T04:00", "2025-01-11T05:00"],
+    "first_precipitation_mm": [null, 0.0, 0.0, 0.0],
+    "first_gusts_kmh": [null, 10.1, 10.1, 9.4],
+    "caveat": "200 does not mean complete values. Current docs label old ECMWF runs as hindcasts, not necessarily original as-issued forecasts."
+  }
+}
