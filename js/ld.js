@@ -9,8 +9,12 @@ const plaats = city?.dataset.lat ? city.value : "";
 const crumbs = [["IsHetAlAfgelast.nl", `${BASE}/`]];
 if (plaats) crumbs.push(["Plaatsen", `${BASE}/plaatsen/`], [plaats, canonical]);
 
+// Onze eigen kanalen staan als rel="me" in de footer.
+const sameAs = [...document.querySelectorAll('.site-footer a[rel~="me"]')].map((a) => a.href);
+
 const graph = [
-  { "@type": "WebSite", "@id": `${BASE}/#website`, name: "IsHetAlAfgelast.nl", url: `${BASE}/`, inLanguage: "nl-NL" },
+  { "@type": "Organization", "@id": `${BASE}/#org`, name: "IsHetAlAfgelast.nl", url: `${BASE}/`, logo: `${BASE}/img/icon-512.png`, sameAs },
+  { "@type": "WebSite", "@id": `${BASE}/#website`, name: "IsHetAlAfgelast.nl", url: `${BASE}/`, inLanguage: "nl-NL", publisher: { "@id": `${BASE}/#org` } },
   {
     "@type": "WebApplication",
     name: plaats ? `Afgelastingscheck ${plaats}` : "IsHetAlAfgelast.nl",

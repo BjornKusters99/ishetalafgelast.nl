@@ -340,16 +340,6 @@ async function nativeShare(text, url) {
 document.addEventListener("click", async (e) => {
   const el = e.target.closest("[data-net]");
   if (!el) return;
-  // Instagram en TikTok hebben geen deel-link: bericht kopiëren, dan de app openen.
-  if (el.dataset.net === "ig" || el.dataset.net === "tt") {
-    const r = el.getBoundingClientRect();
-    const app = el.dataset.net === "ig" ? "Instagram" : "TikTok";
-    navigator.clipboard?.writeText(`${el.dataset.text} ${el.dataset.url}`).then(
-      () => say(`Link gekopieerd. Plak hem in ${app}.`, r.left + r.width / 2, r.top),
-      () => {},
-    );
-    return;
-  }
   if (el.dataset.net === "copy") {
     e.preventDefault();
     copyLink(el);

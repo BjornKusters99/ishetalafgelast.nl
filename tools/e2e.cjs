@@ -6,6 +6,8 @@ const fs = require("fs");
 const exe = process.env.CHROME || undefined;
 const BASE = process.env.BASE || "http://127.0.0.1:8765";
 let fails = 0;
+// Onze kanalen.
+const FOLLOW = ["https://www.instagram.com/ishetalafgelast.nl/", "https://www.tiktok.com/@ishetalafgelast", "https://www.youtube.com/@ishetalafgelast"];
 const ok = (c, m) => { console.log((c ? "PASS " : "FAIL ") + m); if (!c) fails++; };
 function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true } = {}) {
   return Promise.all([
@@ -44,7 +46,12 @@ const noBeacon = (rt) => rt.fulfill({ contentType: "text/javascript", body: "" }
   ok(!/Modder|Blubber/.test(await page.getAttribute("#home", "placeholder")), "echte clubnaam als placeholder");
   ok(!(await page.$('a[href="/sponsor.html"]')), "geen adverteren-link");
   ok((await page.getAttribute('.deelband [data-net=wa]', "href")).includes("wa.me/?text="), "deelband WhatsApp gezet");
-  ok((await page.$$eval('.deelband [data-net]', (els) => els.map((e) => e.dataset.net).join(","))) === "wa,ig,fb,tt,x,copy", "deelknoppen: WhatsApp, Instagram, Facebook, TikTok, X, kopiëren");
+  ok((await page.$$eval('.deelband [data-net]', (els) => els.map((e) => e.dataset.net).join(","))) === "wa,fb,x,copy", "deelknoppen: WhatsApp, Facebook, X, kopiëren");
+  ok((await page.$$eval(".follow-row a", (els) => els.map((e) => e.href).join(" "))) === FOLLOW.join(" "), "volgknoppen gaan naar onze kanalen");
+  ok((await page.$$eval(".site-footer a[rel~=me]", (els) => els.map((e) => e.href).join(" "))) === FOLLOW.join(" "), "footer linkt onze kanalen");
+  ok((await page.$$eval('[data-share-row="result"] [data-net]', (els) => els.map((e) => e.dataset.net).join(","))) === "wa,native,fb,x,copy", "uitslag: geen Instagram/TikTok-knop die alleen de app opent");
+  const homeLd = JSON.parse(await page.textContent('script[type="application/ld+json"]'));
+  ok(JSON.stringify(homeLd["@graph"].find((n) => n["@type"] === "Organization")?.sameAs) === JSON.stringify(FOLLOW), "structured data noemt onze kanalen");
   ok(await page.locator(".hotspot:visible").count() > 3, "easter-egg hotspots aanwezig");
 
   // validatie

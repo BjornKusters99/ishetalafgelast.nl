@@ -16,7 +16,7 @@ Feedbackronde van de eigenaar, volledig verwerkt:
    smalle schermen alleen korte namen.
 3. **Delen vanaf de start.** Ronde groene sticker op de perkamentrol
    ("Gooi in de appgroep!", native share op mobiel), gele deelband op de
-   homepage (WhatsApp, Instagram, Facebook, TikTok, X, link kopiëren; Instagram en TikTok kopiëren het bericht en openen de app, want die hebben geen deel-link), en op de uitslag
+   homepage (WhatsApp, Facebook, X, link kopiëren, plus volgknoppen naar Instagram, TikTok en YouTube), en op de uitslag
    een deelstrook met een fake WhatsApp-bubbel en "Ander berichtje".
 4. **Veldtype-bug opgelost.** Oorzaak: in de trainingsdata is
    `is_natuurgras + is_kunstgras` altijd 1. "Geen idee" zette beide op 0, dus
