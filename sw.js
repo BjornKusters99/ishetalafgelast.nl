@@ -1,5 +1,6 @@
 // Offline-schil: de site zelf werkt offline (weer ophalen natuurlijk niet).
-// Statische assets: cache-first. Pagina's: netwerk eerst, cache als vangnet.
+// Beelden en fonts: cache-first. Pagina's, JavaScript en CSS: netwerk eerst,
+// cache als vangnet, zodat nieuwe HTML nooit met code van een vorige release draait.
 // De publicatiebuild vervangt VERSION door een hash van alle runtimebestanden.
 const VERSION = "ishetalafgelast-security-v1";
 const CORE = [
@@ -11,6 +12,7 @@ const CORE = [
   "/js/scene.js",
   "/js/stuitproef.js",
   "/js/eggs.js",
+  "/js/ld.js",
   "/fonts/lilita-one.woff2",
   "/fonts/fredoka.woff2",
   "/fonts/patrick-hand.woff2",
@@ -42,8 +44,9 @@ self.addEventListener("fetch", (e) => {
   const req = e.request;
   const url = new URL(req.url);
   if (req.method !== "GET" || url.origin !== location.origin) return;
-  const page = /^\/(?:index\.html|privacy\.html|404\.html)?$/.test(url.pathname)
-    || /^\/plaatsen\/(?:[a-z-]+\.html)?$/.test(url.pathname);
+  // Cloudflare serveert pagina's zonder .html; oude links met .html blijven geldig.
+  const page = /^\/(?:index\.html|privacy(?:\.html)?|404(?:\.html)?)?$/.test(url.pathname)
+    || /^\/plaatsen\/(?:[a-z-]+(?:\.html)?)?$/.test(url.pathname);
   const asset = CORE.includes(url.pathname) || /^\/img\/(?:scenes\/)?[a-z0-9-]+\.(?:webp|png|jpg)$/.test(url.pathname);
   if (!page && !asset) return;
 
@@ -61,6 +64,22 @@ self.addEventListener("fetch", (e) => {
         .catch(() => caches.open(VERSION)
           .then((c) => c.match(url.pathname).then((r) => r || c.match("/")))
           .then((r) => r || Response.error()));
+    e.respondWith(response);
+    e.waitUntil(response.then(() => {}).catch(() => {}));
+    return;
+  }
+
+  if (/\.(?:js|css)$/.test(url.pathname)) {
+    const response =
+      fetch(req)
+        .then((res) => {
+          if (res.ok && !res.redirected) {
+            const copy = res.clone();
+            e.waitUntil(caches.open(VERSION).then((c) => c.put(req, copy)).catch(() => {}));
+          }
+          return res;
+        })
+        .catch(() => caches.open(VERSION).then((c) => c.match(req)).then((r) => r || Response.error()));
     e.respondWith(response);
     e.waitUntil(response.then(() => {}).catch(() => {}));
     return;
