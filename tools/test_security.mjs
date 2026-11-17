@@ -271,6 +271,16 @@ test("internal links and canonicals use Cloudflare's extensionless page URLs", a
   }
 });
 
+test("every page links our own channels in the footer, not a platform homepage", async () => {
+  for (const page of ["index.html", "404.html", "privacy.html", "plaatsen/index.html", "plaatsen/oss.html"]) {
+    const html = await readFile(new URL(`../${page}`, import.meta.url), "utf8");
+    const footer = html.slice(html.indexOf('<footer class="site-footer">'));
+    const me = [...footer.matchAll(/<a href="([^"]+)" target="_blank" rel="noopener me">/g)].map((m) => m[1]);
+    assert.deepEqual(me, ["https://www.instagram.com/ishetalafgelast.nl/", "https://www.tiktok.com/@ishetalafgelast.n", "https://www.youtube.com/@ishetalafgelast"], page);
+    assert.doesNotMatch(html, /href="https:\/\/www\.(?:instagram|tiktok)\.com\/"/, page);
+  }
+});
+
 const pages = ["index.html", "404.html", "privacy.html",
   ...(await readdir(new URL("../plaatsen/", import.meta.url))).filter((f) => f.endsWith(".html")).map((f) => `plaatsen/${f}`)];
 // Cloudflare Web Analytics: het beaconscript en zijn meetpunt, zonder cookies.
