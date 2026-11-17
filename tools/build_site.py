@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Dict, Set
 
 FILES = {
-    ".nojekyll", "CNAME", "index.html", "404.html", "privacy.html",
+    "_headers", "index.html", "404.html", "privacy.html",
     "styles.css", "sw.js", "manifest.webmanifest", "robots.txt", "sitemap.xml",
     "status.json",
 }
