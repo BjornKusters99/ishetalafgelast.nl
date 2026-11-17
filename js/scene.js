@@ -78,7 +78,8 @@ export function mountStage(stage, initial) {
   const canvas = stage.querySelector(".stage-fx");
   const ctx = canvas.getContext("2d");
   const img = stage.querySelector("img");
-  const source = stage.querySelector("source");
+  // De uitslag start zonder <source> en zonder src: niets laden tot set().
+  const source = stage.querySelector("source") || img.insertAdjacentElement("beforebegin", document.createElement("source"));
 
   let name = null;
   let cfg = null;
@@ -116,6 +117,7 @@ export function mountStage(stage, initial) {
   }
 
   function configure() {
+    if (!name) return;
     cfg = variant();
     drops = [];
     for (const [x, y, w, h] of cfg.panes || []) {
@@ -309,7 +311,7 @@ export function mountStage(stage, initial) {
   // Redenen om stil te staan (keuring, typen); pas als ze allemaal weg zijn loopt hij weer.
   const holds = new Set();
   function start() {
-    if (holds.size || reduceMotion.matches || raf || !visible || document.hidden || (isIdle() && !confetti.length)) return;
+    if (!cfg || holds.size || reduceMotion.matches || raf || !visible || document.hidden || (isIdle() && !confetti.length)) return;
     last = performance.now();
     raf = requestAnimationFrame(frame);
   }
@@ -329,7 +331,7 @@ export function mountStage(stage, initial) {
   document.addEventListener("visibilitychange", () => (document.hidden ? stop() : start()));
   reduceMotion.addEventListener("change", () => (reduceMotion.matches ? (stop(), ctx.clearRect(0, 0, canvas.width, canvas.height)) : start()));
 
-  set(initial);
+  if (initial) set(initial);
   start();
   // pause/resume: achter de keuring of tijdens het typen hoeft de kantine niet door te animeren.
   return {

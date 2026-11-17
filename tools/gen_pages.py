@@ -111,7 +111,7 @@ def dichtstbijzijnde(plaats: tuple, n: int = 4) -> list[str]:
 
 
 def plaats_link(naam: str) -> str:
-    return f'<a href="/plaatsen/{slug(naam)}.html">{naam}</a>'
+    return f'<a href="/plaatsen/{slug(naam)}">{naam}</a>'
 
 
 @cache
@@ -215,7 +215,7 @@ def place_page(naam: str, prov: str) -> str:
         f"Wedstrijd afgelast in {naam}? Check de kans | IsHetAlAfgelast.nl",
         f"Wordt je voetbalwedstrijd in {naam} ({prov}) afgelast? Check binnen "
         "10 seconden de kans, op basis van het weerbericht en de week ervoor.",
-        f"/plaatsen/{quote(s)}.html",
+        f"/plaatsen/{quote(s)}",
         f"Wordt je potje in {naam} afgelast?",
     ))
     out = swap(out, "hero", (
@@ -240,7 +240,7 @@ def place_page(naam: str, prov: str) -> str:
     ))
     coord = {p[0]: (p[2], p[3]) for p in PLAATSEN}
     buren = "\n".join(
-        f'        <li><a href="/plaatsen/{slug(n)}.html">{n}</a> '
+        f'        <li><a href="/plaatsen/{slug(n)}">{n}</a> '
         f'<span class="km">{round(afstand(coord[naam], coord[n]))} km</span></li>'
         for n in dichtstbijzijnde(entry, 6)
     )
@@ -264,7 +264,7 @@ def place_page(naam: str, prov: str) -> str:
 def doc_page(title: str, desc: str, path: str, body: str, *, noindex: bool = False) -> str:
     robots = '  <meta name="robots" content="noindex">\n' if noindex else ""
     canon = "" if noindex else f'  <link rel="canonical" href="{BASE_URL}{path}">\n'
-    sponsor_link = '      <a href="/sponsor.html">Adverteren</a>\n' if SPONSOR_LIVE else ""
+    sponsor_link = '      <a href="/sponsor">Adverteren</a>\n' if SPONSOR_LIVE else ""
     return f"""<!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -306,7 +306,7 @@ def doc_page(title: str, desc: str, path: str, body: str, *, noindex: bool = Fal
     <p>Voor iedereen die op zondagochtend in de kelderklasse speelt.</p>
     <nav aria-label="Footer">
       <a href="/plaatsen/">Plaatsen</a>
-{sponsor_link}      <a href="/privacy.html">Privacy</a>
+{sponsor_link}      <a href="/privacy">Privacy</a>
     </nav>
     <p class="credit">Weerdata: <a href="https://open-meteo.com/" rel="noopener">Open-Meteo</a> (CC BY 4.0)</p>
   </footer>
@@ -431,10 +431,10 @@ NOT_FOUND = """      <h1>Buitenspel.</h1>
 
 
 def sitemap() -> str:
-    urls = [f"{BASE_URL}/", f"{BASE_URL}/plaatsen/", f"{BASE_URL}/privacy.html"]
+    urls = [f"{BASE_URL}/", f"{BASE_URL}/plaatsen/", f"{BASE_URL}/privacy"]
     if SPONSOR_LIVE:
-        urls.insert(2, f"{BASE_URL}/sponsor.html")
-    urls += [f"{BASE_URL}/plaatsen/{quote(slug(n))}.html" for n, _, _, _ in PLAATSEN]
+        urls.insert(2, f"{BASE_URL}/sponsor")
+    urls += [f"{BASE_URL}/plaatsen/{quote(slug(n))}" for n, _, _, _ in PLAATSEN]
     body = "\n".join(
         f"  <url><loc>{u}</loc><lastmod>{LASTMOD}</lastmod><changefreq>weekly</changefreq>"
         f"<priority>{'1.0' if i == 0 else '0.7'}</priority></url>"
@@ -458,14 +458,14 @@ def main() -> None:
         sponsor.write_text(doc_page(
             "Adverteren en sponsoring",
             "Adverteren op IsHetAlAfgelast.nl: bereik amateurvoetballers op zondagochtend, regionaal en zonder pop-ups.",
-            "/sponsor.html", SPONSOR), encoding="utf-8")
+            "/sponsor", SPONSOR), encoding="utf-8")
     elif sponsor.exists():
         sponsor.unlink()
     (ROOT / "privacy.html").write_text(doc_page(
         "Privacy", "Geen cookies, geen trackers. Zo gaat IsHetAlAfgelast.nl met je gegevens om.",
-        "/privacy.html", PRIVACY), encoding="utf-8")
+        "/privacy", PRIVACY), encoding="utf-8")
     (ROOT / "404.html").write_text(doc_page(
-        "Pagina niet gevonden", "Deze pagina bestaat niet.", "/404.html", NOT_FOUND, noindex=True), encoding="utf-8")
+        "Pagina niet gevonden", "Deze pagina bestaat niet.", "/404", NOT_FOUND, noindex=True), encoding="utf-8")
     (ROOT / "sitemap.xml").write_text(sitemap(), encoding="utf-8")
     log.info("%d plaatspagina's + index, privacy, 404, sitemap (sponsor: %s)", len(PLAATSEN), SPONSOR_LIVE)
 

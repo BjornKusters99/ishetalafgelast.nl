@@ -144,7 +144,7 @@ test("shared coordinates outside the Netherlands or incomplete are ignored", () 
 });
 
 test("form and shared links use the same numeric limits", () => {
-  const values = { "#manual": { open: true }, "#home": { value: "Team" }, "#away": { value: "Uit" }, "#kickoff": { value: "14:00" },
+  const values = { "#manual": { open: true, dataset: {} }, "#home": { value: "Team" }, "#away": { value: "Uit" }, "#kickoff": { value: "14:00" },
     "#m-temp": { value: "999" }, "#m-precip": { value: "-5" }, "#m-wind": { value: "999" } };
   const context = vm.createContext({ URLSearchParams, Number, $: (selector) => values[selector], picked: new Map(),
     cityInput: { value: "Oss" }, dateInput: { value: DATE }, form: { elements: { veld: { value: "natuurgras" } } } });
@@ -153,6 +153,15 @@ test("form and shared links use the same numeric limits", () => {
   vm.runInContext(readForm + params + ";globalThis.api = {readForm, fromParams};", context);
   assert.deepEqual(JSON.parse(JSON.stringify(context.api.readForm().manual)), { temperature: 40, precipitation: 0, wind_gusts: 200 });
   assert.deepEqual(JSON.parse(JSON.stringify(context.api.fromParams(new URLSearchParams(`datum=${DATE}&t=999&r=-5&w=999`)).manual)), { temperature: 40, precipitation: 0, wind_gusts: 200 });
+});
+
+test("a weather block opened only as a hint does not replace the forecast", () => {
+  const values = { "#manual": { open: true, dataset: { auto: "1" } }, "#home": { value: "" }, "#away": { value: "" }, "#kickoff": { value: "14:00" } };
+  const context = vm.createContext({ URLSearchParams, Number, $: (selector) => values[selector], picked: new Map(),
+    cityInput: { value: "Oss" }, dateInput: { value: DATE }, form: { elements: { veld: { value: "natuurgras" } } } });
+  const readForm = app.slice(app.indexOf("function readForm()"), app.indexOf("function fillForm("));
+  vm.runInContext(readForm + ";globalThis.api = {readForm};", context);
+  assert.equal(context.api.readForm().manual, null);
 });
 
 function workerWith(response, { cached = {}, offline = false } = {}) {
@@ -197,6 +206,28 @@ async function navigate(fake, pathname) {
   return response;
 }
 
+test("worker caches place and privacy pages under their extensionless Cloudflare URL", async () => {
+  for (const path of ["/plaatsen/ede", "/privacy"]) {
+    const fake = workerWith(new Response("ok", { headers: { "Content-Type": "text/html" } }));
+    await navigate(fake, path);
+    assert.deepEqual(fake.writes, [path]);
+  }
+});
+
+test("worker fetches scripts and styles from the network before the cache", async () => {
+  const fresh = new Response("new release");
+  const fake = workerWith(fresh, { cached: { "/js/app.js": new Response("old release") } });
+  for (const path of ["/js/app.js", "/styles.css"]) {
+    const pending = [];
+    let result;
+    fake.handlers.fetch({ request: { url: `https://example.test${path}`, method: "GET", mode: "no-cors" },
+      respondWith: (promise) => { result = promise; }, waitUntil: (promise) => pending.push(promise) });
+    assert.equal(await result, fresh, path);
+    await Promise.all(pending);
+  }
+  assert.equal(fake.writes.length, 2);
+});
+
 test("worker does not cache HTTP 503 over the offline homepage", async () => {
   const fake = workerWith(new Response("down", { status: 503 }));
   assert.equal((await navigate(fake, "/")).status, 503);
@@ -221,6 +252,23 @@ test("worker activation removes legacy caches but keeps unrelated apps", async (
   fake.handlers.activate({ waitUntil: (promise) => { pending = promise; } });
   await pending;
   assert.deepEqual(fake.deleted, ["v5-2", "ishetalafgelast-old"]);
+});
+
+test("Cloudflare response headers enforce HTTPS and block framing and sniffing", async () => {
+  const headers = await readFile(new URL("../_headers", import.meta.url), "utf8");
+  assert.match(headers, /^\/\*$/m);
+  assert.match(headers, /^  Strict-Transport-Security: max-age=31536000; includeSubDomains$/m);
+  assert.match(headers, /^  X-Content-Type-Options: nosniff$/m);
+  assert.match(headers, /^  X-Frame-Options: DENY$/m);
+  assert.match(headers, /^  Content-Security-Policy: frame-ancestors 'none'$/m);
+  assert.match(headers, /^  Referrer-Policy: no-referrer$/m);
+});
+
+test("internal links and canonicals use Cloudflare's extensionless page URLs", async () => {
+  for (const page of ["index.html", "404.html", "privacy.html", "plaatsen/index.html", "plaatsen/oss.html", "sitemap.xml"]) {
+    const html = await readFile(new URL(`../${page}`, import.meta.url), "utf8");
+    assert.doesNotMatch(html, /(?:href="|<loc>https:\/\/www\.ishetalafgelast\.nl)\/(?:plaatsen\/[a-z-]+|privacy|404)\.html/, page);
+  }
 });
 
 const pages = ["index.html", "404.html", "privacy.html",

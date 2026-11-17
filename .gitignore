@@ -32,3 +32,8 @@ _site/
 .playwright-cli/
 test-results/
 playwright-report/
+
+# Lokale overdracht en securitydocs: repo is openbaar
+OVERDRACHT.md
+docs/security-github-pages/
+.wrangler/
