@@ -283,6 +283,15 @@ test("sitemap dates every page and pages load structured data from a file", asyn
   assert.match(index, /<meta property="og:image:alt" content="[^"]{20,}">/);
 });
 
+test("pages that run scripts count visits with the Cloudflare beacon", async () => {
+  const beacon = /<script type="module" src="https:\/\/static\.cloudflareinsights\.com\/beacon\.min\.js" data-cf-beacon='\{"token": "[0-9a-f]{32}"\}'><\/script>/;
+  for (const page of pages) {
+    const html = await readFile(new URL(`../${page}`, import.meta.url), "utf8");
+    assert.equal(beacon.test(html), html.includes("static.cloudflareinsights.com/beacon"), `${page}: beacon alleen in de vaste vorm`);
+    assert.equal(beacon.test(html), html.includes('src="/js/app.js"'), `${page}: beacon precies op pagina's met scripts`);
+  }
+});
+
 test("weekend: Saturday and Sunday come from one call, each with its own week before", async () => {
   const ahead = (n) => new Date(Date.now() + n * 864e5).toLocaleDateString("sv-SE", { timeZone: "Europe/Amsterdam" });
   let n = 1;

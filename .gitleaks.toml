@@ -1,0 +1,9 @@
+# Default gitleaks rules, plus an exception for one value that is public by
+# design: the Cloudflare Web Analytics beacon token. Every visitor receives it
+# in the page source; it can only send page views, not read or change anything.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Public Cloudflare Web Analytics beacon token"
+regexes = ['''^0a8514a29cb34cc2accd6d92de5417b9$''']

@@ -21,9 +21,13 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
     }),
   ]);
 }
+// Testbezoeken tellen niet mee: het Cloudflare-meetscript wordt een leeg script.
+const BEACON = "**/static.cloudflareinsights.com/**";
+const noBeacon = (rt) => rt.fulfill({ contentType: "text/javascript", body: "" });
 (async () => {
   const b = await chromium.launch({ executablePath: exe });
-  const ctx = await b.newContext({ locale: "nl-NL", timezoneId: "Europe/Amsterdam", reducedMotion: "reduce" });
+  const newContext = async (opts) => { const c = await b.newContext(opts); await c.route(BEACON, noBeacon); return c; };
+  const ctx = await newContext({ locale: "nl-NL", timezoneId: "Europe/Amsterdam", reducedMotion: "reduce" });
   const page = await ctx.newPage();
   const errs = [];
   page.on("pageerror", (e) => errs.push(e.message));
@@ -181,7 +185,7 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   ok((await page.getAttribute('meta[name="referrer"]', "content")) === "no-referrer", "geen querygegevens in referrer");
 
   // Met animatie: de keuring is begrensd en over te slaan; een gedeelde link gaat direct naar de uitslag.
-  const anim = await b.newContext({ locale: "nl-NL", timezoneId: "Europe/Amsterdam", reducedMotion: "no-preference" });
+  const anim = await newContext({ locale: "nl-NL", timezoneId: "Europe/Amsterdam", reducedMotion: "no-preference" });
   const ap = await anim.newPage();
   await mock(ap);
   await ap.goto(BASE + "/", { waitUntil: "networkidle" });
@@ -265,7 +269,7 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   await shared.close();
 
   // Touch: een tik laat :hover plakken; de keuze en de knop moeten zichtbaar blijven.
-  const touch = await b.newContext({ locale: "nl-NL", timezoneId: "Europe/Amsterdam", reducedMotion: "reduce",
+  const touch = await newContext({ locale: "nl-NL", timezoneId: "Europe/Amsterdam", reducedMotion: "reduce",
     hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
   const tp = await touch.newPage();
   await tp.goto(BASE + "/", { waitUntil: "networkidle" });
@@ -282,7 +286,7 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   await touch.close();
 
   // Lage telefoon: de knop blijft boven de vouw, teamnamen zitten achter een knop.
-  const small = await b.newContext({ locale: "nl-NL", timezoneId: "Europe/Amsterdam", reducedMotion: "reduce",
+  const small = await newContext({ locale: "nl-NL", timezoneId: "Europe/Amsterdam", reducedMotion: "reduce",
     hasTouch: true, isMobile: true, viewport: { width: 375, height: 667 } });
   const sp = await small.newPage();
   await sp.goto(BASE + "/", { waitUntil: "networkidle" });
@@ -293,7 +297,7 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   await small.close();
 
   // Wedstrijd onthouden, zaterdag en zondag naast elkaar, agenda-herinnering.
-  const mem = await b.newContext({ locale: "nl-NL", timezoneId: "Europe/Amsterdam", reducedMotion: "reduce", acceptDownloads: true });
+  const mem = await newContext({ locale: "nl-NL", timezoneId: "Europe/Amsterdam", reducedMotion: "reduce", acceptDownloads: true });
   const mp = await mem.newPage();
   await mock(mp);
   const mpGeo = [];
@@ -388,7 +392,7 @@ function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true }
   await st.close();
 
   // Kantine-canvas: hooguit 1,5x pixels, stil tijdens het typen en na inactiviteit.
-  const hi = await b.newContext({ locale: "nl-NL", timezoneId: "Europe/Amsterdam", reducedMotion: "no-preference",
+  const hi = await newContext({ locale: "nl-NL", timezoneId: "Europe/Amsterdam", reducedMotion: "no-preference",
     deviceScaleFactor: 2, viewport: { width: 1280, height: 800 } });
   const hp = await hi.newPage();
   await mock(hp);
