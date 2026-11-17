@@ -1,7 +1,7 @@
 # IsHetAlAfgelast.nl
 
 Check of je amateurvoetbalwedstrijd wordt afgelast vanwege het weer.
-Statische site op GitHub Pages; geen backend nodig.
+Statische site op Cloudflare Workers (alleen statische bestanden); geen backend nodig.
 
 ## Hoe het werkt
 
@@ -24,6 +24,17 @@ Bovenop het ruwe model zitten twee bewuste correcties in `predict()`:
   75% mee, in logit-ruimte ten opzichte van gras.
 
 Standaard staat het formulier op gras.
+
+### Onderzoeksstatus
+
+De huidige trainingsset bestaat volledig uit 2.100 synthetische wedstrijden.
+De weerdata is historisch; de 364 afgelastingslabels zijn door kansregels
+gegenereerd. De gepubliceerde modelscores bewijzen daarom geen nauwkeurigheid
+of betrouwbare percentages bij echte voetbalwedstrijden. Het kunstgraseffect
+en de mix voor onbekend veldtype zijn evenmin onafhankelijk gevalideerd.
+
+Modelonderzoek staat in `docs/modelonderzoek/onderzoek.md`. Het productiemodel
+wordt niet vervangen zonder onafhankelijke praktijkvalidatie.
 
 Geen server, geen cookies, geen trackers. Gedeelde links (`?plaats=…&datum=…`)
 rekenen de uitslag opnieuw uit.
@@ -76,6 +87,10 @@ python3 -m http.server 8765 --bind 127.0.0.1 --directory _site
 npm run test:e2e
 ```
 
+`npm test` draait ook `tools/test_engine.mjs`: offline regressietests voor
+Python/JavaScript-pariteit, de veldtypemix en numerieke grenzen. Ze bewijzen
+geen voorspelkwaliteit.
+
 `tools/e2e.cjs` mockt Open-Meteo en loopt de hele flow door: validatie,
 uitslag, delen, terug/vooruit, deeplinks, foutgevallen, plaatspagina's en de
 easter eggs.
@@ -84,8 +99,10 @@ easter eggs.
 
 `master` is beschermd: wijzigingen gaan via een pull request en de verplichte
 `security-checks`. De workflow `.github/workflows/pages.yml` test het publieke
-artefact en publiceert uitsluitend vanaf `master`; fork-PR's krijgen geen
-deployrechten. Actions zijn beperkt tot GitHub Actions en gepind op commit-SHA.
+artefact en publiceert uitsluitend vanaf `master` naar Cloudflare Workers
+(`wrangler.jsonc`). De deployjob draait in de environment
+`cloudflare-production`, die alleen `master` mag gebruiken; fork-PR's krijgen
+geen secrets. Actions zijn beperkt tot GitHub Actions en gepind op commit-SHA.
 
 `tools/build_site.py` maakt een nieuwe `_site`-map met alleen runtimebestanden.
 `docs/`, `tools/`, `art/`, Gitbestanden en lokale configuratie blijven buiten
@@ -93,7 +110,10 @@ de website. Bestaat `_site` al, gebruik dan `--output` met een nieuwe lege
 bestemming of verwijder uitsluitend je eigen oude buildmap vóór opnieuw bouwen.
 Een public repo en de benodigde frontend-JavaScript blijven openbaar leesbaar.
 
-HTTPS wordt afgedwongen. API-antwoorden worden gevalideerd en verzoeken hebben
+HTTPS wordt afgedwongen. `_headers` zet HSTS, `nosniff`, framingblokkade,
+`Referrer-Policy` en `Permissions-Policy`. Cloudflare serveert pagina's zonder
+`.html` (`/plaatsen/utrecht`); links, canonicals en sitemap gebruiken die vorm.
+API-antwoorden worden gevalideerd en verzoeken hebben
 een timeout. Resultaatlinks kunnen bij delen/herladen bij hosting terechtkomen;
 zie `privacy.html`. Er worden geen referrers meegestuurd.
 
@@ -130,7 +150,6 @@ kantine (je muis wordt een bal).
 
 ## DNS
 
-| Type  | Naam | Waarde                              |
-|-------|------|-------------------------------------|
-| A     | @    | 185.199.108.153 … 185.199.111.153   |
-| CNAME | www  | `<github-username>.github.io`       |
+Nameservers staan bij Cloudflare. `www.ishetalafgelast.nl` is als custom
+domain aan de Worker gekoppeld; het kale domein stuurt door naar `www`.
+Er is geen mail op dit domein: SPF `v=spf1 -all` en DMARC `p=reject`.
