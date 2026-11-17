@@ -225,7 +225,9 @@ test("worker activation removes legacy caches but keeps unrelated apps", async (
 
 const pages = ["index.html", "404.html", "privacy.html",
   ...(await readdir(new URL("../plaatsen/", import.meta.url))).filter((f) => f.endsWith(".html")).map((f) => `plaatsen/${f}`)];
-const API_HOSTS = ["'self'", "https://geocoding-api.open-meteo.com", "https://api.open-meteo.com", "https://archive-api.open-meteo.com"];
+// Cloudflare Web Analytics: het beaconscript en zijn meetpunt, zonder cookies.
+const API_HOSTS = ["'self'", "https://cloudflareinsights.com", "https://geocoding-api.open-meteo.com", "https://api.open-meteo.com", "https://archive-api.open-meteo.com"];
+const SCRIPT_SRC = ["'self'", "'self' https://static.cloudflareinsights.com", "'none'"];
 
 for (const page of pages) {
   test(`${page} keeps a strict CSP before any script`, async () => {
@@ -237,7 +239,7 @@ for (const page of pages) {
     assert.doesNotMatch(match[1], /unsafe-inline|unsafe-eval|\*/);
     assert.deepEqual(csp["object-src"], ["'none'"]);
     assert.deepEqual(csp["base-uri"], ["'none'"]);
-    assert.ok(["'self'", "'none'"].includes(csp["script-src"]?.join(" ")), "script-src alleen 'self' of 'none'");
+    assert.ok(SCRIPT_SRC.includes(csp["script-src"]?.join(" ")), "script-src alleen 'self' (plus Cloudflare-beacon) of 'none'");
     for (const host of csp["connect-src"] || []) assert.ok(API_HOSTS.includes(host), `onverwachte connect-src ${host}`);
     const script = html.indexOf("<script");
     assert.ok(script === -1 || match.index < script, "CSP moet vóór het eerste script staan");
