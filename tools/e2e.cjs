@@ -128,6 +128,9 @@ const noBeacon = (rt) => rt.fulfill({ contentType: "text/javascript", body: "" }
   ok((await p3.textContent("#date-err")).includes("14 dagen"), "te ver weg -> uitleg bij de datum");
   ok(await p3.isHidden("#keuring"), "te ver weg -> geen keuring");
   ok(await p3.$eval("#manual", (d) => d.open), "te ver weg -> weer zelf invullen staat open");
+  await p3.click("#btn-check");
+  await p3.waitForTimeout(300);
+  ok(await p3.isHidden("#view-result") && await p3.isVisible("#date-err"), "te ver weg, tweede klik -> geen uitslag op standaardweer");
 
   // handmatig weer, geen plaats nodig (ook voor een verre datum)
   await p3.fill("#city", "");
@@ -156,7 +159,7 @@ const noBeacon = (rt) => rt.fulfill({ contentType: "text/javascript", body: "" }
   const ld = JSON.parse(await p4.$eval('script[type="application/ld+json"]', (s) => s.textContent));
   const crumbs = ld["@graph"].find((x) => x["@type"] === "BreadcrumbList");
   ok(crumbs?.itemListElement.map((c) => c.name).join(" > ") === "IsHetAlAfgelast.nl > Plaatsen > Utrecht", "plaatspagina: broodkruimels in JSON-LD");
-  ok(ld["@graph"].some((x) => x["@type"] === "WebApplication" && x.url.endsWith("/plaatsen/utrecht.html")), "plaatspagina: WebApplication in JSON-LD");
+  ok(ld["@graph"].some((x) => x["@type"] === "WebApplication" && x.url.endsWith("/plaatsen/utrecht")), "plaatspagina: WebApplication in JSON-LD");
   await p4.click("#btn-check");
   await p4.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
   ok(p4Geo.length === 0 && /lat=52\.0907/.test(p4.url()), "plaatspagina checkt met eigen coördinaten, zonder zoekopdracht");
@@ -284,6 +287,20 @@ const noBeacon = (rt) => rt.fulfill({ contentType: "text/javascript", body: "" }
   const sticker = await tp.$eval(".sticker", (el) => [el.innerText.replace(/\s+/g, " ").trim(), el.getAttribute("aria-label")]);
   ok(sticker[1].startsWith(sticker[0]), "sticker: toegankelijke naam begint met de zichtbare tekst");
   await touch.close();
+
+  // Telefoon staand: de uitslag toont de staande slaapkamer, niet alleen de regen.
+  const phone = await b.newContext({ locale: "nl-NL", timezoneId: "Europe/Amsterdam", reducedMotion: "reduce",
+    hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
+  const pp = await phone.newPage();
+  await mock(pp);
+  await pp.goto(BASE + "/", { waitUntil: "networkidle" });
+  await pp.fill("#city", "Oss");
+  await pp.tap("#btn-check");
+  await pp.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
+  ok(await pp.waitForFunction(() => { const i = document.querySelector("#view-result .stage img");
+    return i.complete && i.naturalWidth === 864 && i.currentSrc.endsWith("/img/scenes/afgelast-m.webp"); }, null, { timeout: 5000 }).then(() => true, () => false),
+  "telefoon: staande uitslag-illustratie geladen");
+  await phone.close();
 
   // Lage telefoon: de knop blijft boven de vouw, teamnamen zitten achter een knop.
   const small = await newContext({ locale: "nl-NL", timezoneId: "Europe/Amsterdam", reducedMotion: "reduce",

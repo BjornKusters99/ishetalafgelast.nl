@@ -13,15 +13,20 @@ const form = $("#form");
 const homeView = $("#view-home");
 const resultView = $("#view-result");
 const homeStage = mountStage($("#view-home .stage"), "kantine");
-const resultStage = mountStage($("#view-result .stage"), "afgelast");
+const resultStage = mountStage($("#view-result .stage"), null);
 // Tijdens het typen staat de kantine stil: dat scheelt telefoons rekenwerk.
 form.addEventListener("focusin", (e) => e.target.matches("input") && homeStage.pause("invoer"));
 form.addEventListener("focusout", () => homeStage.resume("invoer"));
 mountHotspots($("#view-home .hotspots"), "kantine");
 mountAppgroep();
 
-// De uitslag-illustratie is groot en lazy: pas ophalen zodra iemand het formulier gebruikt.
-const warmResult = () => { $("#view-result .stage img").loading = "eager"; };
+// De uitslag-illustratie is groot: pas ophalen zodra iemand het formulier gebruikt.
+// Geen loading="lazy": iOS Safari laadde die soms niet in de eerst verborgen uitslag.
+let warmed = false;
+const warmResult = () => {
+  if (!warmed) resultStage.set("afgelast");
+  warmed = true;
+};
 $("#form").addEventListener("focusin", warmResult, { once: true });
 
 const nl1 = new Intl.NumberFormat("nl-NL", { maximumFractionDigits: 1 });
@@ -118,7 +123,15 @@ function dateHint() {
 dateInput.addEventListener("input", () => {
   setFieldError(dateInput, "");
   dateHint();
+  // Datum weer binnen bereik: het automatisch geopende weerblok kan dicht.
+  if ($("#manual").dataset.auto && !horizonError(dateInput.value)) {
+    $("#manual").open = false;
+    delete $("#manual").dataset.auto;
+  }
 });
+// Zelf openklikken of een weerwaarde aanpassen = bewust eigen weer.
+$("#manual summary").addEventListener("click", () => delete $("#manual").dataset.auto);
+$("#manual").addEventListener("input", () => delete $("#manual").dataset.auto);
 
 function teamHint() {
   const h = $("#home").value.trim().toLowerCase();
@@ -140,7 +153,7 @@ function setFieldError(input, msg) {
 }
 
 function readForm() {
-  const manual = $("#manual").open;
+  const manual = $("#manual").open && !$("#manual").dataset.auto;
   const city = cityInput.value.trim().slice(0, 80);
   const at = picked.get(city);
   return {
@@ -175,8 +188,10 @@ function fillForm(q) {
   $("#away").value = q.away || "";
   const radio = form.querySelector(`input[name="veld"][value="${CSS.escape(q.veld || "natuurgras")}"]`);
   if (radio) radio.checked = true;
+  // Een gedeelde of eerdere uitslag zonder eigen weer zet het blok weer dicht.
+  $("#manual").open = !!q.manual;
+  delete $("#manual").dataset.auto;
   if (q.manual) {
-    $("#manual").open = true;
     $("#m-temp").value = q.manual.temperature;
     $("#m-precip").value = q.manual.precipitation;
     $("#m-wind").value = q.manual.wind_gusts;
@@ -186,6 +201,8 @@ function fillForm(q) {
 
 function validate(q) {
   let ok = true;
+  setFieldError(cityInput, "");
+  setFieldError(dateInput, "");
   if (!q.manual && !q.city) {
     setFieldError(cityInput, "Vul de plaats van het sportpark in.");
     ok = false;
@@ -195,8 +212,12 @@ function validate(q) {
     ok = false;
   } else if (!q.manual && horizonError(q.date)) {
     // Meteen melden, niet pas na de keuring, en de uitweg alvast openklappen.
+    // Die standaardwaarden gelden pas als iemand het blok zelf aanraakt.
     setFieldError(dateInput, horizonError(q.date));
-    $("#manual").open = true;
+    if (!$("#manual").open) {
+      $("#manual").open = true;
+      $("#manual").dataset.auto = "1";
+    }
     ok = false;
   }
   if (!ok) form.querySelector('[aria-invalid="true"]')?.focus();
@@ -860,6 +881,7 @@ function renderResult({ q, weather: w, pred, v, other, at }) {
   resultView.classList.add(`mood-${v.mood}`);
   resultView.classList.toggle("is-early", v.early);
   resultStage.set(v.scene);
+  warmed = true;
   mountHotspots($("#view-result .hotspots"), v.scene);
 
   const teams = q.home || q.away ? `${q.home || "Thuis"} tegen ${q.away || "Uit"}` : "";
