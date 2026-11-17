@@ -276,7 +276,7 @@ test("every page links our own channels in the footer, not a platform homepage",
     const html = await readFile(new URL(`../${page}`, import.meta.url), "utf8");
     const footer = html.slice(html.indexOf('<footer class="site-footer">'));
     const me = [...footer.matchAll(/<a href="([^"]+)" target="_blank" rel="noopener me">/g)].map((m) => m[1]);
-    assert.deepEqual(me, ["https://www.instagram.com/ishetalafgelast.nl/", "https://www.tiktok.com/@ishetalafgelast.n", "https://www.youtube.com/@ishetalafgelast"], page);
+    assert.deepEqual(me, ["https://www.instagram.com/ishetalafgelast.nl/", "https://www.tiktok.com/@ishetalafgelast", "https://www.youtube.com/@ishetalafgelast"], page);
     assert.doesNotMatch(html, /href="https:\/\/www\.(?:instagram|tiktok)\.com\/"/, page);
   }
 });

@@ -6,8 +6,8 @@ const fs = require("fs");
 const exe = process.env.CHROME || undefined;
 const BASE = process.env.BASE || "http://127.0.0.1:8765";
 let fails = 0;
-// Onze kanalen (handles volgens Postiz).
-const FOLLOW = ["https://www.instagram.com/ishetalafgelast.nl/", "https://www.tiktok.com/@ishetalafgelast.n", "https://www.youtube.com/@ishetalafgelast"];
+// Onze kanalen.
+const FOLLOW = ["https://www.instagram.com/ishetalafgelast.nl/", "https://www.tiktok.com/@ishetalafgelast", "https://www.youtube.com/@ishetalafgelast"];
 const ok = (c, m) => { console.log((c ? "PASS " : "FAIL ") + m); if (!c) fails++; };
 function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true } = {}) {
   return Promise.all([

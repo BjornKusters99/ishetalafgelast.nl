@@ -310,7 +310,7 @@ def doc_page(title: str, desc: str, path: str, body: str, *, noindex: bool = Fal
     </nav>
     <nav class="follow" aria-label="Volg ons">
       <a href="https://www.instagram.com/ishetalafgelast.nl/" target="_blank" rel="noopener me">Instagram</a>
-      <a href="https://www.tiktok.com/@ishetalafgelast.n" target="_blank" rel="noopener me">TikTok</a>
+      <a href="https://www.tiktok.com/@ishetalafgelast" target="_blank" rel="noopener me">TikTok</a>
       <a href="https://www.youtube.com/@ishetalafgelast" target="_blank" rel="noopener me">YouTube</a>
     </nav>
     <p class="credit">Weerdata: <a href="https://open-meteo.com/" rel="noopener">Open-Meteo</a> (CC BY 4.0)</p>
