@@ -55,6 +55,7 @@ const { chromium } = require("playwright");
   const browser = await chromium.launch({ executablePath: process.env.CHROME || undefined });
   try {
     const context = await browser.newContext();
+    await context.route("**/static.cloudflareinsights.com/**", (rt) => rt.fulfill({ contentType: "text/javascript", body: "" }));
     const page = await context.newPage();
     const origin = `http://127.0.0.1:${server.address().port}`;
     await page.goto(origin + "/worker-test.html");
