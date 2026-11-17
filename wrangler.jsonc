@@ -1,0 +1,10 @@
+// Cloudflare Workers met alleen statische bestanden (opvolger van Pages).
+// `npm run build` maakt `_site`; de workflow pakt daar het geteste artefact uit.
+{
+  "name": "ishetalafgelast",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./_site",
+    "not_found_handling": "404-page"
+  }
+}
