@@ -81,6 +81,48 @@ haarelastiekjes, de JO17 die het veld inpikt), niet de mannenregels met een
 andere naam. De 35+ gaat over knieën, zwemles en het kratje. Zaterdag 4 gaat
 over werk tot twaalf en het kunstgras na het eerste.
 
+## Uitspraken uit de kelderklasse
+
+Zinnen die elke speler al honderd keer heeft gehoord. Ze maken de site
+herkenbaar en grappig: verwerk ze in de appgroep (`js/teksten.js`), in wat de
+kantine roept (`js/eggs.js`) en in de smoesjes. Dezelfde lijst staat voor
+social in `ishetalafgelast-marketing`, `content/kelderklasse-uitspraken.md`.
+
+Op het veld en langs de lijn:
+
+- "Tegen wie moeten we eigenlijk?" De standaardvraag bij de warming-up.
+- "Hij niet!" Bij elke vrije trap of corner, om een gevaarlijke tegenstander
+  te dekken.
+- "Bal in de ploeg!" Zodra de eerste lange bal blind naar voren wordt geramd.
+- "Wakker worden!" Na een knullig tegendoelpunt of slordig balverlies.
+- "Zelf halen!" Als iemand de bal over het hek of de bosjes in schiet.
+- "Het kan nog!" Bij een 4-1 achterstand in de 84e minuut.
+
+Over de scheids en het spel:
+
+- "Wat een thuisfluiter!" Bij elke twijfelachtige beslissing tegen de uitploeg.
+- "Scheids, hoe lang nog?" Al gevraagd als de tweede helft net tien minuten
+  bezig is.
+- "Ze weten het niet meer!" Als de tegenstander een paar keer achter elkaar
+  slecht uitverdedigt.
+- "Scheids, we hebben geen lampen!" Als het donker wordt en de wedstrijd nog
+  niet uit is.
+- De magische spons. Iemand ligt te schreeuwen alsof zijn been doormidden is.
+  De verzorger komt met emmer en spons, en de speler sprint weer.
+
+Kleedkamer en derde helft:
+
+- "Als we de derde helft maar winnen!" Het excuus als het voetbal niet om aan
+  te gluren is.
+- "Tweede helft richting de kantine!" Bij een ruime achterstand in de rust.
+- "Kan er nog iemand rijden?" De slotvraag zodra de douches weer koud zijn.
+
+Deze uitspraken mogen terugkomen, op meer plekken en bij elk bezoek: juist
+omdat iedereen ze kent. Wel niet te vaak: hooguit één uitspraak per lijst,
+net als de keepergrap, en niet dezelfde uitspraak twee keer op één scherm.
+De zin eromheen is wel elke keer anders. Derde helft mag, bier en drank niet
+in beeld.
+
 ## Schrijf zo
 
 - "De consul loopt nog. Hij belt zo."
