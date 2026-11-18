@@ -49,7 +49,11 @@ js/engine.js          Geocoding, weer, model-inferentie, uitleg
 js/model.js           Geëxporteerde modelgewichten (gegenereerd)
 js/scene.js           Levende illustraties (regen, rimpels, lampen, Zzz, confetti)
 js/stuitproef.js      De stuitproef: scheids Henk laat een bal vallen, fysica uit het weer
-js/eggs.js            Easter eggs: hotspots in de illustraties, Henk-parade, appgroep
+js/eggs.js            Easter eggs: hotspots in de illustraties, zoekplaatje, Henk-parade, appgroep
+js/teksten.js         Alle teksten en teksthulpjes (stem: docs/STIJLGIDS.md)
+js/team.js            Rekenregels rond het team: elftal, teamlink, klussen, thuiskomst
+js/duel.js            Jij tegen Henk: tips en stand, alleen in de lokale opslag
+js/extra.js           Tabbladen onder de uitslag: briefje, wie vlagt er, tas-check, smoesje
 sw.js, manifest.webmanifest   Installeerbaar + offline schil
 art/                  Bron-illustraties (niet direct gebruikt)
 img/                  Gegenereerde web-assets
@@ -87,7 +91,12 @@ python3 -m http.server 8765 --bind 127.0.0.1 --directory _site
 npm run test:e2e
 ```
 
-`npm test` draait ook `tools/test_engine.mjs`: offline regressietests voor
+Zelf rondklikken: `npm run preview` bouwt de site en start `wrangler dev` op
+http://localhost:8788, met dezelfde routering als productie (verwijder `_site`
+eerst als die map al bestaat). Wat er te zien is staat in
+[docs/NIEUWE-WEBSITE.md](docs/NIEUWE-WEBSITE.md).
+
+`npm test` draait ook `tools/test_team.mjs` (team, duel, teksten, consuls) en `tools/test_engine.mjs`: offline regressietests voor
 Python/JavaScript-pariteit, de veldtypemix en numerieke grenzen. Ze bewijzen
 geen voorspelkwaliteit.
 
