@@ -45,6 +45,9 @@
   --green: #4f9d2f;
   --green-ink: #2d6a19;
   --focus: #f2c55f;
+  --btn-green: #2b7337;
+  --btn-green-hi: #24632f;
+  --night: #0f0906;
 
   --f-display: "Lilita One", "Arial Rounded MT Bold", system-ui, sans-serif;
   --f-ui: "Fredoka", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -238,7 +241,7 @@ h1, h2, h3 { font-weight: 400; }
   grid-template-columns: 1.35fr 1fr;
   grid-template-areas:
     "city date"
-    "home away"
+    "teams teams"
     "veld cta"
     "remember remember"
     "manual manual";
@@ -247,19 +250,19 @@ h1, h2, h3 { font-weight: 400; }
 }
 .field--city { grid-area: city; }
 .field--date { grid-area: date; }
-.field--home { grid-area: home; }
-.field--away { grid-area: away; }
+.teams { grid-area: teams; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 6.6em; gap: var(--s-2) var(--s-3); min-width: 0; }
+.teams .field-hint { grid-column: 1 / -1; }
 .field--veld { grid-area: veld; }
 .btn-cta { grid-area: cta; }
 .manual { grid-area: manual; }
 
-.field { display: grid; gap: 5px; min-width: 0; border: 0; padding: 0; }
+.field { display: grid; align-content: start; gap: 5px; min-width: 0; border: 0; padding: 0; }
 .field label, .field legend {
   font-weight: 600; font-size: .9rem; color: var(--ink-2); padding: 0;
 }
 .opt, .unit { font-weight: 400; color: var(--ink-3); font-size: .82rem; }
 
-.field input {
+.field input, .field select {
   width: 100%;
   min-height: 48px;
   padding: 10px 14px;
@@ -273,11 +276,15 @@ h1, h2, h3 { font-weight: 400; }
   transition: background-color var(--d-1) ease, box-shadow var(--d-1) ease;
   appearance: none;
 }
+.field select {
+  padding-right: 30px; cursor: pointer;
+  background: var(--paper-hi) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232b1a10' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") right 8px center / 16px no-repeat;
+}
 .field input::placeholder { color: #7a5c40; font-weight: 400; }
 @media (hover: hover) {
-  .field input:hover { background: #fbf1da; }
+  .field input:hover, .field select:hover { background-color: #fbf1da; }
 }
-.field input:focus { outline: none; background: #fdf6e6; box-shadow: 0 0 0 3px var(--ink), 0 0 0 6px var(--focus); }
+.field input:focus, .field select:focus { outline: none; background: #fdf6e6; box-shadow: 0 0 0 3px var(--ink), 0 0 0 6px var(--focus); }
 .field input[aria-invalid="true"] { border-color: var(--red); box-shadow: 0 0 0 3px rgb(196 57 42 / .25); }
 .field input[type="date"] { min-width: 0; }
 .when { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
@@ -341,7 +348,7 @@ h1, h2, h3 { font-weight: 400; }
 
 /* Onthouden wedstrijd: alleen op dit toestel */
 .remember {
-  grid-area: remember; justify-self: end;
+  grid-area: remember; justify-self: start;
   display: inline-flex; align-items: center; gap: 8px; min-height: 32px;
   font-size: .9rem; font-weight: 500; color: var(--ink-2); cursor: pointer;
 }
@@ -364,7 +371,7 @@ h1, h2, h3 { font-weight: 400; }
 .btn-forget { min-height: 40px; font-size: .9rem; color: var(--ink-2); text-decoration-color: rgb(43 26 16 / .35); }
 .teams-toggle {
   display: none; grid-area: teams; justify-self: start; align-items: center; gap: 6px;
-  min-height: 32px; padding: 0; border: 0; background: none; cursor: pointer;
+  min-height: 44px; padding: 0; border: 0; background: none; cursor: pointer;
   font: inherit; font-weight: 600; font-size: .92rem; color: var(--ink-2);
   text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px;
   text-decoration-color: rgb(43 26 16 / .35);
@@ -575,6 +582,7 @@ h1, h2, h3 { font-weight: 400; }
 }
 .place-list li:not(:last-child)::after { content: "·"; margin: 0 .35em; color: var(--wood-500); }
 .place-list a {
+  display: inline-block; padding-block: 6px;
   color: var(--paper); text-decoration: none;
   transition: color var(--d-1) ease;
 }
@@ -597,28 +605,33 @@ h1, h2, h3 { font-weight: 400; }
 .klimaat-tabel thead th { font-family: var(--f-display); font-weight: 400; color: var(--gold-hi); }
 
 /* ═══════════ Uitslag ═══════════
-   Drie lagen, elk met een eigen vorm:
-   1. scène + bord (de emotie), precies tot de vouw;
-   2. scorebord-band met het weer, sluit de eerste viewport af;
-   3. keuringsrapport op perkament: stuitproef links, verslag + delen rechts;
-   daarna een los extraatje (zondagprogramma of tas-check). */
+   1. scène + bord (het antwoord), met de actiebalk op de vouw: delen, za/zo, officieel;
+   2. de 51 consuls;
+   3. keuringsrapport op perkament: stuitproef links, verslag rechts, "Waarom?" dichtgeklapt;
+   4. extra's voor de speeldag in tabbladen;
+   5. slot: de teamlink, het deelbericht, de herinnering en de katermodus. */
 
 .scene--result {
-  --band: clamp(96px, 13svh, 124px);
+  --band: clamp(104px, 14svh, 128px);
   min-height: 0;
-  height: max(460px, calc(100svh - var(--band)));
+  height: max(520px, 100svh);
 }
 .scene--result[data-mood="afgelast"] { --ar: 1.5; }
 .scene--result[data-mood="doorgaat"] { --ar: 1.81269; --sx: calc(100cqw - var(--sw)); }
-.scene--result::after {
-  content: ""; position: absolute; inset: auto 0 0; z-index: 1; height: 72px;
-  background: linear-gradient(transparent, rgb(23 13 8 / .7));
-  pointer-events: none;
+/* Twijfel speelt in de kantine: iedereen wacht bij het raam. De getekende rol moet boven de actiebalk blijven. */
+.scene--result[data-mood="kantine"] {
+  --ar: 1.79167;
+  --lift: clamp(0px, var(--sh) * .9614 + var(--band) + 12px - 100svh, var(--sh) * .3);
 }
 
-.btn-back {
+.result-top {
   position: absolute; z-index: 6;
   top: max(var(--s-4), env(safe-area-inset-top)); right: clamp(var(--s-4), 3vw, var(--s-6));
+  display: flex; flex-direction: row-reverse; align-items: center; gap: var(--s-3);
+}
+.result-brand { display: block; border-radius: 10px; }
+.result-brand img { width: 104px; height: auto; filter: drop-shadow(0 3px 8px rgb(16 9 5 / .5)); }
+.btn-back {
   display: inline-flex; align-items: center; gap: 6px;
   min-height: 44px; padding: 8px 16px 8px 12px;
   border: 2px solid var(--ink); border-radius: 999px;
@@ -635,7 +648,7 @@ h1, h2, h3 { font-weight: 400; }
 .board {
   position: absolute; z-index: 4;
   left: max(var(--s-5), calc(var(--sx) + var(--sw) * .035));
-  top: calc(var(--sh) * .06);
+  top: calc(var(--sh) * .035);
   width: min(calc(var(--sw) * .37), 600px);
   container-type: inline-size;
   transform-origin: 50% -40px;
@@ -647,7 +660,7 @@ h1, h2, h3 { font-weight: 400; }
 }
 .board-plank {
   position: relative;
-  padding: 5cqw 6cqw 5.2cqw;
+  padding: 4.4cqw 6cqw 4.2cqw;
   color: var(--ink);
   background:
     repeating-linear-gradient(176deg, transparent 0 22px, rgb(110 70 35 / .16) 22px 24px, transparent 24px 41px),
@@ -699,11 +712,7 @@ h1, h2, h3 { font-weight: 400; }
   font-family: var(--f-hand); font-size: clamp(1rem, 4.4cqw, 1.45rem); line-height: 1; letter-spacing: 0;
   color: #4a2f1c; -webkit-text-stroke: 0; text-shadow: none;
 }
-.board-note, .board-horizon { margin-top: 2.6cqw; font-size: clamp(.8rem, 3.1cqw, .95rem); line-height: 1.3; color: #3d2615; }
-.board-horizon { margin-top: 1.2cqw; font-weight: 600; }
-.board-weekend, .board-shared { margin-top: 1.2cqw; font-size: clamp(.8rem, 3.1cqw, .95rem); line-height: 1.3; color: #3d2615; }
-#btn-ics { margin-top: var(--s-4); }
-.board-note a { color: var(--ink); font-weight: 600; text-decoration-thickness: 1.5px; text-underline-offset: 2px; }
+.board-horizon { margin-top: 2.6cqw; font-size: clamp(.8rem, 3.1cqw, .95rem); font-weight: 600; line-height: 1.3; color: #3d2615; }
 .mood-afgelast .board-word { color: var(--red); }
 .mood-doorgaat .board-word { color: #5cb336; }
 .mood-twijfel .board-word, .is-early .board-word { color: var(--gold-hi); font-size: clamp(2.2rem, 12cqw, 5rem); }
@@ -740,19 +749,22 @@ h1, h2, h3 { font-weight: 400; }
 }
 .board-pct span { font-size: clamp(.8rem, 3.2cqw, 1rem); font-weight: 600; color: #4a2f1c; }
 
-/* Live-data in de borden van de doorgaat-illustratie (desktop) */
+/* Live-data in de borden van de doorgaat-illustratie (liggend). --k krimpt een lange naam tot hij past. */
 .dg-live { display: none; }
 .scene--result[data-mood="doorgaat"] .dg-live { display: block; }
 .dg {
   position: absolute;
   display: flex; align-items: center;
-  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  overflow: hidden; white-space: nowrap;
   font-family: var(--f-display);
   color: var(--cream);
-  font-size: 1.45cqw;
+  font-size: calc(1.45cqw * var(--k, 1));
   line-height: 1;
   padding: 0 .35cqw;
+  /* Het script meet na elke krimpstap; een overgang (ook die van 1 ms bij "minder beweging") zou de meting vertragen. */
+  transition: none !important;
 }
+.dg.is-wrap { white-space: normal; overflow-wrap: anywhere; line-height: .95; }
 .dg-home { left: 31.5%; width: 7.2%; top: 24.9%; height: 4.2%; }
 .dg-away { left: 40.9%; width: 7.8%; top: 24.2%; height: 4.4%; }
 .dg-city { left: 37%; width: 6.7%; top: 29.5%; height: 3.8%; }
@@ -779,27 +791,115 @@ h1, h2, h3 { font-weight: 400; }
   transform: scaleY(0);
   transition: transform 1.6s var(--ease-out) .4s;
 }
+/* De tekening roept "GAAT DOOR"; dit briefje zegt erbij dat het een verwachting is. */
+.dg-hedge {
+  display: none;
+  position: absolute; z-index: 4; left: clamp(var(--s-4), 3vw, var(--s-6)); top: max(var(--s-4), env(safe-area-inset-top));
+  padding: 5px 16px 8px;
+  font-family: var(--f-hand); font-size: clamp(1.4rem, 2.4vw, 2.1rem); line-height: 1; color: var(--ink);
+  background: var(--paper-hi);
+  border: var(--line) solid var(--ink); border-radius: var(--r-hand-sm);
+  box-shadow: 0 3px 0 var(--ink);
+  rotate: -4deg;
+}
+
+/* Actiebalk op de vouw: delen, de andere weekenddag en wat officieel is. */
+.actie {
+  position: absolute; inset: auto 0 0; z-index: 5;
+  display: grid; align-items: center;
+  min-height: var(--band);
+  color: var(--cream);
+  background:
+    radial-gradient(circle at 1px 1px, rgb(255 236 200 / .05) 1px, transparent 1.6px) 0 0 / 6px 6px,
+    linear-gradient(180deg, var(--wood-800), var(--wood-950));
+  border-top: 3px solid var(--ink);
+  box-shadow: inset 0 1px 0 rgb(255 220 160 / .12);
+}
+.actie-inner {
+  display: grid; grid-template-columns: auto auto minmax(0, 1fr); align-items: center;
+  gap: var(--s-3) clamp(var(--s-4), 2.5vw, var(--s-6));
+  width: 100%; max-width: 1180px; margin: 0 auto;
+  padding: var(--s-3) clamp(var(--s-4), 3vw, var(--s-7));
+}
+.actie .share-row { flex-wrap: nowrap; margin: 0; }
+.actie .btn-share { white-space: nowrap; }
+.actie-note { max-width: 56ch; font-size: .92rem; line-height: 1.4; color: var(--cream-2); }
+.actie-note strong { font-weight: 600; color: var(--paper-hi); }
+.actie-note a {
+  display: inline-block; margin-block: -10px; padding-block: 10px;
+  color: var(--paper-hi); font-weight: 600; text-underline-offset: 3px;
+}
+.actie-shared { display: block; color: var(--gold-hi); }
+
+/* Zaterdag of zondag: een echte schakelaar. */
+.weekend {
+  display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr;
+  overflow: hidden;
+  border: var(--line) solid var(--ink); border-radius: var(--r-hand-sm);
+  background: var(--paper-hi);
+}
+.weekend button {
+  min-height: 46px; padding: 6px 14px;
+  border: 0; background: none; cursor: pointer;
+  font: inherit; font-weight: 600; font-size: .95rem; color: var(--ink-2);
+  white-space: nowrap; font-variant-numeric: tabular-nums;
+  transition: background-color var(--d-1) ease, color var(--d-1) ease;
+}
+.weekend button + button { border-left: 1.5px solid rgb(43 26 16 / .35); }
+@media (hover: hover) {
+  .weekend button:hover { background: #fbf1da; }
+}
+.weekend button[aria-pressed="true"] { background: var(--gold); color: var(--ink); }
+.weekend button:focus-visible { outline: none; box-shadow: inset 0 0 0 3px var(--focus), inset 0 0 0 6px var(--ink); }
 
 @media (orientation: landscape) {
-  /* De illustratie heeft zijn eigen borden: ons bord alleen voor screenreaders. */
+  /* De illustratie heeft zijn eigen borden: ons bord alleen voor screenreaders.
+     Er staat niets klikbaars meer op, dus de focus kan er niet onzichtbaar op belanden. */
   .scene--result[data-mood="doorgaat"] .board {
     position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%);
   }
+  .scene--result[data-mood="doorgaat"] .dg-hedge { display: block; }
+  /* Twijfel: het oordeel staat op de rol in de kantine, net als het formulier op de homepage. */
+  .scene--result[data-mood="kantine"] .board {
+    --bx: calc(var(--sw) * .056);
+    --by: calc(var(--sw) * .026);
+    left: calc(var(--sx) + var(--sw) * .23295);
+    top: calc(var(--sh) * .4714 - var(--lift));
+    width: calc(var(--sw) * .5341);
+    min-height: calc(var(--sh) * .49);
+    display: grid; align-content: center;
+    border-style: solid; border-color: transparent;
+    border-width: var(--by) var(--bx);
+    border-image: url("/img/scroll.webp") 32 72 44 fill / var(--by) var(--bx) / 0 stretch;
+  }
+  .scene--result[data-mood="kantine"] .board-rope,
+  .scene--result[data-mood="kantine"] .board-plank::before,
+  .scene--result[data-mood="kantine"] .board-plank::after { display: none; }
+  .scene--result[data-mood="kantine"] .board-plank {
+    width: min(100%, 540px); margin-inline: auto; padding: 0;
+    background: none; border: 0; box-shadow: none;
+  }
+  .scene--result[data-mood="kantine"] .board-word { color: var(--gold); }
 }
 
 @media (orientation: portrait) {
-  /* Bord bovenaan in de flow, illustratie eronder: bijgesneden tot het verhaal
-     (raam + slaper, of de handdruk). */
+  /* Bord bovenaan, dan de actiebalk (delen direct onder het percentage), dan de
+     illustratie, bijgesneden tot het verhaal: raam + slaper, de handdruk of het raam van de kantine. */
   .scene--result {
     --sw: 100cqw; --sx: 0px;
     display: flex; flex-direction: column;
     height: auto; min-height: 0;
   }
   .scene--result[data-mood="afgelast"] { --ar: .66667; }
+  .scene--result[data-mood="kantine"] { --ar: .55814; --lift: 0px; }
   .scene--result .stage {
     position: relative; top: auto; left: 0; flex: none;
     margin-top: calc(var(--sh) * -.15);
     margin-bottom: calc(var(--sh) * -.2);
+  }
+  .scene--result[data-mood="kantine"] .stage {
+    margin-top: calc(var(--sh) * -.105);
+    margin-bottom: calc(var(--sh) * -.645);
   }
   .scene--result[data-mood="doorgaat"] { --sw: 190cqw; --sx: calc(50cqw - var(--sw) * .5); }
   .scene--result[data-mood="doorgaat"] .stage {
@@ -810,75 +910,117 @@ h1, h2, h3 { font-weight: 400; }
   .scene--result[data-mood="doorgaat"] .dg-live { display: none; }
 
   .board {
-    position: relative; order: -1; left: 0; top: 0; width: auto;
+    position: relative; order: -2; left: 0; top: 0; width: auto;
     transform-origin: 50% 0;
   }
   .board-rope { display: none; }
   .board-plank {
     padding: calc(max(var(--s-3), env(safe-area-inset-top)) + 58px) var(--s-5) var(--s-5);
     border-width: 0 0 3px;
-    border-radius: 0 0 18px 22px / 0 0 14px 18px;
+    border-radius: 0;
   }
-  .board-plank::before, .board-plank::after { top: auto; bottom: 14px; }
+  .board-plank::before, .board-plank::after { display: none; }
   .board-word { font-size: clamp(2.8rem, 14cqw, 4.4rem); }
   .mood-twijfel .board-word, .is-early .board-word { font-size: clamp(2.3rem, 11.5cqw, 3.6rem); }
   .board-pct strong { font-size: clamp(2.2rem, 11cqw, 3.4rem); }
-  .btn-back { left: var(--s-4); right: auto; }
+  .result-top { left: var(--s-4); right: var(--s-4); flex-direction: row; justify-content: space-between; }
+  .result-brand img { width: 92px; }
+  .actie { position: relative; order: -1; inset: auto; min-height: 0; border-bottom: 3px solid var(--ink); }
 }
 
-/* Scorebord: het weer als lichtkrant langs de lijn */
-.scorebord {
-  position: relative; z-index: 2;
-  display: grid; align-items: center;
-  min-height: var(--band, 112px);
+@media (max-width: 860px) {
+  .actie-inner { grid-template-columns: minmax(0, 1fr); }
+  .actie .btn-share { flex: 1 1 auto; }
+  .actie .btn-net { flex: none; }
+  .weekend { display: grid; }
+}
+
+/* ═══════════ De 51 consuls ═══════════ */
+
+.consuls {
+  display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: center;
+  gap: var(--s-5) clamp(var(--s-5), 5vw, var(--s-8));
+  max-width: 1180px; margin: 0 auto;
+  padding: clamp(var(--s-7), 6vw, 96px) clamp(var(--s-5), 5vw, var(--s-7)) clamp(var(--s-5), 3vw, var(--s-7));
   color: var(--cream);
-  background:
-    radial-gradient(circle at 1px 1px, rgb(255 236 200 / .05) 1px, transparent 1.6px) 0 0 / 6px 6px,
-    linear-gradient(180deg, var(--wood-800), var(--wood-950));
-  border-block: 3px solid var(--ink);
-  box-shadow: inset 0 1px 0 rgb(255 220 160 / .12);
 }
+.consuls h2 {
+  max-width: 15ch;
+  font-family: var(--f-display); font-size: clamp(1.9rem, 3.6vw, 3rem); line-height: 1.04;
+  color: var(--paper-hi); text-wrap: balance;
+}
+.consuls-rest { max-width: 30ch; margin-top: var(--s-3); font-family: var(--f-hand); font-size: 1.45rem; line-height: 1.2; color: var(--gold-hi); }
+.consuls-note { max-width: 46ch; margin-top: var(--s-4); font-size: .92rem; color: var(--cream-2); }
+.consuls-veld {
+  list-style: none;
+  display: flex; flex-wrap: wrap; align-content: center; gap: 8px clamp(4px, .8vw, 10px);
+  padding: clamp(14px, 2.4vw, 28px);
+  border: 3px solid var(--ink); border-radius: var(--r-hand);
+  background: repeating-linear-gradient(90deg, #3f7d2b 0 64px, #387226 64px 128px);
+  box-shadow: 0 5px 0 var(--ink);
+}
+.consuls-veld li {
+  width: clamp(26px, 3.3vw, 40px);
+  animation: rise var(--d-3) var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 16ms);
+}
+.consuls-veld svg { display: block; width: 100%; height: auto; aspect-ratio: 28 / 36; }
+.c-af { color: var(--red); }
+.c-twijfel { color: var(--gold-hi); }
+.c-vrij { color: #a6ee7c; }
+.consuls-veld .c-gap { margin-left: clamp(8px, 1.6vw, 20px); }
+
+/* Het weer in cijfers, op het perkament */
 .conditions {
-  display: grid; grid-template-columns: repeat(4, 1fr);
-  width: 100%; max-width: 1180px; margin: 0 auto;
-  padding: 0 clamp(var(--s-2), 3vw, var(--s-7));
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: var(--s-5);
+  border-block: 2px dashed rgb(43 26 16 / .35);
 }
-.conditions > div { display: grid; justify-items: center; gap: 6px; padding: var(--s-4) var(--s-2); text-align: center; }
-.conditions > div + div { border-left: 1px solid rgb(243 230 203 / .14); }
+.conditions > div { display: grid; align-content: start; gap: 2px; padding: var(--s-3) 0; }
+.conditions > div:nth-child(even) { padding-left: var(--s-4); border-left: 1px solid rgb(43 26 16 / .2); }
+.conditions > div:nth-child(n + 3) { border-top: 1px solid rgb(43 26 16 / .2); }
 .conditions dt {
   display: flex; align-items: center; gap: 6px;
   font-size: .78rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
-  color: var(--cream-2);
+  color: var(--ink-3);
 }
-.conditions dt .ic { width: 20px; height: 20px; color: var(--gold); }
+.conditions dt .ic { width: 18px; height: 18px; color: var(--ink-2); }
 .conditions dd {
   font-family: var(--f-display);
-  font-size: clamp(1.5rem, 2.5vw, 2.15rem); line-height: 1;
-  color: var(--gold-hi);
-  text-shadow: 0 0 18px rgb(242 197 95 / .35);
+  font-size: clamp(1.35rem, 2vw, 1.7rem); line-height: 1.1;
   font-variant-numeric: tabular-nums;
 }
-/* Uurweer rond de aftrap: context, het oordeel rekent met de hele dag */
-.hours {
-  width: 100%; max-width: 1180px; margin: 0 auto;
-  padding: 0 clamp(var(--s-2), 3vw, var(--s-7)) var(--s-4);
+.conditions dd small { display: block; margin-top: 2px; font-family: var(--f-ui); font-size: .78rem; color: var(--ink-3); }
+
+.noppen { max-width: 46ch; margin-top: var(--s-3); font-family: var(--f-hand); font-size: 1.2rem; line-height: 1.2; }
+
+/* "Waarom?": het uurverslag en de weging, dichtgeklapt */
+.waarom { margin-top: var(--s-3); }
+.waarom summary {
+  display: inline-flex; align-items: center; gap: 4px;
+  min-height: 44px;
+  font-weight: 600; font-size: .95rem; color: var(--ink-2);
+  cursor: pointer; list-style: none;
+  text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px;
+  text-decoration-color: rgb(43 26 16 / .35);
 }
+.waarom summary::-webkit-details-marker { display: none; }
+.waarom summary .ic { transition: transform var(--d-2) var(--ease-out); }
+.waarom[open] summary .ic { transform: rotate(180deg); }
+.waarom summary:hover { color: var(--ink); }
 .hours-title {
-  margin-bottom: var(--s-2); text-align: center;
-  font-size: .78rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--cream-2);
+  margin-top: var(--s-4);
+  font-size: .78rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3);
 }
-.hours-table {
-  width: 100%; max-width: 640px; margin: 0 auto;
-  border-collapse: collapse; font-size: .88rem; font-variant-numeric: tabular-nums;
-}
+.uren { list-style: none; display: grid; gap: 6px; margin-top: var(--s-2); padding: 0; }
+.uren li { display: grid; grid-template-columns: 3.4rem minmax(0, 1fr); gap: var(--s-3); align-items: baseline; font-size: .95rem; color: var(--ink-2); }
+.uren time { font-family: var(--f-display); font-size: 1.05rem; color: var(--ink); font-variant-numeric: tabular-nums; }
+.hours-scroll { margin-top: var(--s-3); overflow-x: auto; }
+.hours-table { width: 100%; border-collapse: collapse; font-size: .85rem; font-variant-numeric: tabular-nums; }
 .hours-table th, .hours-table td { padding: 4px 5px; text-align: center; white-space: nowrap; }
-.hours-table th[scope="row"] { text-align: left; font-weight: 500; color: var(--cream-2); white-space: normal; }
-.hours-table thead th { font-weight: 600; color: var(--cream-2); }
-.hours-table .is-kickoff { color: var(--gold-hi); background: rgb(242 197 95 / .12); }
-.conditions dd small {
-  display: block; margin-top: 4px;
-  font-family: var(--f-ui); font-size: .78rem; color: var(--cream-2); text-shadow: none;
-}
+.hours-table th[scope="row"] { text-align: left; font-weight: 500; color: var(--ink-2); white-space: normal; }
+.hours-table thead th { font-weight: 600; color: var(--ink-2); }
+.hours-table .is-kickoff { background: rgb(43 26 16 / .1); font-weight: 600; color: var(--ink); }
 
 /* Keuringsrapport op perkament */
 .rapport {
@@ -918,6 +1060,10 @@ h1, h2, h3 { font-weight: 400; }
 .stuit-drop:hover, .btn-tiny:hover { background: #fff6e2; }
 .stuit-drop:active, .btn-tiny:active { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
 .stuit figcaption { margin-top: var(--s-3); font-size: .95rem; color: var(--ink-2); }
+/* Klapt "Waarom?" open, dan loopt de stuitproef mee in plaats van een lege kolom achter te laten. */
+@media (min-width: 901px) {
+  .stuit { position: sticky; top: var(--s-5); }
+}
 .stuit-tip { font-family: var(--f-hand); font-size: 1.05rem; color: var(--ink-3); }
 
 .verslag .fun {
@@ -961,21 +1107,6 @@ h1, h2, h3 { font-weight: 400; }
 .w-omhoog .w-dir .ic { color: var(--red-ink); }
 .w-omlaag .w-dir .ic { color: var(--green-ink); }
 
-.share-box {
-  grid-column: 1 / -1;
-  padding-top: var(--s-5);
-  border-top: 2px dashed rgb(43 26 16 / .35);
-}
-.share-box h3 {
-  font-size: .78rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
-  color: var(--ink-3);
-}
-.share-strip {
-  display: grid; grid-template-columns: minmax(0, 1fr) auto;
-  gap: var(--s-4) var(--s-5); align-items: center;
-  margin-top: var(--s-3);
-}
-.share-strip .share-row { margin-top: 0; flex-wrap: nowrap; }
 .chat-preview {
   display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: var(--s-2) var(--s-3);
   padding: var(--s-3);
@@ -985,7 +1116,7 @@ h1, h2, h3 { font-weight: 400; }
 .bubble {
   max-width: 95%;
   padding: 8px 12px;
-  background: #dcf2c4;
+  background: #dcf2c4; color: var(--ink);
   border: 2px solid var(--ink);
   border-radius: 14px 4px 14px 14px;
   font-size: .97rem; line-height: 1.4;
@@ -999,20 +1130,20 @@ h1, h2, h3 { font-weight: 400; }
   box-shadow: 0 4px 0 var(--ink);
   transition: transform var(--d-1) var(--ease-out), box-shadow var(--d-1) var(--ease-out), background-color var(--d-1) ease;
 }
-.btn-share { flex: 1 1 auto; padding: 10px 20px; background: #2b7337; color: var(--paper-hi); }
-.btn-share:hover { background: #317e3d; }
+.btn-share { flex: 1 1 auto; padding: 10px 20px; background: var(--btn-green); color: var(--paper-hi); }
+.btn-share:hover { background: var(--btn-green-hi); }
 .btn-net { width: 52px; padding: 0; background: var(--paper-hi); color: var(--ink); }
 .btn-net:hover { background: #fff6e2; }
 .btn-share:active, .btn-net:active { transform: translateY(4px); box-shadow: 0 0 0 var(--ink); }
 
 .fineprint { margin-top: var(--s-5); text-align: center; font-size: .82rem; color: var(--ink-3); }
 
-/* Het extraatje */
+/* Extra's voor de speeldag: één tabblad tegelijk */
 .extra {
   display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
   gap: var(--s-5) clamp(var(--s-5), 6vw, var(--s-8));
   max-width: 1180px; margin: 0 auto;
-  padding: clamp(var(--s-7), 7vw, 104px) clamp(var(--s-5), 5vw, var(--s-7)) clamp(var(--s-8), 8vw, 120px);
+  padding: clamp(var(--s-7), 7vw, 104px) clamp(var(--s-5), 5vw, var(--s-7)) clamp(var(--s-7), 6vw, 88px);
   color: var(--cream);
 }
 .extra-head h2 {
@@ -1022,7 +1153,89 @@ h1, h2, h3 { font-weight: 400; }
   text-wrap: balance;
 }
 .extra-head p { max-width: 40ch; margin-top: var(--s-3); color: var(--cream-2); }
+.tabs { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-bottom: var(--s-5); }
+.tabs button {
+  min-height: 46px; padding: 8px 18px;
+  border: 2px solid rgb(243 230 203 / .35); border-radius: 999px;
+  background: none; color: var(--cream);
+  font: inherit; font-weight: 600; cursor: pointer;
+  transition: background-color var(--d-1) ease, color var(--d-1) ease, border-color var(--d-1) ease;
+}
+.tabs button:hover { border-color: var(--gold); }
+.tabs button[aria-selected="true"] { background: var(--gold); color: var(--ink); border-color: var(--ink); }
+.extra-body:focus { outline: none; }
 .extra-body .btn-tiny { margin-top: var(--s-4); }
+.extra-acties { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); margin-top: var(--s-5); }
+.extra-acties .btn-share { flex: 0 1 auto; }
+.extra-acties .btn-tiny { margin-top: 0; }
+.extra-note { max-width: 52ch; margin-top: var(--s-3); font-size: .9rem; color: var(--cream-2); }
+.extra .field label, .slot .field label { color: var(--cream-2); }
+
+/* Het briefje voor het thuisfront */
+.brief-form .field--wide { grid-column: 1 / -1; }
+.brief-form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: end; gap: var(--s-3) var(--s-4); margin-bottom: var(--s-5); }
+.field input[type="range"] {
+  min-height: 46px; padding: 0; border: 0; background: none; box-shadow: none;
+  appearance: auto; accent-color: var(--gold); cursor: pointer;
+}
+.brief {
+  position: relative;
+  max-width: 34rem; padding: var(--s-5);
+  color: var(--ink); background: var(--paper-hi);
+  border: var(--line) solid var(--ink); border-radius: var(--r-hand);
+  box-shadow: 0 5px 0 var(--ink);
+  rotate: -.8deg;
+}
+.brief h3 { font-family: var(--f-display); font-size: 1.5rem; letter-spacing: .08em; text-transform: uppercase; }
+.brief p { max-width: 46ch; margin-top: var(--s-3); line-height: 1.55; }
+.brief .brief-thuis { font-weight: 600; }
+.brief .groet { padding-right: 100px; font-family: var(--f-hand); font-size: 1.5rem; line-height: 1.1; }
+.stempel {
+  position: absolute; right: 14px; bottom: 12px;
+  display: grid; place-items: center;
+  width: 92px; height: 92px;
+  border: 4px double var(--red-ink); border-radius: 50%;
+  font-family: var(--f-display); font-size: .7rem; line-height: 1.05; letter-spacing: .04em; text-transform: uppercase; text-align: center;
+  color: var(--red-ink);
+  rotate: 14deg;
+}
+
+/* Wie vlagt er? */
+.klussen-week { font-family: var(--f-hand); font-size: 1.5rem; line-height: 1.1; color: var(--gold-hi); }
+.klussen { margin-top: var(--s-3); }
+.klussen > div {
+  display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: var(--s-4); align-items: baseline;
+  padding: var(--s-3) 0;
+  border-top: 1px solid rgb(243 230 203 / .14);
+  font-size: 1.1rem;
+}
+.klussen > div:last-child { border-bottom: 1px solid rgb(243 230 203 / .14); }
+.klussen dt { font-family: var(--f-display); font-size: 1.25rem; color: var(--gold); }
+
+.smoes {
+  max-width: 24ch;
+  font-family: var(--f-hand); font-size: clamp(1.6rem, 3vw, 2.3rem); line-height: 1.15;
+  color: var(--paper-hi); text-wrap: balance;
+}
+
+/* Slot: de teamlink, het deelbericht, de herinnering, de katermodus */
+.slot {
+  display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: start;
+  gap: var(--s-6) clamp(var(--s-5), 6vw, var(--s-8));
+  max-width: 1180px; margin: 0 auto;
+  padding: clamp(var(--s-6), 5vw, 72px) clamp(var(--s-5), 5vw, var(--s-7)) clamp(var(--s-8), 8vw, 120px);
+  color: var(--cream);
+  border-top: 1px solid rgb(243 230 203 / .14);
+}
+.slot h2 { font-family: var(--f-display); font-size: clamp(1.7rem, 3.2vw, 2.6rem); line-height: 1.04; color: var(--paper-hi); text-wrap: balance; }
+.slot-team > p { max-width: 52ch; margin-top: var(--s-3); color: var(--cream-2); }
+.team-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: var(--s-3); max-width: 34rem; margin-top: var(--s-5); }
+.team-form .btn-share { white-space: nowrap; }
+.slot .slot-note { max-width: 46ch; margin-top: var(--s-2); font-size: .88rem; color: var(--cream-2); }
+.slot-acties { display: grid; gap: var(--s-4); }
+.slot-acties .share-row { margin-top: 0; }
+.duel-stand { font-family: var(--f-hand); font-size: 1.3rem; line-height: 1.2; color: var(--gold-hi); }
+.saved .duel-stand { flex: 1 1 100%; color: var(--ink); }
 
 .programma { list-style: none; padding: 0; }
 .programma li {
@@ -1036,7 +1249,7 @@ h1, h2, h3 { font-weight: 400; }
 
 .tas { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-2); }
 .tas li { position: relative; }
-.tas input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.tas input { position: absolute; inset: 0; z-index: 1; opacity: 0; margin: 0; cursor: pointer; }
 .tas label {
   display: inline-flex; align-items: center; gap: 10px;
   min-height: 46px; padding: 8px 18px 8px 12px;
@@ -1176,11 +1389,11 @@ h1, h2, h3 { font-weight: 400; }
 
 /* De deelsticker op de perkamentrol */
 .sticker {
-  position: absolute; z-index: 3; top: -18px; right: -22px;
+  position: absolute; z-index: 3; bottom: -30px; right: -26px;
   display: grid; place-content: center; justify-items: center; gap: 3px;
   width: 108px; height: 108px; padding: 8px;
   border: 3px solid var(--ink); border-radius: 50%;
-  background: #2b7337; color: var(--paper-hi);
+  background: var(--btn-green); color: var(--paper-hi);
   box-shadow: 0 4px 0 var(--ink), 0 10px 22px rgb(16 9 5 / .35);
   font-family: var(--f-display); font-size: .95rem; line-height: 1; text-align: center;
   rotate: 12deg;
@@ -1189,14 +1402,14 @@ h1, h2, h3 { font-weight: 400; }
   transition: scale var(--d-1) var(--ease-out), background-color var(--d-1) ease;
 }
 .sticker .ic { width: 26px; height: 26px; }
-.sticker:hover { background: #317e3d; scale: 1.06; }
+.sticker:hover { background: var(--btn-green-hi); scale: 1.06; }
 .sticker:active { scale: .96; }
 @keyframes wiebel {
   0%, 84%, 100% { rotate: 12deg; }
   87% { rotate: 2deg; } 90% { rotate: 20deg; } 93% { rotate: 7deg; } 96% { rotate: 14deg; }
 }
 
-.field-hint { font-family: var(--f-hand); font-size: 1.05rem; line-height: 1.15; color: var(--red-ink); }
+.field-hint { font-family: var(--f-hand); font-size: 1.05rem; line-height: 1.15; color: var(--ink-2); }
 
 html.balbezit, html.balbezit body, html.balbezit a, html.balbezit button, html.balbezit summary {
   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Ccircle cx='14' cy='14' r='12' fill='%23fbfaf4' stroke='%232b1a10' stroke-width='2'/%3E%3Cpath d='M14 9l4.8 3.5-1.8 5.6h-6l-1.8-5.6z' fill='%232b1a10'/%3E%3Cpath d='M14 9V3M18.8 12.5l5.4-2M17 18.1l3.4 4.6M11 18.1l-3.4 4.6M9.2 12.5l-5.4-2' stroke='%232b1a10' stroke-width='1.6'/%3E%3C/svg%3E") 14 14, pointer;
@@ -1255,7 +1468,8 @@ html.balbezit, html.balbezit body, html.balbezit a, html.balbezit button, html.b
   color: var(--cream-2); text-align: center; font-size: .92rem;
 }
 .site-footer img { width: 132px; height: auto; opacity: .9; }
-.site-footer nav { display: flex; gap: var(--s-5); }
+.site-footer nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 0 var(--s-3); }
+.site-footer nav a { display: inline-block; padding: 11px 8px; }
 .site-footer a { color: var(--cream); text-decoration-color: rgb(243 230 203 / .3); text-underline-offset: 3px; }
 .site-footer a:hover { color: var(--gold-hi); }
 .site-footer .credit { font-size: .8rem; opacity: .7; }
@@ -1264,6 +1478,8 @@ html.balbezit, html.balbezit body, html.balbezit a, html.balbezit button, html.b
 
 .doc { --ar: 1.79167; min-height: auto; padding-bottom: var(--s-8); }
 .doc .stage { filter: brightness(.55) saturate(.9); }
+/* De getekende rol in de kantine zou als spook achter de echte rol staan. */
+.doc .stage picture::after { inset: 38% 0 0; background: linear-gradient(transparent, var(--wood-900) 22%); }
 .doc .scroll {
   --bx: clamp(38px, 6vw, 70px);
   z-index: 2;
@@ -1282,7 +1498,7 @@ html.balbezit, html.balbezit body, html.balbezit a, html.balbezit button, html.b
 .doc .scroll a { color: var(--red-ink); text-underline-offset: 3px; }
 .doc .doc-links { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-2); }
 .doc .scroll .doc-links a {
-  display: inline-block; padding: 6px 12px; border: 2px solid var(--ink); border-radius: 999px;
+  display: inline-block; padding: 10px 14px; border: 2px solid var(--ink); border-radius: 999px;
   color: var(--ink); text-decoration: none; font-weight: 500; background: var(--paper-hi);
 }
 .doc .scroll .doc-links a:hover { background: var(--gold-hi); }
@@ -1304,7 +1520,7 @@ html.balbezit, html.balbezit body, html.balbezit a, html.balbezit button, html.b
   }
   .scroll--form h1 { font-size: clamp(1.75rem, 8.2cqw, 2.6rem); }
   .lede { font-size: .95rem; }
-  .topnav a:first-child { display: none; }
+  .topnav a { padding: 10px 11px; font-size: .88rem; }
 }
 
 @media (orientation: portrait) and (max-width: 640px) {
@@ -1313,7 +1529,7 @@ html.balbezit, html.balbezit body, html.balbezit a, html.balbezit button, html.b
     grid-template-areas:
       "city city"
       "date date"
-      "home away"
+      "teams teams"
       "veld veld"
       "cta cta"
       "remember remember"
@@ -1322,26 +1538,19 @@ html.balbezit, html.balbezit body, html.balbezit a, html.balbezit button, html.b
   }
   .manual-grid { grid-template-columns: 1fr 1fr; }
   .manual-grid .field:first-child { grid-column: 1 / -1; }
-  .sticker { width: 80px; height: 80px; top: -84px; right: 2px; font-size: .78rem; }
+  .sticker { width: 78px; height: 78px; bottom: -34px; right: 0; font-size: .76rem; }
   .sticker .ic { width: 20px; height: 20px; }
 }
 
-@media (max-width: 1100px) {
-  .share-strip { grid-template-columns: 1fr; }
-  .share-strip .share-row { flex-wrap: wrap; }
-}
-
 @media (max-width: 900px) {
-  .reken-lede, .reken-grid, .deelband-inner, .rapport-grid, .extra { grid-template-columns: 1fr; }
+  /* minmax(0, ...): een brede tabel of knop mag de kolom niet oprekken tot voorbij het scherm. */
+  .reken-lede, .reken-grid, .deelband-inner, .rapport-grid, .extra, .consuls, .slot { grid-template-columns: minmax(0, 1fr); }
   .appgroep { position: static; rotate: -.6deg; }
   .appgroep-log { min-height: 0; }
   .deelband h2 { grid-row: auto; }
 }
 
 @media (max-width: 640px) {
-  .conditions { grid-template-columns: 1fr 1fr; }
-  .conditions > div:nth-child(3) { border-left: 0; }
-  .conditions > div:nth-child(n + 3) { border-top: 1px solid rgb(243 230 203 / .14); }
   .stuit-frame { aspect-ratio: 4 / 3; }
   .weights li { grid-template-columns: minmax(0, 1fr) auto; }
   .weights .bar { grid-column: 1 / -1; grid-row: 2; }
@@ -1360,20 +1569,122 @@ html.balbezit, html.balbezit body, html.balbezit a, html.balbezit button, html.b
   .scene { --sw: max(100cqw, 640px * var(--ar)); }
 }
 
+/* Telefoon: teams en elftal zitten achter een knop, zodat "Is het al afgelast?" boven de vouw blijft. */
+@media (orientation: portrait) and (max-width: 640px) {
+  .check-form:not(.show-teams) .teams { display: none; }
+  .check-form:not(.show-teams) .teams-toggle { display: inline-flex; }
+}
+
 /* Lage telefoons: teamvelden achter een knop en minder lucht, zodat de
    knop "Is het al afgelast?" boven de vouw blijft. */
 @media (orientation: portrait) and (max-width: 640px) and (max-height: 760px) {
   .check-form { gap: var(--s-2); }
-  .check-form:not(.show-teams) {
-    grid-template-areas: "city city" "date date" "teams teams" "veld veld" "cta cta" "remember remember" "manual manual";
-  }
-  .check-form:not(.show-teams) .field--home, .check-form:not(.show-teams) .field--away { display: none; }
-  .check-form:not(.show-teams) .teams-toggle { display: inline-flex; }
   .lede { margin-top: var(--s-1); font-size: .86rem; line-height: 1.3; }
   .check-form { margin-top: var(--s-3); }
   .field { gap: 3px; }
   .seg { min-height: 44px; }
   .btn-cta { min-height: 48px; }
+}
+
+
+/* ═══════════ Katermodus ═══════════
+   Zondag 07:40, één oog open: donker scherm, één woord, niets dat beweegt. */
+
+.kater {
+  display: grid; align-content: center; justify-items: start; gap: var(--s-4);
+  min-height: 100svh;
+  padding: max(var(--s-6), env(safe-area-inset-top)) clamp(var(--s-5), 8vw, 120px) max(var(--s-6), env(safe-area-inset-bottom));
+  background: var(--night); color: #b8a585;
+}
+.kater * { animation: none !important; transition: none !important; }
+.kater-wed { color: #94826a; }
+.kater-word {
+  font-family: var(--f-display);
+  font-size: clamp(3.4rem, 17vw, 10rem); line-height: .92; text-transform: uppercase;
+  color: #d9c7a0; text-wrap: balance;
+}
+.kater-word:focus { outline: none; box-shadow: none; }
+.kater-line { font-size: clamp(1.2rem, 3.6vw, 1.7rem); font-weight: 500; }
+.kater .share-row { margin-top: var(--s-4); }
+.kater .btn-share { flex: 0 1 auto; background: #1f4d28; color: #d9c7a0; border-color: #050302; box-shadow: none; }
+.kater-more {
+  min-height: 44px; padding: 0; border: 0; background: none; cursor: pointer;
+  font: inherit; font-weight: 600; color: #b8a585;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.kater-note { max-width: 40ch; font-size: .82rem; color: #94826a; }
+
+/* ═══════════ Kleine onderdelen ═══════════ */
+
+/* Tippen tegen Henk, tijdens de keuring */
+.tip { margin-top: var(--s-4); }
+.tip p { font-family: var(--f-hand); font-size: 1.4rem; line-height: 1.15; color: var(--gold-hi); }
+.tip-btns { display: flex; justify-content: center; gap: var(--s-3); margin-top: var(--s-2); }
+.tip .btn-tiny { min-height: 46px; padding: 8px 20px; }
+
+/* Onthouden wedstrijd met het antwoord erbij, het duel en de zomerstop */
+.saved-now { flex: 1 1 100%; font-weight: 600; }
+.saved-now strong { margin-right: 6px; font-family: var(--f-display); font-weight: 400; font-size: 1.5rem; font-variant-numeric: tabular-nums; }
+.duel-btns { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-3); }
+.seizoen { margin-top: var(--s-3); text-align: center; font-family: var(--f-hand); font-size: 1.25rem; line-height: 1.2; }
+
+/* Zoekplaatje: teller onder de rol */
+.zoek {
+  position: relative; z-index: 2;
+  display: flex; align-items: center; gap: 8px;
+  min-height: 44px; margin: calc(-1 * var(--s-3)) auto var(--s-6); padding: 8px 16px;
+  border: 0; border-radius: 999px;
+  background: rgb(23 13 8 / .72); color: var(--cream);
+  font: inherit; font-weight: 500; font-size: .9rem; cursor: pointer;
+  transition: background-color var(--d-1) ease;
+}
+.zoek:hover { background: rgb(23 13 8 / .88); }
+.hotspot.is-hint { animation: hint 1.6s var(--ease-out); }
+@keyframes hint {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(255 228 160 / 0); }
+  35% { box-shadow: 0 0 0 4px rgb(255 228 160 / .9); background: rgb(255 228 160 / .25); }
+}
+
+/* De appgroep: peiling, spraakbericht, wazige foto, verwijderd bericht */
+.appgroep-log .poll { display: grid; gap: 4px; min-width: 13rem; }
+.poll strong { font-weight: 600; }
+.poll > span {
+  position: relative; isolation: isolate; overflow: hidden;
+  display: flex; justify-content: space-between; gap: var(--s-3);
+  padding: 3px 8px; border-radius: 6px;
+  background: rgb(43 26 16 / .08);
+  font-size: .88rem; font-variant-numeric: tabular-nums;
+}
+.poll > span::before { content: ""; position: absolute; inset: 0 auto 0 0; z-index: -1; width: calc(var(--n, 0) * 100%); background: rgb(47 94 58 / .3); }
+.voice { display: flex; align-items: center; gap: 8px; min-width: 11rem; color: var(--ink-2); font-size: .82rem; font-variant-numeric: tabular-nums; }
+.voice .ic { width: 18px; height: 18px; color: #2f5e3a; }
+.voice i {
+  flex: 1; height: 18px;
+  background: repeating-linear-gradient(90deg, rgb(43 26 16 / .6) 0 2px, transparent 2px 5px);
+  clip-path: polygon(0 40%, 8% 20%, 15% 45%, 24% 0, 33% 40%, 41% 15%, 50% 45%, 58% 5%, 67% 35%, 75% 25%, 84% 45%, 92% 10%, 100% 40%,
+    100% 60%, 92% 90%, 84% 55%, 75% 75%, 67% 65%, 58% 95%, 50% 55%, 41% 85%, 33% 60%, 24% 100%, 15% 55%, 8% 80%, 0 60%);
+}
+.foto { display: grid; gap: 4px; }
+.foto i {
+  display: block; width: 8.5rem; max-width: 100%; aspect-ratio: 4 / 3; border-radius: 8px;
+  background:
+    radial-gradient(60% 50% at 30% 75%, #6f8f55, transparent),
+    radial-gradient(50% 40% at 75% 65%, #8a8f7a, transparent),
+    linear-gradient(#a9b4b8 35%, #7d8a6a);
+  filter: blur(1.5px);
+}
+.foto small { font-size: .78rem; color: var(--ink-3); }
+.del { display: flex; align-items: center; gap: 6px; font-style: italic; color: var(--ink-3); }
+.del .ic { width: 15px; height: 15px; }
+
+.fineprint a { display: inline-block; margin-block: -10px; padding-block: 10px; color: var(--red-ink); font-weight: 600; text-underline-offset: 3px; }
+
+@media (max-width: 640px) {
+  .teams { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .teams .field--elftal { grid-column: 1 / -1; }
+  .brief-form, .team-form { grid-template-columns: minmax(0, 1fr); }
+  .klimaat-tabel { font-size: .86rem; }
+  .klimaat-tabel th, .klimaat-tabel td { padding: 8px 4px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1384,3 +1695,5 @@ html.balbezit, html.balbezit body, html.balbezit a, html.balbezit button, html.b
   }
   .steps li.is-busy::before { animation: none; border-top-color: var(--gold); }
 }
+
+.is-kater .site-footer { display: none; }

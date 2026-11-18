@@ -2,13 +2,13 @@
 // Alles is puur decoratief (aria-hidden, niet in de tabvolgorde), behalve de
 // teksten zelf: die gaan ook naar een stille aria-live-regio.
 import { drawReferee } from "./stuitproef.js";
+import { GROUPS } from "./teksten.js";
 
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 const live = document.getElementById("egg-live");
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
 
-// Grapjes voor insiders: de keepster in het doel knipoogt naar de vrouwen van
-// EGS'20, het schild en de keepersgrappen naar EGS 6. Wie het weet, die weet het.
+// Grapjes voor ingewijden zitten alleen achter een getypte code (zie onderaan).
 const SHOUTOUT = "Respect voor de dames van '20.";
 const KAMPIOENEN = "Kampioenen! Olé olé olé!";
 const KEEPER = "Beste keeper? Ik noem geen namen.";
@@ -159,87 +159,114 @@ const SPOTS = {
   },
 };
 
+// Wat de kantine roept als je iets aantikt. Hooguit één keepergrap in de hele lijst;
+// grappen voor ingewijden zitten alleen nog achter de getypte codes onderaan.
 const LINES = {
   vaantje: ["Balbezit! Je muis is nu een bal. Klik maar raak.", "Bal weer ingeleverd bij de materiaalman."],
-  tap: ["De tap gaat pas na de wedstrijd open.", "Nee echt. Om half twaalf. Vraag maar aan Gerda.", "Nou, vooruit. Eentje. Proost!"],
+  tap: ["De tap gaat pas na de wedstrijd open.", "Echt. Om half twaalf. Vraag maar aan Gerda.", "Nou, vooruit. Eentje. Proost!"],
   beker: [
     "Kampioen 4e klasse F, seizoen '97. Wordt elke week gepoetst.",
     "Er staat 'Kampioen' op. Daaronder, heel klein: 'van de reserves'.",
     "Niet aankomen. Vingerafdrukken.",
-    "Er is ooit bier uit gedronken. Door een keeper. Handschoenen aan.",
   ],
   huilers: [
-    "Scheids! Dat was HANDS!",
+    "Scheids! Dat was hands!",
     "Ze huilen al sinds de warming-up.",
     "Bij afgelasting verliezen ze in elk geval niet.",
-    "De reservekeeper huilt mee. Uit solidariteit.",
+    "Met tien man begonnen. De elfde staat nog bij de bakker.",
   ],
-  juichers: ["Spitsen. Die juichen ook bij een inworp.", "Ze juichen omdat het doorgaat. Of omdat het bier gratis is."],
+  juichers: ["Spitsen. Die juichen ook bij een inworp.", "Ze juichen omdat het doorgaat. Of omdat de consul een rondje geeft."],
   keepster: [
-    "Nummer 20. Wie het weet, die weet het.",
-    "Staat er al sinds '20. Gaat niet meer weg.",
-    "Houdt alles. Behalve haar mond in de derde helft.",
-    "E.G.S.: Eerst Grijpen, dan Schreeuwen.",
-    "Wacht ze tot het droog wordt? Nee hoor. Ze speelt gewoon.",
+    "Zij staat er altijd als eerste. Ook als het afgelast is.",
+    "Wachten tot het droog wordt? Zij speelt gewoon.",
+    "Ze kijkt of de consul al terugkomt. Hij loopt nog.",
   ],
-  lamp: ["Wie heeft de meterkast weer dichtgedaan?", "Terreinmeester! Stroom!", "Deze lamp is ouder dan de kleedkamers. En doet het beter."],
+  lamp: ["Wie heeft de meterkast weer dichtgedaan?", "Consul! Stroom!", "Deze lamp is ouder dan de kleedkamers en doet het beter."],
   shirt: [
-    "Rugnummer 14. Nooit gewassen. Brengt geluk.",
+    "Rugnummer 14. Nooit gewassen, brengt geluk.",
     "Dit shirt ruikt nog naar de promotie van 2011.",
-    "Gesigneerd door een Leeuwin. Welke? Dat weet de penningmeester niet meer.",
+    "Wie had de was? Dit shirt hangt hier al sinds de winterstop.",
   ],
   fust: [
     "Het fust is leeg. Wie was er gisteren?",
     "Hier zit de kas van de feestcommissie in. Geloof ik.",
-    "Leeggedronken op een kampioensfeest. In één helft.",
+    "Leeggedronken op een kampioensfeest, in één helft.",
   ],
   plaquette: [
-    "EGS 6. Kampioen. Meer zeggen we niet.",
-    "Een paar hingen na afloop in hun nakie aan de lat. Die hangt nog steeds scheef.",
+    "Kampioen, lang geleden. Het jaartal is weggepoetst.",
     "Drie dagen feest. De tap is er nooit helemaal van hersteld.",
-    "Tegengoals dat seizoen: bijna nul. De keeper zegt: nul.",
-    "Op de kampioensfoto: vier zonder broek. Eén met handschoenen.",
-    "Wordt elke zondag gepoetst. Door de 6.",
+    "Wordt elke week gepoetst, door iemand die er zelf op staat.",
   ],
   prikbord: [
     "Gezocht: speelsters voor Vrouwen 2. Zin moet je zelf meenemen.",
     "Gevonden: één scheenbeschermer. Links. Sinds september.",
-    "Krantenknipsel over de dames van '20. Met drie hartjes erbij.",
-    "Gezocht: derde keeper. Speeltijd gegarandeerd: nul minuten.",
-    "Leeuwinnen kijken in de kantine! Bitterballen van de club.",
+    "Vlagrooster. Elke week dezelfde naam, in een ander handschrift.",
+    "Boetepot, stand: 86 euro. Waarvan 60 van één persoon.",
     "Rooster bardienst: nog niemand. Weer niet.",
   ],
-  keeper: [
-    "Reservekeeper. Valt in als de vaste keeper niet kan. Gebeurt nooit.",
-    "Derde keeper. Draagt vooral de ballentas.",
-    "Warmt al drie seizoenen op. Voor de zekerheid.",
-    "Speelde één keer: toen de vaste keeper op vakantie was. Hij heeft het er nog over.",
-  ],
+  keeper: ["Reservekeeper. Valt in als de vaste keeper niet kan. Dat gebeurt nooit.", "Hij draagt vooral de ballentas."],
   slaper: [
     "Nog vijf minuutjes...",
     "Zzz... nee scheids... die was binnen... zzz",
     "Laat hem. Hij is vandaag koning van het bed.",
-    "Hij droomt dat hij basiskeeper is. Hij is derde keeper.",
+    "Hij droomt dat hij de consul is en alles afkeurt.",
   ],
   ballen: ["Drie ballen kwijt. Wie heeft de netten?", "Waterpolo is ook een sport, toch?", "De wedstrijdbal drijft richting de Noordzee."],
   vlag: ["De hoekvlag gaat er zwemmend vandoor. Succes, vlaggetje."],
-  foto: [
-    "Het elftal van '84. Zelfde snor als Henk.",
-    "Die met de beker is Henk. Toen nog met haar.",
-    "Of is dit de 6, na het kampioenschap? Keeper vooraan, uiteraard.",
-  ],
-  bier: ["Proost op de afgelasting!", "De derde helft begint vroeg vandaag.", "De reservekeeper neemt er twee. Hij hoefde toch niet."],
+  foto: ["Het elftal van '84. Zelfde snor als Henk.", "Die met de beker is Henk. Toen nog met haar."],
+  bier: ["Proost op de afgelasting!", "De derde helft begint vroeg vandaag."],
   pizza: ["Pizza van gisteren. Ontbijt van kampioenen.", "Koolhydraten stapelen voor een wedstrijd die niet doorgaat. Topsport."],
   lampje: ["Lampje uit, dekbed over je hoofd. Telefoon op stil."],
   geit: ["Mèèèh. De geit is als enige altijd op tijd.", "Die geit staat al drie seizoenen in de basis.", "De geit eet de reclameborden op. De sponsor vindt het prima."],
-  kip: ["Tok. Waarom staat er een kip op het veld? Kelderklasse.", "De kip maakt meer loopacties dan onze spits.", "De kip is derde keeper. Vangt meer dan je denkt."],
-  handstand: ["Hij oefent z'n salto voor als hij scoort. Gebeurt nooit.", "Opwarmen, kelderklasse-stijl."],
+  kip: ["Tok. Waarom staat er een kip op het veld? Kelderklasse.", "De kip maakt meer loopacties dan onze spits."],
+  handstand: ["Hij oefent zijn salto voor als hij scoort. Dat gebeurt nooit.", "Opwarmen, kelderklasse-stijl."],
   camera: ["Studio Sport? Nee, de vader van Kevin.", "Alles wordt gefilmd. Ook jouw pass in de sloot.", "Dit filmpje staat over drie jaar op de clubsite."],
-  kaart: ["Rood! Voor de grensrechter. Weer.", "Kaarten uitdelen voor de aftrap. Efficiënt."],
+  kaart: ["Rood, voor de vlagger. Weer.", "Kaarten uitdelen voor de aftrap. Efficiënt."],
   ballon: ["Zo komt de uitploeg aan. Te laat, natuurlijk.", "Met de luchtballon. Parkeren bij het sportpark is ook zo'n gedoe."],
   handdruk: ["Nu nog vrienden. We spreken elkaar om vijf uur in de kantine.", "Fair play. Tot de eerste sliding."],
   hond: ["Woef. Ook de hond heeft een spelerspas.", "De hond haalt alle ballen terug. Beter dan de wissels."],
 };
+
+/* ─────────── zoekplaatje: wat heb je al gevonden? ─────────── */
+
+// Alleen de namen van de gevonden plekjes, in de lokale opslag van dit toestel.
+const ZOEK_KEY = "ishetalafgelast:zoek";
+const ZOEK_IDS = [...new Set(Object.values(SPOTS).flatMap((set) => Object.values(set).flat().map(([id]) => id)))];
+const found = new Set();
+try {
+  const saved = JSON.parse(localStorage.getItem(ZOEK_KEY) || "[]");
+  if (Array.isArray(saved)) for (const id of saved) if (ZOEK_IDS.includes(id)) found.add(id);
+} catch { /* geen opslag: dan tellen we alleen dit bezoek */ }
+
+const zoekBtn = document.getElementById("zoek");
+function showZoek() {
+  if (!zoekBtn) return;
+  zoekBtn.hidden = false;
+  document.getElementById("zoek-label").textContent = found.size === ZOEK_IDS.length
+    ? `Zoekplaatje: alle ${ZOEK_IDS.length} gevonden`
+    : `Zoekplaatje: ${found.size} van de ${ZOEK_IDS.length} gevonden`;
+}
+function markFound(id) {
+  if (found.has(id) || !ZOEK_IDS.includes(id)) return;
+  found.add(id);
+  try { localStorage.setItem(ZOEK_KEY, JSON.stringify([...found])); } catch { /* idem */ }
+  showZoek();
+}
+showZoek();
+// Een tik op de teller wijst één plekje aan dat je nog mist.
+zoekBtn?.addEventListener("click", () => {
+  const r = zoekBtn.getBoundingClientRect();
+  const open = [...document.querySelectorAll("#view-home .hotspot")].filter((b) => b.offsetParent && !found.has(b.dataset.egg));
+  if (!open.length) {
+    say(found.size === ZOEK_IDS.length ? "Alles gevonden. Henk is onder de indruk." : "Hier is alles gevonden. De rest zit in de uitslag.", r.left + r.width / 2, r.top);
+    return;
+  }
+  const hint = pick(open);
+  hint.classList.remove("is-hint");
+  void hint.offsetWidth;
+  hint.classList.add("is-hint");
+  say("Daar ergens. Tik er maar op.", r.left + r.width / 2, r.top);
+});
 
 const counts = {};
 function next(id) {
@@ -257,6 +284,7 @@ function blackout(stage) {
 
 function act(id, el, x, y) {
   const { text, n } = next(id);
+  markFound(id);
   if (id === "vaantje") {
     const on = toggleBalbezit();
     say(on ? LINES.vaantje[0] : LINES.vaantje[1], x, y);
@@ -386,88 +414,64 @@ addEventListener("keydown", (e) => {
 
 /* ─────────── appgroep op de homepage ─────────── */
 
-// Elke bezoeker zit in één van twee appgroepen. De chat tijdens de veldkeuring
-// komt uit dezelfde groep.
-const GROUPS = [
-  {
-    name: "Zondag 7 (de echte)",
-    av: "Z7",
-    intro: [
-      ["Jeroen", "Gaat het door vandaag??", "07:58"],
-      ["Trainer Ad", "Wacht op de scheids.", "08:02"],
-      ["Dennis (keeper)", "Mijn handschoenen liggen nog bij m'n schoonvader.", "08:05"],
-      ["Kevin", "Ik ben eerlijk gezegd nog een beetje brak.", "08:11"],
-      ["Rinus (grensrechter)", "Vroeger speelden we gewoon door. Ook met sneeuw.", "08:24"],
-    ],
-    typing: ["Kevin", "Jeroen", "Trainer Ad", "Rinus", "Dennis"],
-    gezeur: [
-      ["Sander", "Ik heb m'n sleutels in de kleedkamer laten liggen. Van vorige week."],
-      ["Trainer Ad", "Wie neemt de sinaasappels mee?"],
-      ["Kevin", "Ik zit nog in de stad. Is dat erg?"],
-      ["Mo", "Bij ons in de straat ligt sneeuw. Eén vlokje maar."],
-      ["Dennis (keeper)", "Handschoenen gevonden. In de vriezer. Lang verhaal."],
-      ["Rinus (grensrechter)", "Ik neem de vlag mee. En m'n thermosfles."],
-      ["Dennis (keeper)", "Als ik niet kan, staat de derde keeper. Dat is Kevin. Succes allemaal."],
-      ["Jeroen", "Gaat het nou door of niet??"],
-      ["Bas", "Mijn moeder vraagt of ze moet rijden."],
-      ["Trainer Ad", "Iedereen om 09:15 bij de kantine. Ook Kevin."],
-      ["Kevin", "Kevin heeft de groep verlaten."],
-    ],
-    keuring: [
-      ["Jeroen", "gaat het door??"],
-      ["Trainer Ad", "niemand gaat naar huis voor de scheids er is"],
-      ["Kevin", "ik lig nog in bed, hou me op de hoogte"],
-      ["Dennis (keeper)", "mijn handschoenen zijn nog nat van vorige week"],
-      ["Rinus", "vroeger speelden we gewoon door"],
-      ["Bas", "wie heeft de sleutel van het materiaalhok?"],
-      ["Mo", "het regent hier niet. wel een beetje. best veel eigenlijk"],
-      ["Sander", "ik neem wel de bitterballen mee"],
-    ],
-  },
-  {
-    name: "Vrouwen 2 (de gezelligste)",
-    av: "V2",
-    intro: [
-      ["Lotte", "Gaat het door vandaag??", "07:58"],
-      ["Trainer Mirjam", "Wacht op de scheids. Warming-up om 11:15, niet om 11:25.", "08:02"],
-      ["Daphne (keeper)", "Mijn handschoenen liggen nog in de auto van m'n zus.", "08:05"],
-      ["Fleur", "Ik ben eerlijk gezegd nog een beetje brak. Vrijgezellenfeest.", "08:11"],
-      ["Ingrid (leider)", "Vroeger kleedden we ons om in het ballenhok. En we speelden gewoon.", "08:24"],
-    ],
-    typing: ["Fleur", "Lotte", "Trainer Mirjam", "Ingrid", "Daphne"],
-    gezeur: [
-      ["Sanne", "Wie heeft de shirts? O wacht. Die liggen al twee weken in mijn wasmand."],
-      ["Trainer Mirjam", "Wie neemt de sinaasappels mee?"],
-      ["Esmee", "Heeft iemand een haarelastiekje over? Vraag voor een vriendin. Ik ben de vriendin."],
-      ["Yasmina", "Bij ons in de straat ligt sneeuw. Eén vlokje maar."],
-      ["Ingrid (leider)", "De JO17 heeft ons veld weer ingepikt. We spelen op veld 4, achter de kantine."],
-      ["Daphne (keeper)", "Handschoenen gevonden. In de vriezer. Lang verhaal."],
-      ["Lotte", "Gaat het nou door of niet??"],
-      ["Romy", "Gaat het niet door? Dan kijken we bij de dames van '20."],
-      ["Romy", "Mijn vriend vraagt of hij moet rijden."],
-      ["Trainer Mirjam", "Iedereen om 11:15 bij de kantine. Ook Fleur."],
-      ["Fleur", "Fleur heeft de groep verlaten."],
-    ],
-    keuring: [
-      ["Lotte", "gaat het door??"],
-      ["Trainer Mirjam", "niemand gaat naar huis voor de scheids er is"],
-      ["Fleur", "ik lig nog in bed, hou me op de hoogte"],
-      ["Daphne (keeper)", "mijn handschoenen zijn nog nat van vorige week"],
-      ["Ingrid (leider)", "vroeger speelden we altijd op veld 4. nu eigenlijk ook nog"],
-      ["Sanne", "wie heeft de sleutel van het materiaalhok?"],
-      ["Yasmina", "het regent hier niet. wel een beetje. best veel eigenlijk"],
-      ["Romy", "ik neem wel de bitterballen mee"],
-    ],
-  },
-];
-export const appgroep = pick(GROUPS);
+// Elke bezoeker zit in één appgroep; wie zijn elftal invult, komt in de groep die erbij past.
+// De chat tijdens de veldkeuring komt uit dezelfde groep.
+export let appgroep = pick(GROUPS);
 let gezeurI = 0;
 
+const el = (tag, props, ...kids) => {
+  const node = Object.assign(document.createElement(tag), props);
+  node.append(...kids);
+  return node;
+};
+function icon(href) {
+  const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  s.setAttribute("class", "ic");
+  s.setAttribute("aria-hidden", "true");
+  const u = document.createElementNS("http://www.w3.org/2000/svg", "use");
+  u.setAttribute("href", href);
+  s.append(u);
+  return s;
+}
+
+/** Een bericht is tekst, of een voorwerp: peiling, spraakbericht, foto, verwijderd bericht. */
+function chatBody(msg) {
+  if (typeof msg === "string") return msg;
+  if (msg.poll) {
+    const max = Math.max(...msg.opts.map(([, n]) => n));
+    return el("span", { className: "poll" }, el("strong", { textContent: msg.poll }), ...msg.opts.map(([label, n]) => {
+      const row = el("span", {}, label, el("small", { textContent: n }));
+      row.style.setProperty("--n", (n / max).toFixed(2));
+      return row;
+    }));
+  }
+  if (msg.voice) return el("span", { className: "voice" }, icon("#i-mic"), el("i", {}), msg.voice);
+  if (msg.foto) return el("span", { className: "foto" }, el("i", {}), el("small", { textContent: `Foto: ${msg.foto}` }));
+  return el("span", { className: "del" }, icon("#i-ban"), "Dit bericht is verwijderd");
+}
+
 function chatLine(who, msg, time) {
-  const li = document.createElement("li");
-  li.append(Object.assign(document.createElement("b"), { textContent: who }), msg,
-    Object.assign(document.createElement("time"), { textContent: time }));
-  return li;
+  if (msg.sys) return el("li", { className: "sys", textContent: msg.sys });
+  return el("li", {}, el("b", { textContent: who }), chatBody(msg), el("time", { textContent: time }));
+}
+
+function renderAppgroep() {
+  const log = document.getElementById("appgroep-log");
+  const typing = document.getElementById("appgroep-typing");
+  if (!log || !typing) return;
+  const top = typing.closest(".appgroep-top");
+  top.querySelector(".appgroep-av").textContent = appgroep.av;
+  top.querySelector("strong").textContent = appgroep.name;
+  typing.textContent = `${appgroep.typing[0]} is aan het typen...`;
+  log.replaceChildren(...appgroep.intro.map((line) => chatLine(...line)), log.querySelector(".me"));
+  gezeurI = 0;
+}
+
+/** Wissel naar de appgroep die bij het elftal past (index in GROUPS). */
+export function kiesAppgroep(i) {
+  if (!GROUPS[i] || GROUPS[i] === appgroep) return;
+  appgroep = GROUPS[i];
+  renderAppgroep();
 }
 
 export function mountAppgroep() {
@@ -475,32 +479,18 @@ export function mountAppgroep() {
   const btn = document.getElementById("appgroep-more");
   const typing = document.getElementById("appgroep-typing");
   if (!log || !btn) return;
-  const { name, av, intro, typing: names, gezeur } = appgroep;
-  const top = typing.closest(".appgroep-top");
-  top.querySelector(".appgroep-av").textContent = av;
-  top.querySelector("strong").textContent = name;
-  typing.textContent = `${names[0]} is aan het typen...`;
-  const me = log.querySelector(".me");
-  log.replaceChildren(...intro.map((line) => chatLine(...line)), me);
+  renderAppgroep();
   let ni = 0;
   setInterval(() => {
     if (document.hidden) return;
-    ni = (ni + 1) % names.length;
-    typing.textContent = `${names[ni]} is aan het typen...`;
+    ni = (ni + 1) % appgroep.typing.length;
+    typing.textContent = `${appgroep.typing[ni]} is aan het typen...`;
   }, 2600);
   btn.addEventListener("click", () => {
-    const [who, msg] = gezeur[gezeurI++ % gezeur.length];
-    const now = new Date();
-    let li;
-    if (msg.endsWith("verlaten.")) {
-      li = document.createElement("li");
-      li.className = "sys";
-      li.textContent = msg;
-    } else {
-      li = chatLine(who, msg, now.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" }));
-    }
+    const [who, msg] = appgroep.gezeur[gezeurI++ % appgroep.gezeur.length];
+    const li = chatLine(who, msg, new Date().toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" }));
     li.classList.add("is-new");
-    log.insertBefore(li, me);
+    log.insertBefore(li, log.querySelector(".me"));
     while (log.children.length > 8) log.firstElementChild.remove();
   });
 }
