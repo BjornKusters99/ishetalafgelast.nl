@@ -2,6 +2,10 @@ import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
 import test from "node:test";
 import vm from "node:vm";
+import { dagFromParam, dagToParam, nextMatchDay, validElftal } from "../js/team.js";
+
+// De teamhelpers wonen in js/team.js; de uitgesneden stukken van app.js krijgen de echte functies mee.
+const teamHelpers = { dagFromParam, dagToParam, nextMatchDay, validElftal };
 
 const model = await readFile(new URL("../js/model.js", import.meta.url), "utf8");
 const engine = await readFile(new URL("../js/engine.js", import.meta.url), "utf8");
@@ -120,7 +124,7 @@ test("geocoding a label with a province picks the place in that province", async
 });
 
 function appForm(city, picked = new Map()) {
-  const context = vm.createContext({ URLSearchParams, Number, $: () => ({ open: false, value: "" }), picked,
+  const context = vm.createContext({ ...teamHelpers, URLSearchParams, Number, $: () => ({ open: false, value: "" }), picked,
     cityInput: { value: city }, dateInput: { value: DATE }, form: { elements: { veld: { value: "natuurgras" } } } });
   const readForm = app.slice(app.indexOf("function readForm()"), app.indexOf("function fillForm("));
   const params = app.slice(app.indexOf("const VELD_PARAM"), app.indexOf("const shareUrl"));
@@ -144,9 +148,9 @@ test("shared coordinates outside the Netherlands or incomplete are ignored", () 
 });
 
 test("form and shared links use the same numeric limits", () => {
-  const values = { "#manual": { open: true, dataset: {} }, "#home": { value: "Team" }, "#away": { value: "Uit" }, "#kickoff": { value: "14:00" },
+  const values = { "#manual": { open: true, dataset: {} }, "#home": { value: "Team" }, "#away": { value: "Uit" }, "#kickoff": { value: "14:00" }, "#elftal": { value: "" },
     "#m-temp": { value: "999" }, "#m-precip": { value: "-5" }, "#m-wind": { value: "999" } };
-  const context = vm.createContext({ URLSearchParams, Number, $: (selector) => values[selector], picked: new Map(),
+  const context = vm.createContext({ ...teamHelpers, URLSearchParams, Number, $: (selector) => values[selector], picked: new Map(),
     cityInput: { value: "Oss" }, dateInput: { value: DATE }, form: { elements: { veld: { value: "natuurgras" } } } });
   const readForm = app.slice(app.indexOf("function readForm()"), app.indexOf("function fillForm("));
   const params = app.slice(app.indexOf("function fromParams("), app.indexOf("const shareUrl"));
@@ -156,8 +160,8 @@ test("form and shared links use the same numeric limits", () => {
 });
 
 test("a weather block opened only as a hint does not replace the forecast", () => {
-  const values = { "#manual": { open: true, dataset: { auto: "1" } }, "#home": { value: "" }, "#away": { value: "" }, "#kickoff": { value: "14:00" } };
-  const context = vm.createContext({ URLSearchParams, Number, $: (selector) => values[selector], picked: new Map(),
+  const values = { "#manual": { open: true, dataset: { auto: "1" } }, "#home": { value: "" }, "#away": { value: "" }, "#kickoff": { value: "14:00" }, "#elftal": { value: "" } };
+  const context = vm.createContext({ ...teamHelpers, URLSearchParams, Number, $: (selector) => values[selector], picked: new Map(),
     cityInput: { value: "Oss" }, dateInput: { value: DATE }, form: { elements: { veld: { value: "natuurgras" } } } });
   const readForm = app.slice(app.indexOf("function readForm()"), app.indexOf("function fillForm("));
   vm.runInContext(readForm + ";globalThis.api = {readForm};", context);
@@ -284,7 +288,7 @@ test("every page links our own channels in the footer, not a platform homepage",
 const pages = ["index.html", "404.html", "privacy.html",
   ...(await readdir(new URL("../plaatsen/", import.meta.url))).filter((f) => f.endsWith(".html")).map((f) => `plaatsen/${f}`)];
 // Cloudflare Web Analytics: het beaconscript en zijn meetpunt, zonder cookies.
-const API_HOSTS = ["'self'", "https://cloudflareinsights.com", "https://geocoding-api.open-meteo.com", "https://api.open-meteo.com", "https://archive-api.open-meteo.com"];
+const API_HOSTS = ["'self'", "https://cloudflareinsights.com", "https://geocoding-api.open-meteo.com", "https://api.open-meteo.com", "https://archive-api.open-meteo.com", "https://ensemble-api.open-meteo.com"];
 const SCRIPT_SRC = ["'self'", "'self' https://static.cloudflareinsights.com", "'none'"];
 
 for (const page of pages) {
@@ -381,14 +385,38 @@ test("a shared link carries the probability and moment of the check, within sane
   }
 });
 
-test("kickoff time is validated and only lands in the link when it is not 14:00", () => {
+test("kickoff time is validated, always lands in the link and old links without it read as 14:00", () => {
   const { fromParams, toParams } = appForm("Oss");
   assert.equal(fromParams(new URLSearchParams(`datum=${DATE}&aftrap=10:30`)).kickoff, "10:30");
   for (const bad of ["25:00", "9:30", "10:3", "<b>", ""]) {
     assert.equal(fromParams(new URLSearchParams(`datum=${DATE}&aftrap=${bad}`)).kickoff, "14:00", bad);
   }
-  assert.equal(toParams({ date: DATE, kickoff: "14:00" }).has("aftrap"), false);
+  assert.equal(fromParams(new URLSearchParams(`datum=${DATE}`)).kickoff, "14:00");
+  assert.equal(toParams({ date: DATE, kickoff: "14:00" }).get("aftrap"), "14:00");
   assert.equal(toParams({ date: DATE, kickoff: "10:30" }).get("aftrap"), "10:30");
+});
+
+test("a team link has a weekday instead of a date and opens on the next match day", () => {
+  const { fromParams } = appForm("Oss");
+  const q = fromParams(new URLSearchParams("plaats=Oss&dag=zo&aftrap=10:00&team=DVO 5&elftal=7"));
+  assert.equal(q.teamlink, true);
+  assert.equal(new Date(`${q.date}T12:00:00`).getDay(), 0);
+  const today = new Date();
+  const iso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+  assert.ok(q.date >= iso, q.date);
+  assert.deepEqual([q.team, q.elftal, q.kickoff, q.city], ["DVO 5", "7", "10:00", "Oss"]);
+  assert.equal(fromParams(new URLSearchParams(`datum=${DATE}&plaats=Oss`)).teamlink, false);
+});
+
+test("a team link with an unknown weekday or elftal is ignored", () => {
+  const { fromParams } = appForm("Oss");
+  for (const dag of ["ma", "", "za%20", "6", "__proto__"]) {
+    assert.equal(fromParams(new URLSearchParams(`plaats=Oss&dag=${dag}`)), null, dag);
+  }
+  assert.equal(fromParams(new URLSearchParams("dag=za")), null);
+  for (const elftal of ["10", "0", "x", "__proto__", "toString", ""]) {
+    assert.equal(fromParams(new URLSearchParams(`datum=${DATE}&elftal=${elftal}`)).elftal, "", elftal);
+  }
 });
 
 test("hourly forecast is context: requested from the forecast API and split per day", async () => {
@@ -398,12 +426,14 @@ test("hourly forecast is context: requested from the forecast API and split per 
   const api = engineWith(async (url) => {
     urls.push(new URL(url));
     return { ok: true, json: async () => ({ ...dailyData(), hourly: { time: hourTimes,
-      precipitation: hourTimes.map((_, i) => (i % 24) / 10), precipitation_probability: hourTimes.map(() => 120),
+      temperature_2m: hourTimes.map((_, i) => (i % 24) / 2), precipitation: hourTimes.map((_, i) => (i % 24) / 10), precipitation_probability: hourTimes.map(() => 120),
       wind_gusts_10m: hourTimes.map(() => 44) } }) };
   });
   const weather = await api.fetchWeather(52, 5, DATE);
-  assert.equal(urls[0].searchParams.get("hourly"), "precipitation,precipitation_probability,wind_gusts_10m");
-  assert.deepEqual(JSON.parse(JSON.stringify(weather.hours[14])), { precip: 1.4, prob: null, gust: 44 });
+  assert.equal(urls[0].searchParams.get("hourly"), "temperature_2m,precipitation,precipitation_probability,wind_gusts_10m");
+  assert.deepEqual(JSON.parse(JSON.stringify(weather.hours[14])), { temp: 7, precip: 1.4, prob: null, gust: 44 });
+  assert.equal(weather.series.precipitation_sum.length, 8);
+  assert.deepEqual(Object.keys(weather.series), ["temperature_2m_mean", "temperature_2m_min", "precipitation_sum", "wind_gusts_10m_max"]);
   assert.equal(weather.precip_7d_sum, 28);
 });
 
