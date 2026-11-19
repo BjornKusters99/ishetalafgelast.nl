@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2732 2732" width="2732" height="2732">
+<defs>
+  <radialGradient id="leer" cx="38%" cy="32%" r="75%">
+    <stop offset="0" stop-color="#fffaf0"/><stop offset=".55" stop-color="#f3e6cb"/><stop offset="1" stop-color="#d9bd88"/>
+  </radialGradient>
+  <radialGradient id="licht" cx="50%" cy="42%" r="70%">
+    <stop offset="0" stop-color="#6b4528" stop-opacity=".55"/><stop offset="1" stop-color="#0f0906" stop-opacity=".45"/>
+  </radialGradient>
+  <clipPath id="bal"><circle cx="1383.2884375" cy="1404.41875" r="288.140625"/></clipPath>
+</defs><rect width="2732" height="2732" fill="#21140c"/><ellipse cx="1383.3" cy="1698.3" rx="224.7" ry="28.8" fill="#0f0906" opacity=".5"/>
+<circle cx="1383.2884375" cy="1404.41875" r="288.140625" fill="url(#leer)"/>
+<g clip-path="url(#bal)" stroke="#2b1a10" stroke-width="20.0" stroke-linejoin="round" stroke-linecap="round">
+<path d="M1383.3 1326.6L1383.3 1260.3" fill="none"/>
+<path d="M1383.3 1260.3L1269.8 1248.2" fill="none"/>
+<path d="M1383.3 1260.3L1496.8 1248.2" fill="none"/>
+<path d="M1457.3 1380.4L1520.3 1359.9" fill="none"/>
+<path d="M1520.3 1359.9L1496.8 1248.2" fill="none"/>
+<path d="M1520.3 1359.9L1566.9 1464.1" fill="none"/>
+<path d="M1429.0 1467.4L1468.0 1521.0" fill="none"/>
+<path d="M1468.0 1521.0L1566.9 1464.1" fill="none"/>
+<path d="M1468.0 1521.0L1383.3 1597.5" fill="none"/>
+<path d="M1337.6 1467.4L1298.6 1521.0" fill="none"/>
+<path d="M1298.6 1521.0L1383.3 1597.5" fill="none"/>
+<path d="M1298.6 1521.0L1199.7 1464.1" fill="none"/>
+<path d="M1309.3 1380.4L1246.3 1359.9" fill="none"/>
+<path d="M1246.3 1359.9L1199.7 1464.1" fill="none"/>
+<path d="M1246.3 1359.9L1269.8 1248.2" fill="none"/>
+<polygon points="1496.8,1248.2 1468.5,1161.3 1542.5,1107.5 1616.5,1161.3 1588.2,1248.2" fill="#5a3e2b"/>
+<polygon points="1566.9,1464.1 1640.9,1410.3 1714.9,1464.1 1686.6,1551.1 1595.2,1551.1" fill="#5a3e2b"/>
+<polygon points="1383.3,1597.5 1457.3,1651.2 1429.0,1738.2 1337.6,1738.2 1309.3,1651.2" fill="#5a3e2b"/>
+<polygon points="1199.7,1464.1 1171.4,1551.1 1080.0,1551.1 1051.7,1464.1 1125.7,1410.3" fill="#5a3e2b"/>
+<polygon points="1269.8,1248.2 1178.4,1248.2 1150.1,1161.3 1224.1,1107.5 1298.1,1161.3" fill="#5a3e2b"/>
+<polygon points="1383.3,1326.6 1457.3,1380.4 1429.0,1467.4 1337.6,1467.4 1309.3,1380.4" fill="#5a3e2b"/>
+</g>
+<g clip-path="url(#bal)" fill="#7a4f2c" opacity=".9"><circle cx="1239.2" cy="1462.0" r="20.2"/><circle cx="1504.3" cy="1294.9" r="14.4"/><circle cx="1561.9" cy="1490.9" r="25.9"/></g>
+<path d="M1158.5 1346.8A236.3 236.3 0 0 1 1325.7 1179.7" fill="none" stroke="#fffaf0" stroke-opacity=".7" stroke-width="22.5" stroke-linecap="round"/>
+<circle cx="1383.2884375" cy="1404.41875" r="288.140625" fill="none" stroke="#2b1a10" stroke-width="24.972187499999997"/>
+<path d="M1179.1 1247.2L1539.2 1601.8Q1588.4 1613.7 1577.5 1564.3L1230.2 1197.2Q1169.6 1186.5 1179.1 1247.2Z" fill="#c4392a" stroke="#2b1a10" stroke-width="21.226359374999998" stroke-linejoin="round" paint-order="stroke"/>
+<path d="M1541.7 1208.7L1187.1 1570.6Q1176.1 1616.5 1222.2 1606.2L1589.3 1257.1Q1599.4 1199.6 1541.7 1208.7Z" fill="#c4392a" stroke="#2b1a10" stroke-width="21.226359374999998" stroke-linejoin="round" paint-order="stroke"/>
+<path d="M1243.9 1250.8L1419.0 1422.3" stroke="#e0604c" stroke-width="12.5" stroke-linecap="round" opacity=".8"/>
+<path d="M1529.8 1265.1L1428.0 1368.7" stroke="#e0604c" stroke-width="10.7" stroke-linecap="round" opacity=".8"/>
+<path d="M1025.4 1181.7a50.8 50.8 0 0 1 12.1 -96.8a75.0 75.0 0 0 1 133.1 -38.7a60.5 60.5 0 0 1 111.3 50.8a48.4 48.4 0 0 1 16.9 84.7Z" fill="#b9b2a6" stroke="#2b1a10" stroke-width="19.97775" stroke-linejoin="round"/><path d="M1054.5 1153.9h211.8" stroke="#8f887d" stroke-width="14.0" stroke-linecap="round"/><text x="1161.0" y="1141.7" font-family="Lilita One, Arial Rounded MT Bold, sans-serif" font-size="94.4" text-anchor="middle" fill="#c4392a" stroke="#2b1a10" stroke-width="9.0" paint-order="stroke">?</text><path d="M1083.5 1199.8c-19.4 26.6 -24.2 41.1 0 46.0c24.2 -4.8 19.4 -19.4 0 -46.0Z" fill="#8cc4e6" stroke="#2b1a10" stroke-width="12.0" stroke-linejoin="round"/><path d="M1161.0 1216.8c-19.4 26.6 -24.2 41.1 0 46.0c24.2 -4.8 19.4 -19.4 0 -46.0Z" fill="#8cc4e6" stroke="#2b1a10" stroke-width="12.0" stroke-linejoin="round"/><path d="M1236.0 1199.8c-19.4 26.6 -24.2 41.1 0 46.0c24.2 -4.8 19.4 -19.4 0 -46.0Z" fill="#8cc4e6" stroke="#2b1a10" stroke-width="12.0" stroke-linejoin="round"/>
+</svg>

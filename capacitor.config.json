@@ -1,0 +1,37 @@
+{
+  "appId": "nl.ishetalafgelast.app",
+  "appName": "Afgelast?",
+  "webDir": "_app",
+  "backgroundColor": "#21140c",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#21140c",
+    "preferredContentMode": "mobile",
+    "limitsNavigationsToAppBoundDomains": false
+  },
+  "android": {
+    "backgroundColor": "#21140c",
+    "allowMixedContent": false,
+    "webContentsDebuggingEnabled": false
+  },
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "native",
+      "initialViewportFitValueHint": "cover",
+      "style": "DARK"
+    },
+    "SplashScreen": {
+      "launchShowDuration": 2500,
+      "launchAutoHide": true,
+      "launchFadeOutDuration": 220,
+      "backgroundColor": "#21140c",
+      "showSpinner": false,
+      "splashFullScreen": false,
+      "splashImmersive": false
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_fluit",
+      "iconColor": "#e7ac3c"
+    }
+  }
+}
