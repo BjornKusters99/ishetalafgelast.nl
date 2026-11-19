@@ -96,15 +96,31 @@ teamsToggle.addEventListener("click", () => showTeams(true));
 const dateInput = $("#date");
 dateInput.value = nextMatchDay();
 dateInput.min = new Date(Date.now() - 300 * 864e5).toLocaleDateString("sv-SE");
-// Met muis of trackpad opent een klik op datum of aftrap altijd de kiezer, niet
-// alleen een klik op het icoontje. Een telefoon opent zijn eigen kiezer al.
+// Met muis of trackpad opent een klik op de datum altijd de kalender, niet alleen
+// een klik op het icoontje. Een telefoon opent zijn eigen kiezer al.
 const fijneMuis = matchMedia("(pointer: fine)");
-for (const el of [dateInput, $("#kickoff")]) {
-  el.addEventListener("click", () => {
-    if (!fijneMuis.matches) return;
-    try { el.showPicker?.(); } catch { /* deze browser heeft er geen kiezer voor */ }
-  });
+dateInput.addEventListener("click", () => {
+  if (!fijneMuis.matches) return;
+  try { dateInput.showPicker?.(); } catch { /* deze browser heeft er geen kiezer voor */ }
+});
+
+// De aftrap is een keuzelijst per kwartier: een tijdveld werkt in elke browser anders
+// (Safari op de Mac heeft er geen kiezer voor), een lijst overal hetzelfde.
+const kickoffInput = $("#kickoff");
+const twee = (n) => String(n).padStart(2, "0");
+kickoffInput.replaceChildren(...Array.from({ length: 53 }, (_, i) => {
+  const t = `${twee(8 + Math.floor(i / 4))}:${twee((i % 4) * 15)}`; // 08:00 tot en met 21:00
+  return new Option(t, t);
+}));
+/** Zet de aftrap; een tijd buiten de lijst (uit een link of het geheugen) krijgt er een eigen regel bij. */
+function setKickoff(t) {
+  if (![...kickoffInput.options].some((o) => o.value === t)) {
+    const voor = [...kickoffInput.options].find((o) => o.value > t) || null;
+    kickoffInput.add(new Option(t, t), voor);
+  }
+  kickoffInput.value = t;
 }
+setKickoff("10:00");
 
 // Plaatsnaam-suggesties (Open-Meteo geocoding), licht gedebounced.
 const cityInput = $("#city");
@@ -166,10 +182,10 @@ $("#away").addEventListener("input", teamHint);
 // Het elftal zet de gangbare aftraptijd klaar, tot je zelf een tijd kiest.
 const elftalInput = $("#elftal");
 let kickoffTouched = false;
-$("#kickoff").addEventListener("input", () => { kickoffTouched = true; });
+kickoffInput.addEventListener("change", () => { kickoffTouched = true; });
 elftalInput.addEventListener("change", () => {
   const e = validElftal(elftalInput.value);
-  if (e && !kickoffTouched) $("#kickoff").value = ELFTAL[e].aftrap;
+  if (e && !kickoffTouched) setKickoff(ELFTAL[e].aftrap);
   syncGroep();
 });
 /** De appgroep op de homepage en in de keuring past bij je elftal en speeldag. */
@@ -220,7 +236,7 @@ function readForm() {
 const validKickoff = (v, dflt = "14:00") => (/^([01]\d|2[0-3]):[0-5]\d$/.test(v || "") ? v : dflt);
 
 function fillForm(q) {
-  $("#kickoff").value = validKickoff(q.kickoff);
+  setKickoff(validKickoff(q.kickoff));
   kickoffTouched = true;
   if (q.city) cityInput.value = q.city;
   if (q.city && q.lat != null) picked.set(q.city, { lat: q.lat, lon: q.lon });
