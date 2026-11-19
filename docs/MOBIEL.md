@@ -248,8 +248,10 @@ In de browser met telefoonweergave, WebKit en Chromium, op 390 x 844,
   echte vinger. Nog proberen op een echte iPhone en Android.
 - Een liggende telefoon (844 x 390) krijgt de desktopindeling, met de
   checkknop onder de rand. Dat was al zo en valt buiten deze branch.
-- Op 320 px in proefmodus raakt het menu op twee rijen net het
-  "Kies je opstelling"-bordje. Klein, bewust gelaten.
+- In proefmodus verbergt `lab/plek.css` de menuknop "Opstelling" op de
+  telefoon (het bordje aan het raam vervangt hem), dus het menu blijft op
+  één rij en raakt het bordje niet. Die regel gebruikt
+  `.topnav a.plek-navlink`, anders wint `.topnav a` uit `mobiel.css`.
 
 ## Zelf bekijken op je telefoon
 

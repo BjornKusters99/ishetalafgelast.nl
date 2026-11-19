@@ -159,7 +159,8 @@
 /* ───────── Home: het bordje aan de muur en de menulink ───────── */
 
 .plek-navlink { color: var(--gold-hi); }
-@media (max-width: 640px) { .plek-navlink { display: none; } }
+/* Op de telefoon vervangt het bordje aan het raam deze knop. Specifiek genoeg om `.topnav a` uit mobiel.css te verslaan. */
+@media (max-width: 640px) { .topnav a.plek-navlink { display: none; } }
 
 /* Staat in illustratie-coördinaten, dus altijd op dezelfde plek: liggend op de lege muur
    direct links van het raam, staand (smalle muren) aan het raamkruis boven het doel. */
