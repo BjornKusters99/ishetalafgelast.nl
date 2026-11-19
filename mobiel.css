@@ -28,7 +28,7 @@
   /* ─────────── Home: kop ─────────── */
 
   .topbar { padding-inline: 14px; }
-  /* Het logo krimpt nooit; komt er een derde menuknop bij (proefmodus), dan gaat het menu op twee rijen. */
+  /* Het logo krimpt nooit; komt er een derde menuknop bij, dan gaat het menu op twee rijen. */
   .topbar .brand { flex: none; }
   .brand img { width: 112px; }
   .topnav { flex-wrap: wrap; justify-content: flex-end; }

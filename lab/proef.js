@@ -1,6 +1,6 @@
-// ?proef=1 op de echte site: de gekozen prototypes staan op de plek waar ze zouden wonen
-// (bord, aftrap-blok, extra-tabbladen, slot, homepage), gevoed met de wedstrijd die net is gecheckt.
-// Alleen geladen als de schakelaar aan staat; zonder schakelaar verandert er niets.
+// De onderdelen uit de kleedkamer die live staan, op hun plek op de site (bord, aftrap-blok,
+// extra-tabbladen, slot, homepage, tactiekbord), gevoed met de wedstrijd die net is gecheckt.
+// js/app.js laadt deze module apart, zodat de uitslag er niet op wacht.
 
 import * as kit from "./kit.js";
 import { registerExtra, renderExtra } from "../js/extra.js";
@@ -17,7 +17,6 @@ let ready = null;
 let registered = false;
 let result = null;    // { ctrl, nodes }: wat de uitslag heeft toegevoegd
 let home = null;      // { ctrl, nodes }: wat de homepage heeft toegevoegd
-const bars = [];
 const handled = new WeakSet();
 let gedeeld = null;     // de opstelling uit een deellink: { formatie, namen, posities }
 let gedeeldOpen = false; // het tactiekbord is er al mee geopend
@@ -35,65 +34,23 @@ try {
   }
 } catch { /* geen sessie-opslag: dan is er ook geen link gekomen */ }
 
-/** Stijl en iconen van de kleedkamer één keer binnenhalen. */
+/** De stijl één keer binnenhalen, en wachten tot hij er is: anders staat het bordje even kaal in beeld.
+ *  De iconen staan in de sprite van index.html. */
 async function prepare() {
-  for (const name of CSS) {
-    document.head.append(el("link", { rel: "stylesheet", href: `/lab/${name}.css` }));
-  }
-  try {
-    const html = await (await fetch("/proeftuin.html")).text();
-    const sprite = new DOMParser().parseFromString(html, "text/html").querySelector("svg.sprite");
-    const mine = document.querySelector("svg.sprite");
-    for (const sym of sprite?.querySelectorAll("symbol") || []) {
-      if (!document.getElementById(sym.id)) mine?.append(document.importNode(sym, true));
-    }
-  } catch { /* zonder extra iconen werkt het ook, alleen kaler */ }
-}
-
-const tape = () => el("span", { className: "tape tape--werkt plek-tape", textContent: "Proef" });
-
-/** Dezelfde pagina, zonder de proef. */
-function zonderProef() {
-  const u = new URL(location.href);
-  u.searchParams.delete("proef");
-  return u.href;
-}
-
-/** De schakelaar blijft in de adresbalk staan, ook als de site de URL na een check opnieuw opbouwt. Deel-links blijven schoon. */
-function houProef() {
-  const u = new URL(location.href);
-  if (u.searchParams.get("proef") === "1") return;
-  u.searchParams.set("proef", "1");
-  history.replaceState(history.state, "", u.pathname + u.search + u.hash);
-}
-
-/* ───────── Proefbalk ───────── */
-
-function bar(view) {
-  const uit = el("a", { href: zonderProef(), textContent: "Proef uit" });
-  const node = el("aside", { className: "plek-balk", "aria-label": "Proefversie" },
-    el("p", {}, el("strong", { textContent: "Proef:" }), " wat nieuw is heeft een gele tape."),
-    el("div", { className: "plek-balk-links" }, el("a", { href: "/proeftuin", textContent: "Alle kluisjes" }), uit));
-  view.prepend(node);
-  bars.push(uit);
-}
-
-function ensureBars() {
-  for (const id of ["view-result", "view-home", "view-tactiek"]) {
-    const view = document.getElementById(id);
-    if (view && !view.querySelector(":scope > .plek-balk")) bar(view);
-  }
-  for (const a of bars) a.href = zonderProef();
+  await Promise.all(CSS.map((name) => new Promise((done) => {
+    const link = el("link", { rel: "stylesheet", href: `/lab/${name}.css` });
+    link.addEventListener("load", done, { once: true });
+    link.addEventListener("error", done, { once: true });
+    document.head.append(link);
+  })));
 }
 
 /* ───────── Extra tabbladen ───────── */
 
-/** Een tabblad: de titel krijgt de tape, de inhoud laadt als module en krijgt een eigen signal. */
+/** Een tabblad: de inhoud laadt als module en krijgt een eigen signal. */
 function tab(module, titel, sub, extra = () => ({})) {
   return (ctx, signal) => {
     const stage = el("div", { className: "lab plek-paneel" }, el("p", { className: "lab-laden", textContent: "Even het slot open wrikken..." }));
-    // extra.js zet de titel na dit antwoord als platte tekst; de tape komt er daarna bij.
-    queueMicrotask(() => { if (!signal.aborted) $("#extra-title")?.append(tape()); });
     (async () => {
       try {
         const mod = await import(`./${module}.js`);
@@ -313,7 +270,7 @@ function aftrap(match, { signal, nodes }) {
   const kop = el("h2", { id: "aftrap-title", tabIndex: -1, textContent: "Voor de aftrap" });
   const section = el("section", { id: "aftrap", className: "plek-aftrap" },
     el("div", { className: "plek-aftrap-kop" },
-      el("div", { className: "plek-titel" }, kop, tape()),
+      el("div", { className: "plek-titel" }, kop),
       el("p", { className: "plek-aftrap-sub", textContent: AFTRAP_SUB[match.mood] || AFTRAP_SUB.twijfel })),
     el("div", { className: "plek-aftrap-grid" },
       bordKaart(match, signal),
@@ -377,18 +334,16 @@ async function slot(match, { signal, nodes }) {
   }
 }
 
-/** Na elke uitslag: de proef-onderdelen op hun plek zetten of bijwerken met de nieuwe wedstrijd. */
+/** Na elke uitslag: de onderdelen op hun plek zetten of bijwerken met de nieuwe wedstrijd. */
 export async function show(match) {
   wedstrijd = match;
   const mine = ++run;
-  houProef();
   cleanupResult();
   cleanupHome();
   ready ||= prepare();
   await ready;
   if (mine !== run) return;
 
-  ensureBars();
   register();
   // Namen die op de homepage zijn aangepast, staan alleen in de opslag: neem ze over.
   const opgeslagen = leesNamen();
@@ -464,11 +419,9 @@ function hanger() {
 export async function homeMount() {
   const mine = ++run;
   cleanupHome();
-  houProef();
   ready ||= prepare();
   await ready;
   if (mine !== run) return;
-  ensureBars();
 
   const ctrl = new AbortController();
   home = { ctrl, nodes: [] };
@@ -547,8 +500,7 @@ export async function openTactiek({ push = true, opener = null } = {}) {
     let pas = null;
     const pasMod = await lazy(() => import("./pas.js"));
     if (typeof pasMod?.mountHome === "function") {
-      pas = el("section", { className: "tb-pas", "aria-label": "Jouw spelerspas" },
-        el("div", { className: "plek-thuis-kop" }, tape()), el("div", { className: "lab" }));
+      pas = el("section", { className: "tb-pas", "aria-label": "Jouw spelerspas" }, el("div", { className: "lab" }));
       try { pasMod.mountHome(pas.lastElementChild, { signal, kit }); } catch (err) { console.error(err); pas = null; }
     }
 
@@ -567,9 +519,7 @@ export async function openTactiek({ push = true, opener = null } = {}) {
       terug: () => { if (history.state?.tactiek) history.back(); else sluitTactiek(); },
     });
     klaar = true;
-    // Niet firstElementChild: daar staat na de eerste keer de proefbalk.
     view.querySelector(":scope > .tb-pagina").replaceChildren(...t.delen);
-    ensureBars();
 
     const vorig = ["view-home", "view-result", "view-kater"].map((id) => document.getElementById(id)).filter((v) => v && !v.hidden);
     tactiek = { view, ctrl, vorig, scrollY: window.scrollY, titel: document.title, opener };
@@ -611,5 +561,5 @@ window.addEventListener("popstate", () => {
   else if (open) sluitTactiek();
 });
 
-// Staat de homepage al in beeld als deze module klaar is (rechtstreeks naar /?proef=1)? Dan meteen.
+// Staat de homepage al in beeld als deze module klaar is? Dan meteen.
 if (!$("#view-home")?.hidden) homeMount();

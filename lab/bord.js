@@ -2,6 +2,7 @@
 // achter het hekje, de deelknop-flow en Henk zoals hij naast het bord staat.
 
 import { drawReferee, moodFor } from "../js/stuitproef.js";
+import { origin } from "../js/native.js";
 import { K, laadFonts } from "./deel.js";
 import { FORMATIONS, NAMES, spots } from "./opstelling.js";
 
@@ -73,11 +74,11 @@ export function staatVan({ namen, formatie = "4-4-2", posities = null }) {
 
 /* ───────── Link ───────── */
 
-/** Basis van de link: de wedstrijdlink, of de homepage. proef=1 blijft staan zolang we in de proef zitten. */
+/** Basis van de link: de wedstrijdlink, of de homepage. In de app wijst hij naar de echte site, niet naar capacitor://. */
 export function linkBasis(url) {
   let u;
-  try { u = new URL(url || "/", location.origin); } catch { u = new URL("/", location.origin); }
-  u.searchParams.set("proef", "1");
+  try { u = new URL(url || "/", origin); } catch { u = new URL("/", origin); }
+  if (u.origin !== origin) u = new URL(u.pathname + u.search, origin);
   return `${u.origin}${u.pathname}${u.search}`;
 }
 

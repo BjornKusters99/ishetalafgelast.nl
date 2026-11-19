@@ -536,7 +536,9 @@ const noBeacon = (rt) => rt.fulfill({ contentType: "text/javascript", body: "" }
     const [c2, p2] = await fresh();
     await p2.goto(link());
     await resultReady(p2);
-    ok((await tabs(p2)).join(", ") === "Programma, Briefje", "tabs bij afgelast: " + (await tabs(p2)).join(", "));
+    // Appgroep-bingo komt uit lab/proef.js, dat apart laadt.
+    await p2.waitForFunction(() => [...document.querySelectorAll('[role="tab"]')].some((t) => t.textContent === "Appgroep-bingo"), null, { timeout: 8000 }).catch(() => {});
+    ok((await tabs(p2)).join(", ") === "Programma, Briefje, Appgroep-bingo", "tabs bij afgelast: " + (await tabs(p2)).join(", "));
     await c2.close();
   }
 
@@ -690,6 +692,33 @@ const noBeacon = (rt) => rt.fulfill({ contentType: "text/javascript", body: "" }
       await rp.close();
     }
     await c.close();
+  }
+
+  // Tactiekbord en de rest uit lab/ staan live: zonder schakelaar, zonder proefbalk of tape.
+  {
+    const tb = await ctx.newPage();
+    tb.on("pageerror", (e) => errs.push(e.message));
+    await mock(tb);
+    await tb.goto(BASE + "/", { waitUntil: "networkidle" });
+    await tb.waitForSelector(".plek-hanger", { timeout: 8000 }).catch(() => {});
+    ok(await tb.isVisible(".plek-hanger"), "live: tactiekbordje hangt aan de muur");
+    ok(!(await tb.$(".plek-balk, .plek-tape")), "live: geen proefbalk of tape");
+    await tb.click(".plek-hanger");
+    await tb.waitForSelector("#view-tactiek:not([hidden])", { timeout: 8000 }).catch(() => {});
+    ok(await tb.isVisible("#tactiek-title") && await tb.isHidden("#view-home"), "live: bordje opent het tactiekbord");
+    ok(!/proef/.test(tb.url()), "live: geen proef in de adresbalk");
+    await tb.goBack();
+    await tb.waitForSelector("#view-home:not([hidden])", { timeout: 8000 }).catch(() => {});
+    ok(await tb.isHidden("#view-tactiek") && await tb.isVisible("#view-home"), "live: terug sluit het tactiekbord");
+    const basis = await tb.evaluate(async () => (await import("/lab/bord.js")).linkBasis("/?plaats=Oss"));
+    ok(basis === BASE + "/?plaats=Oss", "live: deellink zonder proef, op de eigen site: " + basis);
+    await tb.click("#manual summary");
+    await tb.fill("#city", "");
+    await tb.fill("#m-temp", "14"); await tb.fill("#m-precip", "0"); await tb.fill("#m-wind", "15");
+    await tb.click("#btn-check");
+    await tb.waitForSelector("#aftrap", { timeout: 8000 }).catch(() => {});
+    ok(await tb.isVisible("#aftrap") && /Voor de aftrap/.test(await tb.textContent("#aftrap-title")), "live: Voor de aftrap onder de uitslag");
+    await tb.close();
   }
 
   for (const path of ["/HANDOVER.md", "/tools/export_model.py", "/docs/security/BEHEER.md", "/docs/IMPLEMENTATIEPLAN.md"]) {

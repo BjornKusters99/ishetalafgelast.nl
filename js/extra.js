@@ -186,7 +186,7 @@ const TABS = {
 };
 
 /**
- * Extra tabbladen van buiten (nu alleen de proef, ?proef=1). Een tabblad krijgt bij elke opening een
+ * Extra tabbladen van buiten (nu Appgroep-bingo uit lab/proef.js). Een tabblad krijgt bij elke opening een
  * eigen AbortSignal; dat stopt zodra je een ander tabblad opent of er een nieuwe uitslag komt.
  * def: { label, moods: ["doorgaat", ...], after?: bestaand id, panel(ctx, signal) -> [title, sub, kids] }.
  */
