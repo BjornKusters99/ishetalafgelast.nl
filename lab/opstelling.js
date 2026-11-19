@@ -179,7 +179,7 @@ function build(root, { signal, kit, wedstrijd }, { names, invallers, save, fille
     }
     sel = sel === p ? null : p;
     layout();
-    if (sel) live.textContent = sel.bench ? `${p.name} gekozen. Kies nu een veldspeler om te wisselen.` : `${p.name} gekozen.`;
+    if (sel) live.textContent = sel.bench ? `${p.name} gekozen. Wijzig de naam, of kies een veldspeler om te wisselen.` : `${p.name} gekozen. Wijzig de naam onder de bank.`;
   }
 
   /* ───────── Slepen en pijltjes ───────── */
@@ -231,10 +231,23 @@ function build(root, { signal, kit, wedstrijd }, { names, invallers, save, fille
     return { f, btn };
   });
 
-  const nameInput = el("input", { type: "text", maxLength: MAXLEN, autocomplete: "off", disabled: true, placeholder: "Kies eerst een speler" });
-  const nameLabel = el("label", { className: "lab-veld os-edit" }, el("span", { textContent: "Naam wijzigen" }), nameInput);
+  /* ───────── Eén naamveld: een gekozen speler hernoemen, anders een wisselspeler erbij ───────── */
+
+  // Het veld staat altijd vol (standaardnamen als invallers), dus een nieuwe naam gaat op de bank.
+  // Een eigen naam in het veld zet je door eerst die speler op het bord te kiezen.
+  const naamId = "os-naam-" + Math.random().toString(36).slice(2, 7);
+  const nameKop = el("span");
+  const nameInput = el("input", { id: naamId, type: "text", maxLength: MAXLEN, autocomplete: "off", enterKeyHint: "done", placeholder: "Naam" });
+  const nameBtn = el("button", { type: "button", className: "lab-knop" });
+  const nameHint = el("p", { className: "lab-klein os-naam-hint" });
+  const nameLabel = el("div", { className: "lab-veld os-edit" },
+    el("label", { for: naamId }, nameKop),
+    el("div", { className: "os-erbij" }, nameInput, nameBtn),
+    nameHint);
+  let shown; // de speler waarvan de naam nu in het veld staat (null: een nieuwe naam)
+
   nameInput.addEventListener("input", () => {
-    if (!sel) return;
+    if (!sel) return; // een nieuwe naam gaat pas bij Enter of de knop op de bank
     const naam = schoon(nameInput.value);
     // Leeg is weer een invaller: die naam slaan we niet op als iemand van het team.
     sel.name = naam || NAMES[players.indexOf(sel)] || `Speler ${sel.nr}`;
@@ -243,36 +256,40 @@ function build(root, { signal, kit, wedstrijd }, { names, invallers, save, fille
     persist();
     refreshShare();
   });
+  // Een standaardnaam typ je in één keer over.
+  nameInput.addEventListener("focus", () => { if (sel?.filler) nameInput.select(); });
+  nameInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); nameKlaar(); }
+    else if (e.key === "Escape" && sel) { e.preventDefault(); sel = null; layout(); }
+  });
+  nameBtn.addEventListener("click", nameKlaar);
   function persist() { save([...field, ...bench].filter((p) => !p.filler).map((p) => p.name)); }
 
-  /* ───────── Spelers erbij en eraf ───────── */
+  function nameKlaar() {
+    if (!sel) { addPlayer(); return; }
+    const p = sel;
+    sel = null;
+    layout();
+    live.textContent = `Nummer ${p.nr} heet ${p.name}.`;
+    nameInput.focus();
+  }
 
-  const addInput = el("input", { type: "text", maxLength: MAXLEN, autocomplete: "off", placeholder: "Naam", "aria-label": "Naam van de nieuwe speler" });
-  const addBtn = el("button", { type: "button", className: "lab-knop", textContent: "Speler toevoegen" });
+  /* ───────── Wisselspelers erbij en eraf ───────── */
+
   function addPlayer() {
-    const name = schoon(addInput.value);
-    if (!name) { live.textContent = "Typ eerst een naam."; addInput.focus(); return; }
-    if (players.some((p) => !p.filler && p.name.toLowerCase() === name.toLowerCase())) { live.textContent = `${name} staat er al.`; addInput.focus(); return; }
-    const open = players.find((p) => p.filler);
-    if (open) {
-      open.name = name;
-      open.filler = false;
-      live.textContent = `${name} staat in het veld.`;
-    } else if (players.length >= MAXNAMEN) {
-      live.textContent = `Het bord zit vol: ${MAXNAMEN} namen.`;
-      addInput.focus();
-      return;
-    } else {
-      const p = { nr: Math.max(...players.map((q) => q.nr)) + 1, name, filler: false, x: 50, y: 50, bench: true };
-      wire(p);
-      players.push(p);
-      bench.push(p);
-      live.textContent = `${name} zit op de bank.`;
-    }
-    addInput.value = "";
+    const name = schoon(nameInput.value);
+    if (!name) { live.textContent = "Typ eerst een naam."; nameInput.focus(); return; }
+    if (players.some((p) => !p.filler && p.name.toLowerCase() === name.toLowerCase())) { live.textContent = `${name} staat er al.`; nameInput.focus(); return; }
+    if (players.length >= MAXNAMEN) { live.textContent = `Het bord zit vol: ${MAXNAMEN} namen.`; nameInput.focus(); return; }
+    const p = { nr: Math.max(...players.map((q) => q.nr)) + 1, name, filler: false, x: 50, y: 50, bench: true };
+    wire(p);
+    players.push(p);
+    bench.push(p);
+    nameInput.value = "";
     layout({ reparent: true });
     persist();
-    addInput.focus();
+    live.textContent = `${name} zit op de bank.`;
+    nameInput.focus();
   }
   function removePlayer(p) {
     const i = bench.indexOf(p);
@@ -284,16 +301,17 @@ function build(root, { signal, kit, wedstrijd }, { names, invallers, save, fille
     live.textContent = `${p.name} is weggehaald.`;
     layout();
     persist();
-    addInput.focus();
+    nameInput.focus();
   }
-  addBtn.addEventListener("click", addPlayer);
-  addInput.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); addPlayer(); } });
 
   function refreshEdit() {
-    nameInput.disabled = !sel;
-    nameInput.value = sel ? sel.name : "";
-    nameInput.placeholder = sel ? "" : "Kies eerst een speler";
-    nameLabel.firstChild.textContent = sel ? `Naam van nummer ${sel.nr}` : "Naam wijzigen";
+    // Alleen bij een andere keuze de inhoud vervangen: een half getypte nieuwe naam blijft staan.
+    if (sel !== shown) { nameInput.value = sel ? sel.name : ""; shown = sel; }
+    nameKop.textContent = sel ? `Naam van nummer ${sel.nr}` : "Wisselspeler toevoegen";
+    nameBtn.textContent = sel ? "Klaar" : "Zet op de bank";
+    nameHint.textContent = sel
+      ? "Wat je typt, staat meteen op het bord."
+      : "Kies een speler op het bord om zijn naam te wijzigen.";
   }
 
   let share = null;
@@ -414,9 +432,8 @@ function build(root, { signal, kit, wedstrijd }, { names, invallers, save, fille
   const formaties = el("div", { className: "lab-rij os-formaties", role: "group", "aria-label": "Formatie" }, ...fbtns.map((b) => b.btn));
   const bankBlok = el("div", { className: "os-bank" },
     el("p", { className: "os-bank-kop lab-hand", textContent: "Op de bank" }),
-    benchEl,
-    el("div", { className: "os-erbij" }, addInput, addBtn));
-  const hint = el("p", { className: "lab-klein", id: hintId, textContent: "Kies een speler en wijzig de naam. Sleep over het veld of gebruik de pijltjes (Shift voor grotere stappen). Bankspeler en veldspeler na elkaar kiezen wisselt ze." });
+    benchEl);
+  const hint = el("p", { className: "lab-klein", id: hintId, textContent: "Kies een speler en wijzig de naam onder de bank. Sleep over het veld of gebruik de pijltjes (Shift voor grotere stappen). Bankspeler en veldspeler na elkaar kiezen wisselt ze." });
 
   applyFormation(formation, false);
   if (posities?.length === 11) posities.forEach(([x, y], i) => { field[i].x = x; field[i].y = y; });
