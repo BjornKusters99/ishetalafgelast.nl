@@ -96,6 +96,15 @@ teamsToggle.addEventListener("click", () => showTeams(true));
 const dateInput = $("#date");
 dateInput.value = nextMatchDay();
 dateInput.min = new Date(Date.now() - 300 * 864e5).toLocaleDateString("sv-SE");
+// Met muis of trackpad opent een klik op datum of aftrap altijd de kiezer, niet
+// alleen een klik op het icoontje. Een telefoon opent zijn eigen kiezer al.
+const fijneMuis = matchMedia("(pointer: fine)");
+for (const el of [dateInput, $("#kickoff")]) {
+  el.addEventListener("click", () => {
+    if (!fijneMuis.matches) return;
+    try { el.showPicker?.(); } catch { /* deze browser heeft er geen kiezer voor */ }
+  });
+}
 
 // Plaatsnaam-suggesties (Open-Meteo geocoding), licht gedebounced.
 const cityInput = $("#city");
