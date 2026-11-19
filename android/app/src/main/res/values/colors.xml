@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="kantine">#21140C</color>
+    <color name="colorPrimary">#2C1B11</color>
+    <color name="colorPrimaryDark">#21140C</color>
+    <color name="colorAccent">#E7AC3C</color>
+</resources>

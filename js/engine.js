@@ -164,7 +164,7 @@ async function fetchDays(lat, lon, dates, signal) {
     end_date: sorted.at(-1),
   });
   // Uurweer rond de aftrap is context; het model rekent met dagwaarden. Het archief heeft geen regenkans.
-  if (base === FORECAST_URL) params.set("hourly", "precipitation,precipitation_probability,wind_gusts_10m");
+  if (base === FORECAST_URL) params.set("hourly", "temperature_2m,precipitation,precipitation_probability,wind_gusts_10m");
   const data = await getJson(`${base}?${params}`, signal);
   const d = data?.daily;
   if (!Array.isArray(d?.time) || d.time.length !== n
@@ -175,14 +175,17 @@ async function fetchDays(lat, lon, dates, signal) {
   }
   const hours = hourlyByDay(data.hourly);
   return Object.fromEntries(dates.map((iso) => {
-    const w = featuresAt(d, 7 + Math.round((parseDay(iso) - first) / DAY_MS));
+    const i = 7 + Math.round((parseDay(iso) - first) / DAY_MS);
+    const w = featuresAt(d, i);
     if (hours[iso]) w.hours = hours[iso];
+    // De acht dagwaarden zelf: de 51 veldkeurders vullen hiermee de dagen aan die hun eigen bericht mist.
+    w.series = Object.fromEntries(Object.keys(DAILY_LIMITS).map((key) => [key, d[key].slice(i - 7, i + 1)]));
     return [iso, w];
   }));
 }
 
 /**
- * Uurweer per dag als { [datum]: [uur 0-23] -> { precip, prob, gust } }. Alleen context:
+ * Uurweer per dag als { [datum]: [uur 0-23] -> { temp, precip, prob, gust } }. Alleen context:
  * onbruikbare waarden worden null en een rommelige respons laat de check niet falen.
  */
 function hourlyByDay(h) {
@@ -192,7 +195,9 @@ function hourlyByDay(h) {
   h.time.forEach((t, i) => {
     const m = typeof t === "string" && /^(\d{4}-\d{2}-\d{2})T(\d{2}):00$/.exec(t);
     if (!m || Number(m[2]) > 23) return;
+    const temp = h.temperature_2m?.[i];
     (out[m[1]] ||= Array(24).fill(null))[Number(m[2])] = {
+      temp: Number.isFinite(temp) && temp >= -90 && temp <= 60 ? temp : null,
       precip: ok(h.precipitation?.[i], 200),
       prob: ok(h.precipitation_probability?.[i], 100),
       gust: ok(h.wind_gusts_10m?.[i], 500),
@@ -202,7 +207,7 @@ function hourlyByDay(h) {
 }
 
 /** Modelinvoer voor dag i: die dag zelf en de zeven dagen ervoor. */
-function featuresAt(d, i) {
+export function featuresAt(d, i) {
   const prevPrecip = d.precipitation_sum.slice(i - 7, i);
   const prevMin = d.temperature_2m_min.slice(i - 7, i);
   const sum = (a) => a.reduce((s, v) => s + v, 0);
@@ -295,6 +300,59 @@ export function predict(weather, veldtype) {
   const t = MODEL.thresholds;
   const risk = p >= t.p95 ? "zeer hoog" : p >= t.p90 ? "hoog" : p >= t.p75 ? "verhoogd" : "laag";
   return { probability: p, risk, multiplier: p / MODEL.baseline };
+}
+
+const ENSEMBLE_URL = "https://ensemble-api.open-meteo.com/v1/ensemble";
+const CONSULS = 51;
+
+/**
+ * De 51 veldkeurders: het ECMWF-ensemble rekent hetzelfde weekend 51 keer door, elk met
+ * een iets ander begin. Elke berekening krijgt onze som op zijn eigen weerbericht.
+ * Dagen die een berekening mist (het verleden) komen uit `series`, de dagwaarden
+ * van het gewone weerbericht. Geeft per veldkeurder de kans (0..1), of null als er te
+ * weinig berekeningen zijn. Met `detail` krijgt elke veldkeurder ook zijn eigen weer mee:
+ * { p, mm, temp, gust }. Dit toont de onzekerheid van het weer, niet die van het model.
+ */
+export async function fetchConsuls(lat, lon, isoDate, series, veldtype, signal, { detail = false } = {}) {
+  const ahead = isValidDay(isoDate) ? daysAhead(isoDate) : -1;
+  const keys = Object.keys(DAILY_LIMITS);
+  if (ahead < 0 || ahead > MAX_DAYS_AHEAD || !keys.every((key) => Array.isArray(series?.[key]) && series[key].length === 8)) return null;
+  const first = parseDay(isoDate).getTime() - 7 * DAY_MS;
+  const params = new URLSearchParams({
+    latitude: lat.toFixed(4),
+    longitude: lon.toFixed(4),
+    models: "ecmwf_ifs025",
+    daily: keys.join(","),
+    timezone: "Europe/Amsterdam",
+    // Het verleden is voor elke berekening gelijk: dat hebben we al.
+    start_date: isoDay(new Date(Math.max(first, todayUtc().getTime()))),
+    end_date: isoDate,
+  });
+  const d = (await getJson(`${ENSEMBLE_URL}?${params}`, signal))?.daily;
+  if (!Array.isArray(d?.time)) return null;
+  const at = new Map(d.time.map((t, i) => [t, i]));
+  const votes = [];
+  for (let m = 0; m < CONSULS; m++) {
+    const suffix = m ? `_member${String(m).padStart(2, "0")}` : "";
+    const days = {};
+    let own = 0;
+    for (const key of keys) {
+      const [lo, hi] = DAILY_LIMITS[key];
+      days[key] = series[key].map((fallback, j) => {
+        const v = d[key + suffix]?.[at.get(isoDay(new Date(first + j * DAY_MS)))];
+        const ok = Number.isFinite(v) && v >= lo && v <= hi;
+        if (ok && j === 7) own++;
+        return ok ? v : fallback;
+      });
+    }
+    // Alleen veldkeurders met een eigen bericht voor de speeldag stemmen mee.
+    if (own === keys.length) {
+      const w = featuresAt(days, 7);
+      const p = predict(w, veldtype).probability;
+      votes.push(detail ? { p, mm: w.precipitation, temp: w.temperature, gust: w.wind_gusts } : p);
+    }
+  }
+  return votes.length >= CONSULS / 2 ? votes : null;
 }
 
 /** Ruwe modeluitkomst zonder correcties (voor pariteitstests met Python). */

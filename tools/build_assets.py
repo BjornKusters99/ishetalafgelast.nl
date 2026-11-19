@@ -2,8 +2,8 @@
 """Bouw web-assets uit de bron-illustraties in art/.
 
 Loop:  python3 tools/build_assets.py [--fonts DIR]
-Output: img/scenes/*.webp, img/scroll.webp, img/logo.webp, img/og.jpg,
-        img/icon-*.png
+Output: img/scenes/*.webp, img/scroll.webp, img/logo.webp, img/og.jpg
+(app-iconen: tools/app_icon.py)
 
 --fonts wijst naar een map met LilitaOne.ttf en Fredoka.ttf (alleen nodig
 voor de OG-afbeelding; zonder fonts wordt die overgeslagen).
@@ -27,8 +27,9 @@ IMG = ROOT / "img"
 SCENES = IMG / "scenes"
 
 INK = (43, 26, 16)
-WOOD = (58, 36, 22)
 SS = 8  # supersampling voor wat we in de illustraties bijtekenen
+# Scènes: op 100% geen zichtbaar verschil met 80, wel ~30% minder bytes (vergeleken in /proeftuin#beeld).
+SCENE_Q = 62
 
 
 def save_webp(im: Image.Image, path: Path, quality: int = 82) -> None:
@@ -112,26 +113,26 @@ def scenes() -> None:
     # Kantine: een keepster in het doel, rechts van de middenstijl van het raam.
     kantine = Image.open(ART / "kantine-desktop.jpg").convert("RGB")
     keepster(kantine, (720, 272))
-    save_webp(kantine, SCENES / "kantine-d.webp")
+    save_webp(kantine, SCENES / "kantine-d.webp", quality=SCENE_Q)
 
     # Mobiel: hamburger-icoon uit de bovenbalk poetsen (balk is egaal #482e21).
     mob = Image.open(ART / "kantine-mobiel.jpg").convert("RGB")
     ImageDraw.Draw(mob).rectangle((640, 18, 767, 92), fill=(72, 46, 33))
     keepster(mob, (412, 371), scale=0.9)
-    save_webp(mob, SCENES / "kantine-m.webp")
+    save_webp(mob, SCENES / "kantine-m.webp", quality=SCENE_Q)
 
     # Afgelast: nieuwe 3:2-bron (PNG). Mobiel iets verkleind, scheelt ~40% bytes.
-    save_webp(Image.open(ART / "afgelast-desktop.png").convert("RGB"), SCENES / "afgelast-d.webp", quality=80)
+    save_webp(Image.open(ART / "afgelast-desktop.png").convert("RGB"), SCENES / "afgelast-d.webp", quality=SCENE_Q)
     mob = Image.open(ART / "afgelast-mobiel.png").convert("RGB")
     mob = mob.resize((864, round(mob.height * 864 / mob.width)), Image.LANCZOS)
-    save_webp(mob, SCENES / "afgelast-m.webp", quality=80)
+    save_webp(mob, SCENES / "afgelast-m.webp", quality=SCENE_Q)
 
     # Doorgaat-art is 1200px breed: 1.5x opschalen + licht verscherpen,
     # anders wordt hij op desktop zichtbaar zacht.
     dg = Image.open(ART / "doorgaat-desktop.webp").convert("RGB")
     dg = dg.resize((1800, round(dg.height * 1.5)), Image.LANCZOS)
     dg = dg.filter(ImageFilter.UnsharpMask(radius=1.6, percent=70, threshold=2))
-    save_webp(dg, SCENES / "doorgaat-d.webp", quality=80)
+    save_webp(dg, SCENES / "doorgaat-d.webp", quality=SCENE_Q)
 
 
 def scroll() -> None:
@@ -164,22 +165,11 @@ def logo_small(logo: Image.Image) -> None:
     save_webp(small, IMG / "logo-240.webp", quality=90)
 
 
-def logo_and_icons() -> None:
+def logo() -> None:
+    """Het logo; de app-iconen tekent tools/app_icon.py als vector."""
     logo = Image.open(ART / "logo.webp").convert("RGBA")
     save_webp(logo, IMG / "logo.webp", quality=90)
     logo_small(logo)
-
-    # Embleem (bal + wolk) links in het logo → app-icoon op donker hout.
-    emblem = logo.crop((0, 0, 190, 248))
-    emblem = emblem.crop(emblem.getbbox())
-    for size in (512, 192, 180, 48):
-        canvas = Image.new("RGBA", (size, size), WOOD + (255,))
-        e = emblem.copy()
-        e.thumbnail((int(size * 0.82), int(size * 0.82)), Image.LANCZOS)
-        canvas.alpha_composite(e, ((size - e.width) // 2, (size - e.height) // 2))
-        name = "apple-touch-icon.png" if size == 180 else f"icon-{size}.png"
-        canvas.convert("RGB").save(IMG / name, optimize=True)
-        log.info("img/%s", name)
 
 
 def og_image(fonts: Path | None) -> None:
@@ -211,7 +201,7 @@ def main() -> None:
     args = p.parse_args()
     scenes()
     scroll()
-    logo_and_icons()
+    logo()
     og_image(args.fonts)
 
 

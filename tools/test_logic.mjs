@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import vm from "node:vm";
+import { SHARE_MSG } from "../js/teksten.js";
 
 const model = await readFile(new URL("../js/model.js", import.meta.url), "utf8");
 const engine = await readFile(new URL("../js/engine.js", import.meta.url), "utf8");
@@ -58,13 +59,28 @@ for (const [p, mood, keys] of [[0.36, "doorgaat", ["stuit"]], [0.398, "twijfel",
   });
 }
 
-test("team names with $ patterns stay literal in the share text", () => {
-  const sandbox = vm.createContext({ Math, current: { q: { home: "$'$'$'", away: "", date: "2026-10-24" }, v: { mood: "doorgaat" }, pct: 12 },
+function shareSandbox(q) {
+  const sandbox = vm.createContext({ Math, SHARE_MSG, current: { q, v: { mood: "doorgaat" }, pct: 12 },
     fmtShort: { format: () => "za 24 okt" }, day: () => null });
-  vm.runInContext(app.slice(app.indexOf("const SHARE_MSG"), app.indexOf("function verdictFor("))
-    + app.slice(app.indexOf("function shareMessage("), app.indexOf("function updateShare(")) + ";globalThis.shareMessage = shareMessage;", sandbox);
+  vm.runInContext(app.slice(app.indexOf("function shareMessage("), app.indexOf("function updateShare("))
+    + ";globalThis.shareMessage = shareMessage;", sandbox);
+  return sandbox;
+}
+
+test("team names with $ patterns stay literal in the share text", () => {
+  const sandbox = shareSandbox({ home: "$'$'$'", away: "", team: "", date: "2026-10-24" });
   for (let i = 0; i < 4; i++) {
     const text = sandbox.shareMessage();
-    assert.ok(text.includes("$'$'$' - Uit") && text.length < 160, text);
+    assert.ok(text.includes("$'$'$'") && text.length < 160, text);
   }
+  const both = shareSandbox({ home: "$&", away: "$`", team: "", date: "2026-10-24" });
+  for (let i = 0; i < 4; i++) assert.ok(both.shareMessage().includes("$& - $` (za 24 okt)"));
+});
+
+test("share text names the match according to which teams are filled in", () => {
+  const texts = (q) => { const s = shareSandbox({ team: "", date: "2026-10-24", ...q }); return Array.from({ length: 6 }, () => s.shareMessage()); };
+  assert.ok(texts({ home: "A", away: "B" }).every((t) => t.includes("A - B (za 24 okt)")));
+  assert.ok(texts({ home: "A", away: "" }).every((t) => /de wedstrijd van A \(za 24 okt\)/i.test(t)));
+  assert.ok(texts({ home: "", away: "B" }).every((t) => /de wedstrijd tegen B \(za 24 okt\)/i.test(t)));
+  assert.ok(texts({ home: "", away: "" }).every((t) => /ons potje van za 24 okt/i.test(t)));
 });

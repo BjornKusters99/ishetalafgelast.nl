@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>De kleedkamer | IsHetAlAfgelast.nl</title>
+  <meta name="description" content="Prototypes van wat nog niet op de site staat, om te bespelen en te beoordelen.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#2c1b11">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data: blob:; media-src 'self' data: blob:; connect-src 'self' https://geocoding-api.open-meteo.com https://api.open-meteo.com https://archive-api.open-meteo.com https://ensemble-api.open-meteo.com; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none';">
+  <link rel="icon" href="/img/icon-48.png" type="image/png">
+  <link rel="preload" href="/fonts/lilita-one.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/fredoka.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/lab/proeftuin.css">
+  <link rel="stylesheet" href="/lab/veld.css">
+  <link rel="stylesheet" href="/lab/club.css">
+  <link rel="stylesheet" href="/lab/geluid.css">
+  <link rel="stylesheet" href="/lab/server.css">
+  <link rel="stylesheet" href="/lab/plek.css">
+  <script type="module" src="/lab/proeftuin.js"></script>
+</head>
+<body class="kleedkamer">
+  <svg class="sprite" aria-hidden="true">
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m7 4 13 8-13 8z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></symbol>
+    <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="m18 14 4 4-4 4M18 2l4 4-4 4"/><path d="M2 18h1.97a4 4 0 0 0 3.3-1.7l5.46-8.6A4 4 0 0 1 16.03 6H22M2 6h1.97a4 4 0 0 1 3.3 1.7l.82 1.3M22 18h-5.97a4 4 0 0 1-3.3-1.7l-.82-1.3"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M12.8 19.6A2 2 0 1 0 14 16H2M17.5 8a2.5 2.5 0 1 1 2 4H2M9.8 4.4A2 2 0 1 1 11 8H2"/></symbol>
+    <symbol id="i-rain" viewBox="0 0 24 24"><path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.5 8.24"/><path d="M16 14v6M8 14v6M12 16v6"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+    <symbol id="i-tv" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="m17 2-5 5-5-5"/></symbol>
+    <symbol id="i-expand" viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></symbol>
+  </svg>
+
+  <a class="skip" href="#kluisjes">Direct naar de kluisjes</a>
+
+  <header class="kk-top">
+    <a class="kk-brand" href="/" aria-label="IsHetAlAfgelast.nl, naar de homepage">
+      <img src="/img/logo-240.webp" alt="" width="240" height="124">
+    </a>
+    <a class="kk-terug" href="/"><svg class="ic" aria-hidden="true"><use href="#i-back"/></svg> Naar de check</a>
+  </header>
+
+  <main class="kk">
+    <div class="kk-kop">
+      <h1>De kleedkamer</h1>
+      <p class="kk-regel">Elf kluisjes. In elk zit iets wat nog niet op de site staat, maar wel al werkt.</p>
+      <ul class="kk-legenda" aria-label="Wat de labels betekenen">
+        <li><span class="tape tape--echt">Echte data</span> echt weer of echte kaarten</li>
+        <li><span class="tape tape--werkt">Werkt al</span> speelbaar met wat je zelf invult</li>
+        <li><span class="tape tape--nep">Nagespeeld</span> vraagt een server, dus verzonnen cijfers</li>
+      </ul>
+    </div>
+
+    <ol class="kluisjes" id="kluisjes">
+      <li class="kluis" data-lab="toss" data-status="echt" data-naam="Toss-advies"
+          data-wat="Henk kijkt hoe het veld ligt en waar de wind vandaan komt, en zegt welke kant je kiest als je de toss wint."
+          data-nodig="Een lijst sportparken met de richting van hun velden, één keer gebouwd uit OpenStreetMap. Geen server."></li>
+      <li class="kluis" data-lab="paspoort" data-status="echt" data-naam="Sportpark&shy;paspoort"
+          data-wat="Elk sportpark een eigen paspoort: hoeveel velden, gras of kunstgras, en hoe nat de grond vandaag is."
+          data-nodig="Dezelfde lijst sportparken. Twee derde van de velden in OpenStreetMap mist de ondergrond, dus bezoekers vullen aan."></li>
+      <li class="kluis" data-lab="opstelling" data-status="werkt" data-naam="Opstelling"
+          data-wat="Sleep je elftal op het veld en stuur de opstelling naar de groep, met de kans op afgelasting erbij."
+          data-nodig="Uitgewerkt in de roadmap als F01. Werkt zonder server."></li>
+      <li class="kluis" data-lab="spraak" data-status="werkt" data-naam="Spraakbericht"
+          data-wat="Henk spreekt de uitslag in als spraakbericht. Nu met de stem van je browser, straks met een echte Henk per provincie."
+          data-nodig="Opnames van een echt mens, en een test hoe WhatsApp een gedeeld geluidsbestand laat zien."></li>
+      <li class="kluis" data-lab="fluit" data-status="werkt" data-naam="Het fluitje"
+          data-wat="Het fluitje van Henk. Kort voor een overtreding, lang voor de rust, drie keer voor het einde."
+          data-nodig="Niets. Geluid alleen als jij erop drukt, nooit vanzelf."></li>
+      <li class="kluis" data-lab="pas" data-status="werkt" data-naam="Spelerspas"
+          data-wat="De plastic spelerspas komt terug als verzamelkaart, met stempels voor wat je op deze site hebt gedaan."
+          data-nodig="Niets: alles staat op dit toestel. Wel een manier om de pas te delen."></li>
+      <li class="kluis" data-lab="bingo" data-status="werkt" data-naam="Appgroep-bingo"
+          data-wat="Bingo voor de ochtend van de wedstrijd, met alles wat er in de groep voorbijkomt. Vol is vol."
+          data-nodig="Niets. Later een kaart per elftal."></li>
+      <li class="kluis" data-lab="tv" data-status="werkt" data-naam="Kantine-tv"
+          data-wat="Een scherm voor de tv boven de bar: de wedstrijden van vandaag met hun kans, en een lopende balk eronder."
+          data-nodig="Het programma van de club. Zonder koppeling met Sportlink tikt iemand het over."></li>
+      <li class="kluis" data-lab="melding" data-status="nep" data-naam="Blijf liggen"
+          data-wat="Twee berichten: de avond ervoor om 20:00 het voorlopige oordeel, op de dag zelf om 07:00 het eindoordeel."
+          data-nodig="Een kleine server die meldingen verstuurt. Op een iPhone moet de site eerst op het beginscherm staan."></li>
+      <li class="kluis" data-lab="deel" data-status="werkt" data-naam="Deelplaatje"
+          data-wat="Een plaatje van de uitslag dat je browser zelf tekent, en zo ziet de link eruit in de groep."
+          data-nodig="Het plaatje kan nu al. Een eigen linkvoorbeeld per uitslag vraagt een server."></li>
+      <li class="kluis" data-lab="stand" data-status="nep" data-naam="Henks stand"
+          data-wat="Na de speeldag tikt iedereen in of het doorging. Dan weten we hoe vaak Henk gelijk had, per weekend en per regio."
+          data-nodig="Een kleine server met een database: sportpark, datum, uitkomst en de voorspelling van toen. Geen naam, geen account."></li>
+    </ol>
+
+    <div class="kk-bank" aria-hidden="true">
+      <svg class="kk-bank-tekening" viewBox="0 0 1200 150" preserveAspectRatio="xMinYMax slice">
+        <g stroke="#2b1a10" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+          <!-- poten en zitting -->
+          <path d="M52 94h18l-2 54H54zM292 94h18l-2 54h-14zM892 94h18l-2 54h-14zM1132 94h18l-2 54h-14z" fill="#8f6239"/>
+          <path d="M24 78c180-4 970-6 1152 0l4 20c-200 4-960 4-1160 0z" fill="#b98953"/>
+          <path d="M40 92c300-2 820-2 1120 0" fill="none" stroke="#8f6239" stroke-width="2"/>
+          <!-- tas met clubstreep -->
+          <path d="M150 80c-6-40 10-58 70-60 64-2 84 16 78 60z" fill="#3a5a2c"/>
+          <path d="M152 52c40 4 100 4 142-2" fill="none" stroke="#e7ac3c" stroke-width="6"/>
+          <path d="M190 22c2-16 50-18 56 0" fill="none" stroke-width="4"/>
+          <path d="M168 40l116-4" fill="none" stroke-width="2" stroke-dasharray="4 5"/>
+          <!-- handdoek, opgevouwen -->
+          <path d="M560 78c0-10 4-22 14-22h120c10 0 14 10 14 22z" fill="#c4392a"/>
+          <path d="M574 64h126M576 70h124" fill="none" stroke="#f3e6cb" stroke-width="3"/>
+          <!-- losse sok -->
+          <path d="M760 79c4-12 26-12 40-10 14 2 16 10 30 10z" fill="#f3e6cb"/>
+          <path d="M770 72h20" fill="none" stroke="#c4392a" stroke-width="3"/>
+          <!-- bal onder de bank -->
+          <circle cx="440" cy="126" r="22" fill="#f3e6cb"/>
+          <path d="M440 117l8 6-3 9h-10l-3-9z" fill="#2b1a10" stroke-width="2"/>
+          <path d="M440 117v-13M448 123l12-4M445 132l7 10M435 132l-7 10M432 123l-12-4" fill="none" stroke-width="2"/>
+        </g>
+      </svg>
+      <p class="kk-bank-regel">Kevin z'n tas staat er nog. Van vorige week.</p>
+    </div>
+  </main>
+
+  <footer class="kk-voet">
+    <p>Prototypes op de branch <code>feat/nieuwe-website</code>. Niets hiervan staat live.</p>
+    <p class="credit">Weerdata: <a href="https://open-meteo.com/" rel="noopener">Open-Meteo</a> (CC BY 4.0). Kaartdata: © <a href="https://www.openstreetmap.org/copyright" rel="noopener">OpenStreetMap</a>-bijdragers (ODbL).</p>
+  </footer>
+</body>
+</html>

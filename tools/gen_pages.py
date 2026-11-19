@@ -33,7 +33,7 @@ SPONSOR_LIVE = False
 
 # <lastmod> in de sitemap. Met de hand bijwerken bij een inhoudelijke wijziging
 # van de pagina's: CI eist dat de gegenereerde bestanden gelijk blijven.
-LASTMOD = "2026-10-24"
+LASTMOD = "2026-11-18"
 
 # (naam, provincie, lat, lon) — coördinaten sync met backend DUTCH_CITIES
 PLAATSEN: list[tuple[str, str, float, float]] = [
@@ -131,11 +131,22 @@ def rang(naam: str, waarde) -> int:
 
 
 def plek(naam: str, r: int, n: int, hoog: str, laag: str) -> str:
+    """Zin over de plek in de ranglijst; leeg voor de middenmoot (die krijgt één gezamenlijke zin)."""
     if r <= n // 4:
         return f"Daarmee hoort {naam} bij {hoog} van onze {n} plaatsen."
     if r > n - n // 4:
         return f"Daarmee hoort {naam} bij {laag} van onze {n} plaatsen."
-    return f"Daarmee zit {naam} in de middenmoot van onze {n} plaatsen."
+    return ""
+
+
+def klimaat_zinnen(naam: str, nat: str, vorst: str, zin_nat: str, zin_vorst: str, n: int) -> str:
+    """Twee feiten met elk hun plek; staat de plaats op beide in het midden, dan zeggen we dat één keer."""
+    feit_nat = f"Van september tot en met mei telt {naam} gemiddeld {nat} natte zaterdagen."
+    feit_vorst = f"In de winter vriest het er gemiddeld {vorst} nachten."
+    midden = f"zit {naam} in de middenmoot van onze {n} plaatsen."
+    if not zin_nat and not zin_vorst:
+        return f"{feit_nat} {feit_vorst} Op beide punten {midden}"
+    return " ".join(z for z in (feit_nat, zin_nat or f"Daarmee {midden}", feit_vorst, zin_vorst or f"Daarmee {midden}") if z)
 
 
 def klimaat_sectie(naam: str, prov: str) -> str:
@@ -162,15 +173,15 @@ def klimaat_sectie(naam: str, prov: str) -> str:
     return (
         '    <section class="places places--klimaat" aria-labelledby="klimaat-title">\n'
         f'      <h2 id="klimaat-title">Voetbalweer in {naam}</h2>\n'
-        f"      <p>{naam} ligt in {prov}. Zo zag het weer er rond {naam} uit in de voetbalseizoenen "
+        # "Utrecht ligt in Utrecht." zegt niets: de provincie alleen noemen als die anders heet.
+        f"      <p>{'' if naam == prov else f'{naam} ligt in {prov}. '}Zo zag het weer er rond {naam} uit in de voetbalseizoenen "
         f"{meta['seizoenen']}, gemiddeld per seizoen.</p>\n"
         '      <table class="klimaat-tabel">\n'
         '        <thead><tr><th scope="col">Gemiddeld per seizoen</th>'
         '<th scope="col">Herfst</th><th scope="col">Winter</th><th scope="col">Voorjaar</th></tr></thead>\n'
         f"        <tbody>\n{body}\n        </tbody>\n"
         "      </table>\n"
-        f"      <p>Van september tot en met mei telt {naam} gemiddeld {nl(nat)} natte zaterdagen. {zin_nat} "
-        f"In de winter vriest het er gemiddeld {nl(k['winter']['vorstnachten'])} nachten. {zin_vorst}</p>\n"
+        f"      <p>{klimaat_zinnen(naam, nl(nat), nl(k['winter']['vorstnachten']), zin_nat, zin_vorst, n)}</p>\n"
         f'      <p class="bron">Bron: {meta["bron"]}. Herfst is september tot en met november, winter december '
         "tot en met februari, voorjaar maart tot en met mei.</p>\n"
         "    </section>\n"
@@ -226,15 +237,14 @@ def place_page(naam: str, prov: str) -> str:
     out = swap(out, "intro", (
         '      <header class="reken-head">\n'
         f'        <p class="overline">Het rekenwerk voor {naam}</p>\n'
-        f'        <h2 id="reken-title">Afgelast in {naam}? Wij weten het eerder dan de scheids</h2>\n'
+        f'        <h2 id="reken-title">Afgelast in {naam}? Wij weten het eerder dan de veldkeurder</h2>\n'
         '        <div class="reken-lede">\n'
         f"          <p>{intro}</p>\n"
         '          <p>De scheids, laten we hem <button type="button" class="henk-link">Henk</button> noemen, '
-        "beslist pas op het veld. Ons proefmodel gebruikt <strong>2.100 gesimuleerde wedstrijden</strong> "
-        "met historische weerdata. De <strong>364 afgelastingen zijn gegenereerd door kansregels</strong>, "
-        "niet vastgesteld bij echte wedstrijden. Het percentage is nog niet gevalideerd op echte uitslagen. "
-        f"De officiële beslissing ligt bij je club in {naam} "
-        "en de scheidsrechter.</p>\n"
+        "laat pas op het veld een bal vallen. Wij doen dat eerder, met het weerbericht. Eerlijk is eerlijk: "
+        "Henk heeft nog geen echte wedstrijd gefloten. Ons model oefent op <strong>2.100 nagespeelde potjes</strong>, "
+        "met echt weer en bedachte afgelastingen. Een natte vinger met een rekenmachine dus. "
+        f"Je club in {naam} en de veldkeurder beslissen.</p>\n"
         "        </div>\n"
         "      </header>"
     ))
@@ -274,12 +284,16 @@ def doc_page(title: str, desc: str, path: str, body: str, *, noindex: bool = Fal
   <meta name="description" content="{html.escape(desc)}">
 {robots}{canon}  <meta property="og:image" content="{BASE_URL}/img/og.jpg">
   <meta name="theme-color" content="#2c1b11">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Afgelast?">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   {NO_SCRIPT_CSP}
   <meta name="referrer" content="no-referrer">
   <link rel="icon" href="/img/icon-48.png" type="image/png">
   <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
   <link rel="preload" href="/fonts/lilita-one.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/mobiel.css">
 </head>
 <body>
   <section class="scene doc">
@@ -303,7 +317,7 @@ def doc_page(title: str, desc: str, path: str, body: str, *, noindex: bool = Fal
   </section>
   <footer class="site-footer">
     <img src="/img/logo.webp" srcset="/img/logo-240.webp 240w, /img/logo.webp 480w" sizes="132px" alt="IsHetAlAfgelast.nl" width="480" height="248" loading="lazy">
-    <p>Voor iedereen die op zondagochtend in de kelderklasse speelt.</p>
+    <p>Voor iedereen die in het weekend in de kelderklasse speelt.</p>
     <nav aria-label="Footer">
       <a href="/plaatsen/">Plaatsen</a>
 {sponsor_link}      <a href="/privacy">Privacy</a>
@@ -344,8 +358,8 @@ def plaatsen_index() -> str:
 
 SPONSOR = """      <h1>Adverteren en sponsoring</h1>
       <p>Wie hier komt, speelt zelf. Spelers, trainers, terreinmeesters en ouders checken
-      hun wedstrijd op het moment dat het ertoe doet: de avond ervoor en zondagochtend
-      vroeg, als het regent.</p>
+      hun wedstrijd op het moment dat het ertoe doet: de avond ervoor en op de ochtend
+      zelf, als het regent.</p>
       <h2>Wat kan er</h2>
       <dl>
         <dt>Regionale sponsor</dt>
@@ -368,34 +382,76 @@ PRIVACY = """      <h1>Privacy</h1>
       <p>IsHetAlAfgelast.nl is een hobbyproject van één maker, zonder bedrijf, adverteerders
       of eigen server erachter. Die maker is verantwoordelijk voor deze site en deze tekst.</p>
       <h2>Wat er gebeurt als je checkt</h2>
-      <p>De berekening gebeurt in je eigen browser. Twee dingen gaan rechtstreeks naar
+      <p>De berekening gebeurt in je eigen browser. Dit gaat rechtstreeks naar
       <a href="https://open-meteo.com/en/terms" rel="noopener">Open-Meteo</a>:</p>
       <ul>
         <li>Tijdens het typen van een plaats: wat je tot dan toe hebt getypt, voor de
         suggesties.</li>
         <li>Bij de check: de coördinaten van de plaats en de speeldatum (met de week
         ervoor), voor het weerbericht.</li>
+        <li>Na de uitslag: dezelfde coördinaten en datum nog een keer, voor de 51
+        weerberekeningen achter de veldkeurders.</li>
+        <li>Heb je een wedstrijd onthouden, dan haalt de homepage bij het openen soms
+        alvast het weerbericht voor die wedstrijd op.</li>
       </ul>
-      <p>Open-Meteo ontvangt daarbij ook je IP-adres. Teamnamen en veldtype blijven in
+      <p>Open-Meteo ontvangt daarbij ook je IP-adres. Teamnamen, elftal en veldtype blijven in
       je browser en gaan niet naar Open-Meteo.</p>
-      <p>Plaats, coördinaten, datum, aftraptijd, veldtype en ingevulde teamnamen staan wel
-      in de resultaatlink. Een link die je deelt bevat ook de kans en het tijdstip van je
+      <p>Plaats, coördinaten, datum, aftraptijd, veldtype, elftal en ingevulde teamnamen staan wel
+      in de resultaatlink en in de teamlink. Een link die je deelt bevat ook de kans en het tijdstip van je
       check, zodat de ontvanger ziet of het weerbericht sindsdien is veranderd. Bij delen, bezoeken of opnieuw laden ontvangt de hostingdienst deze
       URL; ontvangers en het gekozen deelplatform kunnen de link ook lezen. Technische
-      logs kunnen URL's bevatten. Vul geen namen van personen of andere privégegevens in.</p>
+      logs kunnen URL's bevatten. Vul bij de teamnamen geen namen van personen of andere privégegevens in.</p>
+      <h2>Namen bij "Wie vlagt er?" en het briefje</h2>
+      <p>De namen die je daar typt, blijven in je browser. De klussen worden op je eigen
+      toestel verdeeld. Kopieer je de teamlink, dan staan de namen in het deel van de
+      link achter het hekje (#). Browsers sturen dat deel niet mee naar een server, dus
+      ook niet naar ons. Wie de link opent, kan de namen wel lezen en krijgt ze op zijn
+      eigen toestel te zien; de site haalt ze daarna meteen uit de adresbalk. Gebruik
+      voornamen, en zet de link alleen in je eigen groep.</p>
+      <p>Tik je op een WhatsApp-knop, dan gaat de tekst die je ziet naar WhatsApp. Dat
+      geldt ook voor het briefje, het klussenrooster en je opstelling, met de namen die
+      erin staan. De opstellingslink werkt net als de teamlink: de namen staan achter het
+      hekje en gaan niet naar ons.</p>
       <h2>Wat je browser bewaart</h2>
       <p>Zodat de site ook zonder verbinding opent, bewaart je browser de pagina's,
       scripts, lettertypes en afbeeldingen van deze site (een service worker). Daar
-      zitten geen ingevulde gegevens of uitslagen in. Je wist het via de
-      site-instellingen van je browser. Je browsergeschiedenis bevat, zoals bij elke
+      zitten geen ingevulde gegevens of uitslagen in. Je browsergeschiedenis bevat, zoals bij elke
       site, de links die je hebt bezocht.</p>
       <p>Staat "Onthoud mijn wedstrijd op dit toestel" aan (dat is standaard zo), dan
-      bewaart je browser na een check de plaats, het veldtype, de teamnamen, de
+      bewaart je browser na een check de plaats, het veldtype, de teamnamen, het elftal, de
       aftraptijd en de speeldag in de lokale opslag van dit toestel. Zo staat je wedstrijd de volgende
-      keer klaar. Dat blijft op je toestel en gaat nergens heen. Vinkje uit of
-      "Vergeet" wist het meteen.</p>
+      keer klaar. Vinkje uit of "Vergeet" wist het meteen.</p>
+      <p>In dezelfde lokale opslag staan verder:</p>
+      <ul>
+        <li>Jij tegen Henk: je tips, de kans die Henk gaf, de afloop die je zelf aantikt,
+        en welke wedstrijden je al bekeken hebt (datum en afgeronde coördinaten).</li>
+        <li>De namen voor "Wie vlagt er?".</li>
+        <li>Je opstelling op het tactiekbord (namen en bank), je spelerspas en het sportpark
+        dat je kiest voor het toss-advies.</li>
+        <li>Welke plekjes van het zoekplaatje je hebt gevonden.</li>
+        <li>Dat je de veldkeuring al een keer hebt gezien, zodat hij daarna korter duurt.</li>
+      </ul>
+      <p>Dit alles blijft op je toestel en gaat nergens heen. Je wist het via de
+      site-instellingen van je browser ("sitegegevens wissen").</p>
       <p>Een agenda-herinnering maakt je browser zelf als bestand; die gaat alleen naar
       je eigen agenda.</p>
+      <h2 id="app">Op je beginscherm en in de app</h2>
+      <p>Zet je de site op je beginscherm, dan blijft alles hierboven gelden: het is dezelfde
+      site. Je browser onthoudt alleen of je het kaartje "Henk op je beginscherm" hebt
+      weggetikt, zodat het drie weken wegblijft.</p>
+      <p>De app Afgelast? bevat dezelfde bestanden als de site en rekent op dezelfde manier op
+      je toestel. Wat anders is:</p>
+      <ul>
+        <li>In de app tellen we geen bezoeken: er zit geen meetscript in.</li>
+        <li>Seintjes plant je telefoon zelf, als lokale melding. Je keuze (zaterdag of zondag)
+        staat alleen op je toestel. Er is geen account en geen pushdienst, en er gaat niets
+        naar ons. De herinnering voor één wedstrijd werkt net zo, in plaats van een
+        agendabestand.</li>
+        <li>Voor de melding van een algemene afgelasting leest de app één bestand van deze
+        site. De hostingdienst ziet dan je IP-adres, zoals bij elk bezoek.</li>
+        <li>Delen en kopiëren gaan via het deelmenu en het klembord van je telefoon.</li>
+        <li>Verwijder je de app, dan verdwijnt alles wat hij bewaarde mee.</li>
+      </ul>
       <h2>Bezoekers tellen</h2>
       <p>We tellen bezoeken met Cloudflare Web Analytics. Dat werkt zonder cookies,
       bewaart niets op je toestel en volgt je niet over sites heen. Het meetscript
@@ -428,7 +484,7 @@ PRIVACY = """      <h1>Privacy</h1>
 NOT_FOUND = """      <h1>Buitenspel.</h1>
       <p>Deze pagina bestaat niet, of hij is afgelast. De vlag gaat omhoog, maar de
       check werkt gewoon.</p>
-      <p>Deze link is gehouden. Door een hele goede keeper.</p>
+      <p>Deze link is niet komen opdagen. We spelen met tien man verder.</p>
       <ul class="doc-links">
         <li><a href="/">Check je wedstrijd</a></li>
         <li><a href="/plaatsen/">Alle plaatsen</a></li>
@@ -462,7 +518,7 @@ def main() -> None:
     if SPONSOR_LIVE:
         sponsor.write_text(doc_page(
             "Adverteren en sponsoring",
-            "Adverteren op IsHetAlAfgelast.nl: bereik amateurvoetballers op zondagochtend, regionaal en zonder pop-ups.",
+            "Adverteren op IsHetAlAfgelast.nl: bereik amateurvoetballers in het weekend, regionaal en zonder pop-ups.",
             "/sponsor", SPONSOR), encoding="utf-8")
     elif sponsor.exists():
         sponsor.unlink()

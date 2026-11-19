@@ -9,18 +9,38 @@ let fails = 0;
 // Onze kanalen.
 const FOLLOW = ["https://www.instagram.com/ishetalafgelast.nl/", "https://www.tiktok.com/@ishetalafgelast", "https://www.youtube.com/@ishetalafgelast"];
 const ok = (c, m) => { console.log((c ? "PASS " : "FAIL ") + m); if (!c) fails++; };
-function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true } = {}) {
+function mock(page, { t = 4, r = 20, wind = 50, r7 = 40, frost = 0, geo = true, ens = 200 } = {}) {
+  const dayList = (sp) => {
+    const days = [];
+    for (let d = Date.parse(sp.get("start_date") + "T00:00:00Z"); d <= Date.parse(sp.get("end_date") + "T00:00:00Z"); d += 864e5) days.push(new Date(d).toISOString().slice(0, 10));
+    return days;
+  };
+  const weather = (rt) => {
+    // Van start_date t/m end_date: 8 dagen, of 9 als zaterdag en zondag samen komen.
+    const sp = new URL(rt.request().url()).searchParams;
+    const days = dayList(sp);
+    const hours = sp.has("hourly") ? days.flatMap((d) => Array.from({ length: 24 }, (_, h) => `${d}T${String(h).padStart(2, "0")}:00`)) : null;
+    rt.fulfill({ json: { daily: { time: days, temperature_2m_mean: days.map(() => t), temperature_2m_min: days.map((_, i) => (i < frost ? -3 : t - 2)), precipitation_sum: days.map((_, i) => (i >= 7 ? r : r7 / 7)), wind_gusts_10m_max: days.map(() => wind) },
+      ...(hours && { hourly: { time: hours, temperature_2m: hours.map(() => t), precipitation: hours.map(() => r / 24), precipitation_probability: hours.map(() => 70), wind_gusts_10m: hours.map(() => wind) } }) } });
+  };
+  // Het ensemble: de controlerun plus 50 leden, elk met dezelfde dagwaarden.
+  const ensemble = (rt) => {
+    if (ens !== 200) return rt.fulfill({ status: ens, body: "{}" });
+    const sp = new URL(rt.request().url()).searchParams;
+    const days = dayList(sp);
+    const vals = { temperature_2m_mean: days.map(() => t), temperature_2m_min: days.map(() => t - 2), precipitation_sum: days.map((d) => (d === sp.get("end_date") ? r : r7 / 7)), wind_gusts_10m_max: days.map(() => wind) };
+    const daily = { time: days };
+    for (const [key, v] of Object.entries(vals)) {
+      daily[key] = v;
+      for (let m = 1; m <= 50; m++) daily[`${key}_member${String(m).padStart(2, "0")}`] = v;
+    }
+    rt.fulfill({ json: { daily } });
+  };
   return Promise.all([
     page.route("**/geocoding-api.open-meteo.com/**", (rt) => rt.fulfill({ json: geo ? { results: [{ name: "Oss", admin1: "Noord-Brabant", country_code: "NL", latitude: 51.76, longitude: 5.51 }] } : {} })),
-    page.route("**/api.open-meteo.com/**", (rt) => {
-      // Van start_date t/m end_date: 8 dagen, of 9 als zaterdag en zondag samen komen.
-      const sp = new URL(rt.request().url()).searchParams;
-      const days = [];
-      for (let d = Date.parse(sp.get("start_date") + "T00:00:00Z"); d <= Date.parse(sp.get("end_date") + "T00:00:00Z"); d += 864e5) days.push(new Date(d).toISOString().slice(0, 10));
-      const hours = sp.has("hourly") ? days.flatMap((d) => Array.from({ length: 24 }, (_, h) => `${d}T${String(h).padStart(2, "0")}:00`)) : null;
-      rt.fulfill({ json: { daily: { time: days, temperature_2m_mean: days.map(() => t), temperature_2m_min: days.map((_, i) => (i < frost ? -3 : t - 2)), precipitation_sum: days.map((_, i) => (i >= 7 ? r : r7 / 7)), wind_gusts_10m_max: days.map(() => wind) },
-        ...(hours && { hourly: { time: hours, precipitation: hours.map(() => r / 24), precipitation_probability: hours.map(() => 70), wind_gusts_10m: hours.map(() => wind) } }) } });
-    }),
+    page.route("**/api.open-meteo.com/**", weather),
+    page.route("**/archive-api.open-meteo.com/**", weather),
+    page.route("**/ensemble-api.open-meteo.com/**", ensemble),
   ]);
 }
 // Testbezoeken tellen niet mee: het Cloudflare-meetscript wordt een leeg script.
@@ -46,10 +66,13 @@ const noBeacon = (rt) => rt.fulfill({ contentType: "text/javascript", body: "" }
   ok(!/Modder|Blubber/.test(await page.getAttribute("#home", "placeholder")), "echte clubnaam als placeholder");
   ok(!(await page.$('a[href="/sponsor.html"]')), "geen adverteren-link");
   ok((await page.getAttribute('.deelband [data-net=wa]', "href")).includes("wa.me/?text="), "deelband WhatsApp gezet");
-  ok((await page.$$eval('.deelband [data-net]', (els) => els.map((e) => e.dataset.net).join(","))) === "wa,fb,x,copy", "deelknoppen: WhatsApp, Facebook, X, kopiëren");
+  ok((await page.$$eval('.deelband [data-net]', (els) => els.map((e) => e.dataset.net).join(","))) === "wa,native,copy", "deelknoppen: WhatsApp, delen, kopiëren");
   ok((await page.$$eval(".follow-row a", (els) => els.map((e) => e.href).join(" "))) === FOLLOW.join(" "), "volgknoppen gaan naar onze kanalen");
   ok((await page.$$eval(".site-footer a[rel~=me]", (els) => els.map((e) => e.href).join(" "))) === FOLLOW.join(" "), "footer linkt onze kanalen");
-  ok((await page.$$eval('[data-share-row="result"] [data-net]', (els) => els.map((e) => e.dataset.net).join(","))) === "wa,native,fb,x,copy", "uitslag: geen Instagram/TikTok-knop die alleen de app opent");
+  ok((await page.$$eval('[data-share-row="result"] [data-net]', (els) => els.map((e) => e.dataset.net).join(","))) === "wa,native,copy", "uitslag: geen Facebook-, X-, Instagram- of TikTok-knop");
+  ok((await page.$$eval("[data-share-row]", (rows) => rows.map((r) => r.dataset.shareRow).join(","))) === "home,result,result-slot,kater", "deelrijen: home, uitslag, slot en katermodus");
+  ok((await page.$$eval("[data-share-row] [data-net=wa]", (els) => els.length)) === 4, "elke deelrij heeft een WhatsApp-link");
+  ok((await page.inputValue("#kickoff")) === "10:00", "aftrap standaard 10:00");
   const homeLd = JSON.parse(await page.textContent('script[type="application/ld+json"]'));
   ok(JSON.stringify(homeLd["@graph"].find((n) => n["@type"] === "Organization")?.sameAs) === JSON.stringify(FOLLOW), "structured data noemt onze kanalen");
   ok(await page.locator(".hotspot:visible").count() > 3, "easter-egg hotspots aanwezig");
@@ -71,12 +94,13 @@ const noBeacon = (rt) => rt.fulfill({ contentType: "text/javascript", body: "" }
   const word = await page.textContent("#verdict-word");
   const pct = await page.textContent("#r-pct");
   ok(word === "Verwachting: Afgelast", `uitslag: ${word} ${pct}`);
-  ok((await page.textContent(".board-note")).includes("geen officiële afgelasting"), "disclaimer direct bij het percentage");
+  ok((await page.textContent("#verdict-word")).startsWith("Verwachting:") && (await page.textContent(".fineprint")).includes("geen afgelasting")
+    && (await page.textContent(".actie-note")).includes("Officieel: nog niets bekend"), "oordeel als verwachting, officieel nog niets bekend");
   ok(/Weerbericht van .*(vooruit|vandaag)/.test(await page.textContent("#r-horizon")), "horizon en tijdstip van het weerbericht");
-  ok(/plaats=Oss/.test(page.url()) && /veld=natuurgras/.test(page.url()), "URL deelbaar: " + page.url().replace(BASE, ""));
+  ok(/plaats=Oss/.test(page.url()) && /veld=natuurgras/.test(page.url()) && /aftrap=10%3A00/.test(page.url()), "URL deelbaar: " + page.url().replace(BASE, ""));
   ok((await page.getAttribute("#share-wa", "href")).includes("wa.me/?text="), "WhatsApp-link gezet");
   ok(!(await page.isHidden("#r-week-row")), "week-rij zichtbaar");
-  ok((await page.textContent("#r-kicker")).includes("vv Modder tegen Uit"), "kicker met teams");
+  ok((await page.textContent("#r-kicker")).includes("vv Modder"), "kicker met team");
   ok(await page.waitForFunction(() => { const i = document.querySelector("#view-result .stage img"); return i.complete && i.naturalWidth > 0; },
     null, { timeout: 5000 }).then(() => true, () => false), "uitslag-illustratie geladen bij uitslag");
   ok(await page.evaluate(() => document.activeElement.id) === "verdict-word", "focus op uitslag");
@@ -109,7 +133,8 @@ const noBeacon = (rt) => rt.fulfill({ contentType: "text/javascript", body: "" }
   await p2.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
   ok((await p2.textContent("#verdict-word")) === "Verwachting: Gaat door", "deeplink + droog weer -> Gaat door");
   ok((await p2.textContent("[data-bind=pct]")).endsWith("%"), "live bord gevuld");
-  ok((await p2.locator(".tas li").count()) === 11, "tas-check bij doorgaan");
+  await p2.click("#tab-tas");
+  ok((await p2.locator(".tas li").count()) === 12, "tas-check bij doorgaan");
 
   // onbekende plaats
   const p3 = await ctx.newPage();
@@ -155,6 +180,7 @@ const noBeacon = (rt) => rt.fulfill({ contentType: "text/javascript", body: "" }
   await early.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
   ok((await early.textContent("#verdict-word")) === "Verwachting: Nog te vroeg", "8 dagen vooruit -> nog te vroeg");
   ok((await early.textContent("#r-horizon")).includes("grove schatting"), "8 dagen vooruit -> grove schatting met terugkommoment");
+  ok((await early.getAttribute(".scene--result", "data-mood")) === "kantine", "8 dagen vooruit -> kantine-scène");
 
   // plaatspagina
   const p4 = await ctx.newPage();
@@ -273,7 +299,7 @@ const noBeacon = (rt) => rt.fulfill({ contentType: "text/javascript", body: "" }
   shared.on("request", (r) => { const u = new URL(r.url()); if (u.hostname.endsWith("open-meteo.com")) sharedCalls.push(u); });
   await shared.goto(hg.url(), { waitUntil: "networkidle" });
   await shared.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
-  ok(sharedCalls.length > 0 && sharedCalls.every((u) => u.hostname === "api.open-meteo.com" && u.searchParams.get("latitude") === "52.0500"),
+  ok(sharedCalls.length > 0 && sharedCalls.every((u) => u.hostname !== "geocoding-api.open-meteo.com" && u.searchParams.get("latitude") === "52.0500"),
     "ontvanger van de deellink krijgt dezelfde plaats, zonder opnieuw te zoeken");
   await hg.close();
   await shared.close();
@@ -338,17 +364,18 @@ const noBeacon = (rt) => rt.fulfill({ contentType: "text/javascript", body: "" }
   await mp.fill("#home", "vv Modder");
   await mp.click("#btn-check");
   await mp.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
-  const weekend = await mp.textContent("#r-weekend");
-  ok(/^Zaterdag \d+% · Zondag \d+%$/.test(weekend) && (await mp.textContent("#r-weekend strong")).startsWith("Zondag"),
-    "zaterdag en zondag naast elkaar: " + weekend);
+  const weekend = await mp.$$eval("#r-weekend button", (bs) => bs.map((x) => x.textContent));
+  ok(/^Zaterdag \d+%$/.test(weekend[0]) && /^Zondag \d+%$/.test(weekend[1]) && (await mp.textContent('#r-weekend [aria-pressed="true"]')).startsWith("Zondag"),
+    "zaterdag en zondag naast elkaar: " + weekend.join(" · "));
   ok((await mp.textContent("#ics-label")).includes("vrijdag om 19:45"), "herinnering voor vrijdag 19:45");
   const [dl] = await Promise.all([mp.waitForEvent("download"), mp.click("#btn-ics")]);
   const ics = fs.readFileSync(await dl.path(), "utf8").replace(/\r\n /g, "");
   ok(ics.startsWith("BEGIN:VCALENDAR") && ics.includes(`DTSTART:${ahead(toSunday - 2).replaceAll("-", "")}T194500`)
     && ics.includes(`datum=${sunday}`), "agenda-bestand: vrijdag 19:45 met deeplink naar de check");
-  await mp.click(".weekend-other");
+  await mp.click('#r-weekend button[aria-pressed="false"]');
   await mp.waitForFunction((d) => location.search.includes(`datum=${d}`), saturday);
-  ok((await mp.textContent("#r-weekend strong")).startsWith("Zaterdag"), "tik op de andere dag toont zaterdag");
+  await mp.waitForFunction(() => document.querySelector('#r-weekend [aria-pressed="true"]')?.textContent.startsWith("Zaterdag"));
+  ok((await mp.textContent('#r-weekend [aria-pressed="true"]')).startsWith("Zaterdag"), "tik op de andere dag toont zaterdag");
   ok(await mp.evaluate(() => JSON.parse(localStorage.getItem("ishetalafgelast:wedstrijd")).weekday) === 6, "wedstrijd onthouden met speeldag");
 
   await mp.goto(BASE + "/", { waitUntil: "networkidle" });
@@ -377,7 +404,7 @@ const noBeacon = (rt) => rt.fulfill({ contentType: "text/javascript", body: "" }
     veld: "natuurgras", p: "61", ts: String(sharedAt) }), { waitUntil: "networkidle" });
   await sh.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
   const sharedLine = await sh.textContent("#r-shared");
-  ok(/^Gedeeld \w+ \d\d:\d\d: 61% · nu (ook )?\d+%$/.test(sharedLine), "ontvanger ziet kans van toen en nu: " + sharedLine);
+  ok(/^Gedeeld \S+ \d\d:\d\d: 61%, nu (ook )?\d+%\.$/.test(sharedLine), "ontvanger ziet kans van toen en nu: " + sharedLine);
   const waLink = decodeURIComponent(await sh.getAttribute("#share-wa", "href"));
   ok(/[?&]p=\d+&ts=\d+/.test(waLink), "doorgedeelde link krijgt eigen kans en tijdstip");
   await sh.click("#btn-back");
@@ -395,8 +422,8 @@ const noBeacon = (rt) => rt.fulfill({ contentType: "text/javascript", body: "" }
   await ko.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
   const hourHead = await ko.$$eval("#r-hours-table thead th", (ths) => ths.map((th) => th.textContent));
   ok(await ko.textContent("#r-hours-title") === "Rond de aftrap (10:30)"
-    && hourHead.join(" ") === "Uur 07:00 08:00 09:00 10:00 11:00 12:00", "uurweer van 3 uur voor tot 2 uur na de aftrap: " + hourHead.join(" "));
-  ok(await ko.textContent("#r-hours-table thead .is-kickoff") === "10:00", "aftrapuur gemarkeerd");
+    && hourHead.join(" ") === "Uur 07 08 09 10 11 12", "uurweer van 3 uur voor tot 2 uur na de aftrap: " + hourHead.join(" "));
+  ok(await ko.textContent("#r-hours-table thead .is-kickoff") === "10", "aftrapuur gemarkeerd");
   ok((await ko.textContent("#r-precip")).includes("hele dag") && await ko.inputValue("#kickoff") === "10:30", "dagwaarden gelabeld, aftrap in het formulier");
   await ko.close();
 
@@ -439,6 +466,231 @@ const noBeacon = (rt) => rt.fulfill({ contentType: "text/javascript", body: "" }
   await hp.mouse.wheel(0, 1);
   ok(await moving(), "scrollen wekt de kantine weer");
   await hi.close();
+
+  // ─────────── Nieuwe functies: elke scenario met een eigen context en eigen mock ───────────
+  const NL = { locale: "nl-NL", timezoneId: "Europe/Amsterdam", reducedMotion: "reduce" };
+  const DRY = { t: 14, r: 0, wind: 15, r7: 2 };
+  const TWIJFEL = { t: 4, r: 15, wind: 50, r7: 35 };
+  const aheadIso = (n) => new Date(Date.now() + n * 864e5).toLocaleDateString("sv-SE", { timeZone: "Europe/Amsterdam" });
+  const dowOf = (iso) => new Date(iso + "T12:00:00Z").getUTCDay();
+  // Eerstvolgende dag met deze weekdag (vandaag telt mee) en het eerstvolgende weekenddag-potje.
+  const nextDow = (dow) => { let n = 0; while (dowOf(aheadIso(n)) !== dow) n++; return aheadIso(n); };
+  const weekendIso = (() => { let n = 0; while (![0, 6].includes(dowOf(aheadIso(n)))) n++; return aheadIso(n); })();
+  const dagParam = dowOf(weekendIso) === 6 ? "za" : "zo";
+  const saturdayIso = nextDow(6);
+  const link = (extra = {}) => BASE + "/?" + new URLSearchParams({ plaats: "Oss", lat: "51.76", lon: "5.51", datum: weekendIso, aftrap: "10:00", veld: "natuurgras", ...extra });
+  const fresh = async (weather, opts = {}) => {
+    const c = await newContext({ ...NL, ...opts });
+    const p = await c.newPage();
+    p.on("pageerror", (e) => errs.push(e.message));
+    await mock(p, weather);
+    return [c, p];
+  };
+  const resultReady = (p) => p.waitForSelector("#view-result:not([hidden])", { timeout: 8000 });
+  // Een tijdstip in Amsterdam als Date, ook als de zomertijd ingaat of eindigt.
+  const atAms = (iso, hh, mm) => {
+    const [y, m, d] = iso.split("-").map(Number);
+    const t = Date.UTC(y, m - 1, d, hh, mm);
+    const seen = Number(new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Amsterdam", hour: "2-digit", hourCycle: "h23" }).format(t));
+    return new Date(t - (seen - hh) * 3600e3);
+  };
+
+  // 1. De 51 consuls
+  {
+    const [c, p] = await fresh();
+    await p.goto(link());
+    await p.waitForSelector("#consuls:not([hidden])", { timeout: 8000 });
+    ok((await p.locator("#consuls-veld li").count()) === 51, "consuls: precies 51 poppetjes");
+    ok(/van de 51 veldkeurders/.test(await p.textContent("#consuls-title")), "consuls: titel noemt de 51: " + await p.textContent("#consuls-title"));
+    await c.close();
+    const [c2, p2] = await fresh({ ens: 500 });
+    const answered = p2.waitForResponse((r) => r.url().includes("ensemble-api.open-meteo.com"));
+    await p2.goto(link());
+    await resultReady(p2);
+    await answered;
+    await p2.waitForTimeout(400);
+    ok(await p2.isVisible("#view-result") && await p2.isHidden("#consuls"), "consuls: ensemble 500 -> uitslag staat, consuls blijven weg");
+    await c2.close();
+  }
+
+  // 2. Tabbladen onder de uitslag
+  {
+    const tabs = (p) => p.$$eval('[role="tab"]', (els) => els.map((e) => e.textContent));
+    const [c, p] = await fresh(DRY);
+    await p.goto(link());
+    await resultReady(p);
+    ok((await tabs(p)).join(", ") === "Briefje, Wie vlagt er?, Tas-check, Smoesje", "tabs bij doorgaat: " + (await tabs(p)).join(", "));
+    ok((await p.locator('[role="tab"][aria-selected="true"]').count()) === 1, "tabs: één geselecteerd");
+    await p.focus("#tab-brief");
+    await p.keyboard.press("ArrowRight");
+    ok((await p.getAttribute("#tab-vlag", "aria-selected")) === "true" && (await p.locator('[role="tab"][aria-selected="true"]').count()) === 1, "tabs: pijl rechts selecteert het volgende tabblad");
+    await p.click("#tab-tas");
+    await p.locator(".tas label").first().scrollIntoViewIfNeeded();
+    const lb = await p.locator(".tas label").first().boundingBox();
+    await p.mouse.click(lb.x + lb.width / 2, lb.y + lb.height / 2);
+    ok(await p.isChecked("#tas-0"), "tas-check: muisklik op het label vinkt aan");
+    await p.click("#tab-brief");
+    await p.fill("#brief-naam", "Kevin");
+    ok((await p.textContent(".brief")).includes("Kevin"), "briefje: naam komt in het briefje");
+    await c.close();
+    const [c2, p2] = await fresh();
+    await p2.goto(link());
+    await resultReady(p2);
+    ok((await tabs(p2)).join(", ") === "Programma, Briefje", "tabs bij afgelast: " + (await tabs(p2)).join(", "));
+    await c2.close();
+  }
+
+  // 3. Wie vlagt er en de teamlink
+  {
+    const names = "Kevin, Mo, Bas, Sander";
+    const [c, p] = await fresh(DRY, { permissions: ["clipboard-read", "clipboard-write"] });
+    await p.goto(link());
+    await resultReady(p);
+    await p.click("#tab-vlag");
+    await p.fill("#vlag-namen", names);
+    ok((await p.locator(".klussen > div").count()) === 3 && (await p.textContent(".klussen")).includes("Vlaggen"), "wie vlagt er: de klussen staan verdeeld");
+    await p.click("#btn-teamlink");
+    const clip = await p.evaluate(() => navigator.clipboard.readText());
+    const cu = new URL(clip);
+    ok(cu.searchParams.get("dag") === dagParam && !cu.searchParams.has("datum") && clip.endsWith("#wie=" + encodeURIComponent("Kevin,Mo,Bas,Sander")),
+      "teamlink: dag, geen datum, namen achter het hekje: " + clip.replace(BASE, ""));
+    await c.close();
+    const [c2, p2] = await fresh(DRY);
+    await p2.goto(clip);
+    await resultReady(p2);
+    ok((await p2.inputValue("#date")) === nextDow(dowOf(weekendIso)), "teamlink: opent de eerstvolgende " + dagParam);
+    await p2.click("#tab-vlag");
+    ok((await p2.inputValue("#vlag-namen")).split(/,\s*/).join(",") === "Kevin,Mo,Bas,Sander", "teamlink: de vier namen staan klaar");
+    ok(await p2.evaluate(() => location.hash) === "", "teamlink: hekje uit de adresbalk");
+    await c2.close();
+  }
+
+  // 4. Katermodus
+  {
+    const [c, p] = await fresh(DRY);
+    await p.goto(link());
+    await resultReady(p);
+    await p.click("#btn-kater");
+    ok(await p.isVisible("#view-kater") && await p.isHidden("#view-result"), "kater: katerscherm in plaats van de uitslag");
+    ok((await p.textContent("#k-word")).trim().length > 0 && (await p.getAttribute("#k-share", "href")).includes("wa.me/?text="), "kater: één woord en een WhatsApp-link");
+    await p.click("#k-more");
+    ok(await p.isVisible("#view-result") && await p.isHidden("#view-kater"), "kater: toon alles brengt de uitslag terug");
+    await c.close();
+    const team = BASE + "/?" + new URLSearchParams({ plaats: "Oss", lat: "51.76", lon: "5.51", dag: "za", aftrap: "10:00", veld: "natuurgras" });
+    for (const [hh, view, other] of [[7, "#view-kater", "#view-result"], [15, "#view-result", "#view-kater"]]) {
+      const [kc, kp] = await fresh(DRY);
+      await kp.clock.install({ time: atAms(saturdayIso, hh, hh === 7 ? 40 : 0) });
+      await kp.goto(team);
+      await kp.waitForSelector(`${view}:not([hidden])`, { timeout: 8000 }).catch(() => {});
+      ok(await kp.isVisible(view) && await kp.isHidden(other), `teamlink op zaterdag ${String(hh).padStart(2, "0")}:${hh === 7 ? "40" : "00"} toont ${view.slice(1)}`);
+      await kc.close();
+    }
+  }
+
+  // 5. Jij tegen Henk
+  {
+    const [c, p] = await fresh();
+    await p.goto(BASE + "/", { waitUntil: "networkidle" });
+    const matchDate = await p.inputValue("#date");
+    await p.fill("#city", "Oss");
+    await p.click("#btn-check");
+    await p.waitForSelector("#tip:not([hidden])", { timeout: 8000 });
+    await p.click('[data-tip="door"]');
+    await resultReady(p);
+    ok((await p.textContent("#r-duel")).includes("Jij tipte: gaat door"), "duel: tip staat bij de uitslag");
+    const stored = await p.evaluate(() => JSON.parse(localStorage.getItem("ishetalafgelast:duel")));
+    ok(stored.tips.length === 1 && Number.isInteger(stored.tips[0].pct), "duel: één tip met Henks percentage opgeslagen");
+    // Dezelfde wedstrijd nog eens: tippen kan niet meer.
+    await p.click("#btn-back");
+    await p.waitForSelector("#view-home:not([hidden])");
+    await p.evaluate(() => {
+      window.__tip = false;
+      const t = document.querySelector("#tip");
+      new MutationObserver(() => { if (!t.hidden) window.__tip = true; }).observe(t, { attributes: true, attributeFilter: ["hidden"] });
+    });
+    await p.click("#btn-check");
+    await resultReady(p);
+    ok(await p.evaluate(() => window.__tip === false), "duel: dezelfde wedstrijd nog eens checken toont geen tip");
+    const later = await c.newPage();
+    later.on("pageerror", (e) => errs.push(e.message));
+    await mock(later);
+    await later.clock.install({ time: atAms(new Date(Date.parse(matchDate + "T12:00:00Z") + 2 * 864e5).toISOString().slice(0, 10), 12, 0) });
+    await later.goto(BASE + "/", { waitUntil: "networkidle" });
+    ok(await later.isVisible("#duel"), "duel: na de speeldag vraagt de homepage hoe het afliep");
+    await later.click('[data-out="door"]');
+    ok(/Stand na één speelronde/.test(await later.textContent("#duel-stand")), "duel: stand na één speelronde");
+    await c.close();
+  }
+
+  // 6. Elftal zet de aftrap
+  {
+    const [c, p] = await fresh();
+    await p.goto(BASE + "/", { waitUntil: "networkidle" });
+    await p.selectOption("#elftal", "7");
+    ok((await p.inputValue("#kickoff")) === "09:30", "elftal 7: aftrap 09:30");
+    await p.fill("#city", "Oss");
+    await p.click("#btn-check");
+    await resultReady(p);
+    ok(/elftal=7/.test(p.url()), "elftal 7 in de URL");
+    const [c2, p2] = await fresh();
+    await p2.goto(BASE + "/", { waitUntil: "networkidle" });
+    await p2.fill("#kickoff", "11:00");
+    await p2.selectOption("#elftal", "7");
+    ok((await p2.inputValue("#kickoff")) === "11:00", "elftal 7: eigen aftrap blijft staan");
+    await c.close();
+    await c2.close();
+  }
+
+  // 7. Layout: geen horizontaal scrollen, aanraakdoelen
+  for (const [w, h] of [[320, 640], [390, 844], [1440, 900]]) {
+    const phoneSize = w < 640;
+    const tag = `${w}x${h}`;
+    const c = await newContext({ ...NL, viewport: { width: w, height: h }, ...(phoneSize && { hasTouch: true, isMobile: true }) });
+    const noScroll = async (pg, what) => {
+      const [sw, iw] = await pg.evaluate(() => [document.documentElement.scrollWidth, innerWidth]);
+      ok(sw <= iw, `${tag} ${what}: niet breder dan het scherm (${sw} <= ${iw})`);
+    };
+    const footerTall = async (pg, what) => {
+      const hs = await pg.$$eval(".site-footer nav a", (els) => els.map((e) => e.getBoundingClientRect().height));
+      ok(hs.length > 0 && Math.min(...hs) >= 44, `${tag} ${what}: footerlinks minstens 44px hoog (${Math.min(...hs)})`);
+    };
+    const hp = await c.newPage();
+    hp.on("pageerror", (e) => errs.push(e.message));
+    await mock(hp);
+    await hp.goto(BASE + "/", { waitUntil: "networkidle" });
+    await noScroll(hp, "home");
+    if (phoneSize) await footerTall(hp, "home");
+    const up = await c.newPage();
+    up.on("pageerror", (e) => errs.push(e.message));
+    await mock(up);
+    await up.goto(BASE + "/plaatsen/utrecht.html", { waitUntil: "networkidle" });
+    await noScroll(up, "plaatspagina");
+    if (phoneSize) await footerTall(up, "plaatspagina");
+    for (const [mood, weather, scene] of [["afgelast", {}, "afgelast"], ["twijfel", TWIJFEL, "kantine"], ["doorgaat", DRY, "doorgaat"]]) {
+      const rp = await c.newPage();
+      rp.on("pageerror", (e) => errs.push(e.message));
+      await mock(rp, weather);
+      await rp.goto(link(), { waitUntil: "networkidle" });
+      await resultReady(rp);
+      await rp.waitForSelector("#consuls:not([hidden])", { timeout: 8000 });
+      ok((await rp.getAttribute(".scene--result", "data-mood")) === scene, `${tag} ${mood}: scène ${scene}`);
+      await noScroll(rp, `uitslag ${mood}`);
+      if (phoneSize) await footerTall(rp, `uitslag ${mood}`);
+      if (w === 390 && mood === "afgelast") {
+        const box = await rp.locator('[data-share-row="result"] [data-net="wa"]').boundingBox();
+        ok(box && box.y >= 0 && box.y + box.height <= h, `${tag} WhatsApp-knop in het eerste scherm (${box && Math.round(box.y + box.height)} <= ${h})`);
+      }
+      if (phoneSize && await rp.isVisible("#r-weekend")) {
+        const hs = await rp.$$eval("#r-weekend button", (els) => els.map((e) => e.getBoundingClientRect().height));
+        ok(Math.min(...hs) >= 44, `${tag} ${mood}: speeldagknoppen minstens 44px hoog (${Math.min(...hs)})`);
+      }
+      if (!phoneSize && mood === "doorgaat") {
+        ok((await rp.locator("#board a, #board button").count()) === 0, `${tag} doorgaat: bord zonder links of knoppen`);
+      }
+      await rp.close();
+    }
+    await c.close();
+  }
 
   for (const path of ["/HANDOVER.md", "/tools/export_model.py", "/docs/security/BEHEER.md", "/docs/IMPLEMENTATIEPLAN.md"]) {
     ok((await ctx.request.get(BASE + path)).status() === 404, "niet-publiek pad geeft 404: " + path);

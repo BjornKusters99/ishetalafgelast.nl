@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-11-18T11:57:13.533Z",
+        "reason": "Claude, evidence: the result <img> gets its src from js/scene.js mountStage().set() at runtime so the large illustration is not fetched before a check (see comment in scene.js)"
+      }
+    ]
+  }
+}

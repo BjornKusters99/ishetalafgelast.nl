@@ -1,0 +1,352 @@
+/* ═══════════════════════════════════════════════════════════════
+   IsHetAlAfgelast.nl: de telefoon
+   Een laag bovenop styles.css, geladen direct erna. Zelfde wereld (hout,
+   perkament, inkt), maar ingericht voor één duim om 07:40:
+   - korter: tekst achter "Lees verder", de opstelling als veegrij, een chat
+     die als een echte chat scrollt;
+   - rustiger: één ritme van marges, minder knoppen naast elkaar;
+   - binnen bereik: delen in een vaste balk onderin op de uitslag;
+   - alles te vinden: een kantinestrook onderaan met de plekjes die op de
+     telefoon onder de perkamentrol vielen, en een uitslagtekening die je opzij
+     sleept. De onderdelen die js/mobiel.js toevoegt, zijn hierbuiten onzichtbaar.
+   ═══════════════════════════════════════════════════════════════ */
+
+.m-meer, .m-kantine, .m-sleep, .m-stand { display: none; }
+
+@media (max-width: 640px) {
+  :root {
+    --m-rand: 20px;      /* zijkant van alles wat op het hout staat */
+    --m-sectie: 56px;    /* tussen twee hoofdstukken */
+    --m-blok: 40px;      /* tussen twee blokken binnen een hoofdstuk */
+    --paper-hover: #fff6e2;
+  }
+
+  html { -webkit-tap-highlight-color: transparent; }
+  ::selection { background: var(--gold-hi); color: var(--ink); }
+  a, button, summary, label, select { touch-action: manipulation; }
+
+  /* ─────────── Home: kop ─────────── */
+
+  .topbar { padding-inline: 14px; }
+  /* Het logo krimpt nooit; komt er een derde menuknop bij (proefmodus), dan gaat het menu op twee rijen. */
+  .topbar .brand { flex: none; }
+  .brand img { width: 112px; }
+  .topnav { flex-wrap: wrap; justify-content: flex-end; }
+  .topnav a {
+    display: inline-flex; align-items: center;
+    min-height: 44px; padding: 8px 13px; font-size: .88rem; white-space: nowrap;
+  }
+
+  /* Datum krijgt de ruimte, de aftraptijd past in "10:00". */
+  .when { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); }
+  .field input[type="time"] { width: 100%; }
+
+  /* ─────────── Home: het rekenwerk ─────────── */
+
+  .reken { padding: var(--m-sectie) var(--m-rand) var(--m-blok); }
+  /* De kop zegt het al; het handgeschreven etiket erboven is op een telefoon één regel te veel. */
+  .reken .overline { display: none; }
+  .reken-head h2 {
+    max-width: 13ch; margin-top: 0;
+    font-size: clamp(2rem, 9.6vw, 2.55rem); line-height: 1.02;
+  }
+  .reken-lede { gap: var(--s-3); margin-top: var(--s-4); }
+  .reken-lede p { font-size: 1rem; line-height: 1.6; }
+  /* Het tweede stuk loopt na twee regels dood in het hout; "Lees verder" klapt het uit. */
+  .reken-lede.is-kort p + p {
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(180deg, #000 35%, transparent);
+    mask-image: linear-gradient(180deg, #000 35%, transparent);
+  }
+  .m-meer {
+    display: inline-flex; align-items: center;
+    min-height: 44px; margin-top: var(--s-1); padding: 0;
+    border: 0; background: none; cursor: pointer;
+    font: inherit; font-weight: 600; color: var(--gold-hi);
+    text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 4px;
+    text-decoration-color: rgb(242 197 95 / .45);
+  }
+  .m-meer:active { color: var(--paper-hi); }
+
+  .reken-grid { gap: var(--m-blok); margin-top: var(--m-blok); }
+
+  /* De appgroep als echt chatvenster: vaste hoogte, begint onderaan, oudere berichten erboven. */
+  .appgroep {
+    rotate: -.5deg;
+    box-shadow: 0 5px 0 var(--ink), 0 18px 36px rgb(0 0 0 / .3);
+  }
+  .appgroep-log {
+    align-content: start;
+    max-height: min(52svh, 340px);
+    overflow-y: auto;
+    scrollbar-width: thin; scrollbar-color: rgb(43 26 16 / .3) transparent;
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 28px);
+    mask-image: linear-gradient(180deg, transparent, #000 28px);
+  }
+  .appgroep-more { margin-top: var(--s-2); }
+
+  /* De basisopstelling: vijf spelerskaartjes in een veegrij in plaats van een lange lijst. */
+  .opstelling h3 { font-size: 1.45rem; }
+  .factors {
+    display: flex; gap: var(--s-3);
+    margin: var(--s-3) calc(var(--m-rand) * -1) 0;
+    padding: var(--s-1) var(--m-rand) var(--s-3);
+    overflow-x: auto; overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory; scroll-padding-inline: var(--m-rand);
+    scrollbar-width: none;
+  }
+  .factors::-webkit-scrollbar { display: none; }
+  .factors li, .factors li:last-child {
+    flex: 0 0 min(82%, 300px);
+    grid-template-columns: 2.6rem minmax(0, 1fr); gap: var(--s-3);
+    align-content: start;
+    padding: var(--s-4) var(--s-4) var(--s-4) var(--s-3);
+    scroll-snap-align: start;
+    border: 2px solid var(--wood-700);
+    border-radius: var(--r-hand);
+    background: linear-gradient(180deg, var(--wood-800), var(--wood-900));
+  }
+  .factors li > div { display: flex; flex-direction: column; }
+  .factors .bar { width: 100%; margin-top: auto; }
+  .factors p { margin-bottom: var(--s-3); }
+  .factors .shirt { width: 2.6rem; height: 2.6rem; }
+  .factors .shirt b { font-size: 1.05rem; }
+  .factors h4 { font-size: 1.05rem; gap: 0 var(--s-2); }
+  .factors .tag { font-size: 1.05rem; }
+  .factors p { font-size: .95rem; line-height: 1.45; }
+  .bank { margin-top: var(--s-2); }
+
+  /* ─────────── Home: deelband ─────────── */
+
+  .deelband-inner { gap: var(--s-3); padding: var(--m-blok) var(--m-rand) 44px; }
+  .deelband h2 { max-width: 17ch; font-size: clamp(1.6rem, 7.4vw, 2rem); line-height: 1.05; }
+  .deelband p { font-size: 1.3rem; }
+  .deelband .share-row { margin-top: var(--s-2); }
+  .follow-row { gap: var(--s-2); margin-top: var(--s-1); }
+  .follow-row span { margin-right: var(--s-1); font-size: 1.2rem; }
+  .follow-row .btn-net { width: 48px; min-height: 48px; }
+
+  /* Delen: één rij, de groene knop vult, de vierkante knoppen houden hun maat. */
+  .share-row .btn-share, .deelband .btn-share { flex: 1 1 0; min-width: 0; }
+  .btn-net, .deelband .btn-net, .actie .btn-net { flex: none; width: 52px; }
+
+  /* ─────────── Home: plaatsen ─────────── */
+
+  .places { padding: var(--m-blok) var(--m-rand) var(--m-sectie); }
+  .places h2 { font-size: 1.4rem; }
+  .place-list { gap: 0; font-size: 1.32rem; line-height: 1.2; }
+  .place-list a { padding-block: 10px; }
+  .place-list li:not(:last-child)::after { margin: 0 .3em; }
+
+  /* ─────────── Uitslag ─────────── */
+
+  .board-plank { padding-inline: var(--m-rand); }
+  .actie-inner { gap: var(--s-3); padding: var(--s-3) var(--m-rand) var(--s-4); }
+
+  .consuls { gap: var(--s-4); padding: var(--m-sectie) var(--m-rand) var(--s-3); }
+  .consuls h2 { font-size: clamp(1.75rem, 8vw, 2.2rem); }
+  .consuls-rest { margin-top: var(--s-2); font-size: 1.3rem; }
+  .consuls-note { margin-top: var(--s-3); font-size: .9rem; }
+  .consuls-veld { justify-content: center; gap: 6px 3px; padding: 14px 10px; }
+
+  .rapport { --bx: 26px; width: calc(100% - 6px); margin-top: var(--m-blok); padding: var(--s-3) 0 var(--s-2); }
+  .rapport-grid { gap: var(--s-5); }
+  .stuit-head h2 { font-size: 1.45rem; }
+  .verslag .fun { font-size: 1.45rem; }
+  .verslag h3 { margin-top: var(--s-4); }
+  .conditions { margin-top: var(--s-4); }
+  .fineprint { margin-top: var(--s-4); }
+
+  /* Extra's: de tabbladen als nette twee-bij-twee, alles in één oogopslag. */
+  .extra { gap: var(--s-4); padding: var(--m-sectie) var(--m-rand) var(--m-blok); }
+  .extra-head h2 { font-size: clamp(1.8rem, 8.2vw, 2.25rem); }
+  .extra-head p { margin-top: var(--s-2); }
+  .tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-2); margin-bottom: var(--s-5); }
+  .tabs button { min-height: 48px; padding: 8px 10px; }
+  .tabs button:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .brief { padding: var(--s-4); }
+
+  .slot { gap: var(--m-blok); padding: var(--m-blok) var(--m-rand) var(--m-sectie); }
+  .slot h2 { font-size: clamp(1.6rem, 7.4vw, 2rem); }
+  .team-form { margin-top: var(--s-4); }
+  .team-form .btn-share { width: 100%; }
+  .slot-acties { gap: var(--s-3); }
+  .slot-acties .slot-note { margin-top: var(--s-1); }
+
+  /* ─────────── Footer ─────────── */
+
+  .doc { padding-bottom: var(--s-6); }
+  .site-footer { gap: var(--s-2); padding: var(--m-blok) var(--m-rand) max(var(--s-6), env(safe-area-inset-bottom)); }
+  .site-footer img { width: 112px; }
+
+  /* ─────────── Uitslag: de stand onderin ───────────
+     Verschijnt zodra de groene deelknop naar boven uit beeld is, en verdwijnt
+     weer bij de deelknop onderaan, bij een toetsenbord en in de katermodus. */
+
+  .m-stand {
+    position: fixed; inset: auto 0 0; z-index: 40;
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center;
+    gap: var(--s-3);
+    padding: var(--s-2) var(--s-4) max(var(--s-2), env(safe-area-inset-bottom));
+    color: var(--cream);
+    background:
+      radial-gradient(circle at 1px 1px, rgb(255 236 200 / .05) 1px, transparent 1.6px) 0 0 / 6px 6px,
+      linear-gradient(180deg, var(--wood-800), var(--wood-950));
+    border-top: 3px solid var(--ink);
+    box-shadow: inset 0 1px 0 rgb(255 220 160 / .12), 0 -12px 28px rgb(16 9 5 / .4);
+    animation: m-stand-op var(--d-2) var(--ease-out);
+  }
+  @keyframes m-stand-op { from { translate: 0 100%; } }
+  .m-stand-oordeel {
+    display: flex; align-items: baseline; gap: 10px;
+    min-width: 0; min-height: 48px; padding: 0;
+    border: 0; background: none; color: inherit; text-align: left; cursor: pointer;
+  }
+  .m-stand-woord {
+    overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    padding: 0 2px 3px;
+    font-family: var(--f-display); font-size: 1.6rem; line-height: 1.05;
+    color: var(--gold-hi);
+    -webkit-text-stroke: 1.5px var(--ink); paint-order: stroke fill;
+    text-shadow: 0 2px 0 var(--ink);
+    rotate: -1.5deg;
+  }
+  .m-stand[data-mood="afgelast"] .m-stand-woord { color: var(--red); }
+  .m-stand[data-mood="doorgaat"] .m-stand-woord { color: #5cb336; }
+  .m-stand.is-vroeg .m-stand-woord { color: var(--gold-hi); }
+  .m-stand-pct {
+    flex: none;
+    font-family: var(--f-display); font-size: 1.25rem; line-height: 1;
+    color: var(--paper-hi); font-variant-numeric: tabular-nums;
+  }
+  .m-stand-deel {
+    display: inline-flex; align-items: center; gap: 8px;
+    min-height: 48px; padding: 8px 16px;
+    border: var(--line) solid var(--ink); border-radius: var(--r-hand);
+    background: var(--btn-green); color: var(--paper-hi);
+    font-weight: 600; font-size: .98rem; white-space: nowrap;
+    box-shadow: 0 3px 0 var(--ink);
+    cursor: pointer;
+    transition: transform var(--d-1) var(--ease-out), box-shadow var(--d-1) var(--ease-out), background-color var(--d-1) ease;
+  }
+  .m-stand-deel:active { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); background: var(--btn-green-hi); }
+  html.m-stand-aan { scroll-padding-bottom: 96px; }
+  html.m-stand-aan body { padding-bottom: 72px; }
+
+  /* ─────────── Aanraken in plaats van aanwijzen ─────────── */
+
+  .hotspot:active { background: radial-gradient(closest-side, rgb(255 228 160 / .34), transparent); }
+  .topnav a:active { background: rgb(23 13 8 / .9); }
+  .place-list a:active { color: var(--gold-hi); }
+  .tabs button:active { border-color: var(--gold); }
+  .btn-net:active, .btn-tiny:active, .stuit-drop:active, .btn-back:active { background: var(--paper-hover); }
+  .btn-share:active { background: var(--btn-green-hi); }
+}
+
+/* ─────────── Staande telefoon: de kantinestrook en de sleepbare uitslag ─────────── */
+
+@media (max-width: 640px) and (orientation: portrait) {
+  /* Het onderste stuk van de staande kantinetekening (vanaf 33,5%), met het zoekplaatje
+     op de getekende rol. Maten in procenten van de strook: 1376 x 66,5% = 915 hoog. */
+  .places:has(+ .m-kantine), #view-home > :has(+ .m-kantine) { padding-bottom: var(--s-5); }
+  .m-kantine {
+    position: relative; display: block;
+    aspect-ratio: 768 / 915;
+    overflow: clip;
+    background: var(--wood-900);
+  }
+  .m-kantine-beeld { position: absolute; left: 0; right: 0; top: -50.38%; height: 150.38%; }
+  .m-kantine-beeld img { width: 100%; height: 100%; object-fit: cover; user-select: none; }
+  /* Boven loopt het hout van de plaatsen erin over, onder het hout van de footer. */
+  .m-kantine::before, .m-kantine::after {
+    content: ""; position: absolute; left: 0; right: 0; z-index: 3; pointer-events: none;
+  }
+  .m-kantine::before { top: 0; height: 9%; background: linear-gradient(var(--wood-900), transparent); }
+  .m-kantine::after { bottom: 0; height: 10%; background: linear-gradient(transparent, var(--wood-950)); }
+
+  .m-kantine-rol {
+    position: absolute; z-index: 4; top: 5%; bottom: 35%; left: 18%; right: 18%;
+    container-type: inline-size;
+    display: grid; align-content: center; justify-items: center; gap: var(--s-2);
+    text-align: center; color: var(--ink);
+  }
+  .m-kantine-groet {
+    max-width: 11ch;
+    font-family: var(--f-display); font-size: clamp(1.4rem, 12.5cqw, 2.1rem); line-height: 1;
+    text-wrap: balance;
+  }
+  .m-kantine-tekst {
+    max-width: 22ch;
+    font-family: var(--f-hand); font-size: clamp(1rem, 7.6cqw, 1.2rem); line-height: 1.15;
+    color: var(--ink-2); text-wrap: pretty;
+  }
+  .m-kantine-rol .zoek {
+    gap: 6px;
+    max-width: 100%;
+    margin: var(--s-2) 0 0;
+    padding: 8px 12px 8px 10px;
+    white-space: nowrap;
+    border: 2px solid var(--ink); border-radius: 999px;
+    background: var(--paper-hi); color: var(--ink);
+    font-weight: 600; font-size: .8rem; line-height: 1.15;
+    box-shadow: 0 3px 0 var(--ink);
+    transition: transform var(--d-1) var(--ease-out), box-shadow var(--d-1) var(--ease-out);
+  }
+  .m-kantine-rol .zoek .ic { width: 16px; height: 16px; }
+  .m-kantine-rol .zoek:active { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); background: var(--paper-hover); }
+  @container (max-width: 230px) {
+    .m-kantine-tekst { display: none; }
+    .m-kantine-rol .zoek { white-space: normal; text-align: left; border-radius: var(--r-hand-sm); }
+  }
+
+  /* "Gaat door": de hele tekening, op volle hoogte, breder dan het scherm. Opzij slepen
+     (js/mobiel.js) laat de ballon, de kaart, de camera en de hond zien. */
+  .scene--result[data-mood="doorgaat"] { --sw: 178cqw; --sx: calc(50cqw - var(--sw) * .5); }
+  .scene--result[data-mood="doorgaat"] .stage {
+    margin-top: 0; margin-bottom: 0;
+    translate: var(--pan, 0px) 0;
+    touch-action: pan-y;
+    cursor: grab;
+    -webkit-user-select: none; user-select: none;
+  }
+  .scene--result[data-mood="doorgaat"] .stage img { -webkit-user-drag: none; }
+  .scene--result[data-mood="doorgaat"] .dg-live { display: block; }
+  /* De tekening roept "GAAT DOOR"; net als op desktop zegt een briefje erbij dat het een verwachting is. */
+  .scene--result[data-mood="doorgaat"] .dg-hedge {
+    display: block;
+    z-index: 6; top: calc(var(--stage-top, 0px) - 10px); left: 12px;
+    padding: 4px 12px 6px;
+    font-size: 1.3rem;
+  }
+
+  .m-sleep {
+    position: absolute; z-index: 5; left: 50%; bottom: var(--s-4);
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 14px 7px;
+    translate: -50% 0;
+    border-radius: 999px;
+    background: rgb(23 13 8 / .76); color: var(--cream);
+    font-family: var(--f-hand); font-size: 1.15rem; line-height: 1; white-space: nowrap;
+    pointer-events: none;
+    transition: opacity var(--d-3) var(--ease-out), translate var(--d-3) var(--ease-out);
+  }
+  .m-sleep .ic { width: 18px; height: 18px; }
+  .m-sleep .ic:first-child { animation: m-sleep-l 2.4s var(--ease-out) 1.2s 3; }
+  .m-sleep .ic:last-child { scale: -1 1; animation: m-sleep-r 2.4s var(--ease-out) 1.2s 3; }
+  .m-sleep.is-weg { opacity: 0; translate: -50% 8px; }
+  @keyframes m-sleep-l { 0%, 60%, 100% { translate: 0; } 30% { translate: -4px; } }
+  @keyframes m-sleep-r { 0%, 60%, 100% { translate: 0; } 30% { translate: 4px; } }
+}
+
+/* Smalle telefoons (320 tot 360): de kop moet op één regel blijven. */
+@media (max-width: 359px) {
+  .brand img { width: 96px; }
+  .topnav { gap: 2px; }
+  .topnav a { padding: 8px 10px; font-size: .82rem; }
+}
+
+@media (max-width: 640px) and (prefers-reduced-motion: reduce) {
+  .m-stand { animation: none; }
+  .m-sleep .ic { animation: none !important; }
+}

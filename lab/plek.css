@@ -1,0 +1,426 @@
+/* ?proef=1 op de echte site: de prototypes op de plek waar ze zouden wonen. Tokens uit /styles.css. */
+
+/* ───────── Proefbalk ───────── */
+
+.plek-balk {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--s-1) var(--s-4);
+  padding: var(--s-2) var(--s-4);
+  background: var(--wood-900); color: var(--cream);
+  border-bottom: 2px solid var(--gold);
+  font-size: .92rem;
+}
+.plek-balk p { margin: 0; }
+.plek-balk strong { color: var(--gold-hi); font-weight: 600; }
+.plek-balk-links { display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-4); }
+.plek-balk a {
+  display: inline-flex; align-items: center;
+  min-height: 32px; padding: 0 var(--s-1);
+  color: var(--cream); font-weight: 600; text-underline-offset: 3px;
+  border-radius: 4px;
+}
+.plek-balk a:hover { color: var(--gold-hi); background: rgb(243 230 203 / .1); }
+.plek-balk a:active { background: rgb(243 230 203 / .2); }
+
+/* ───────── Tape ───────── */
+
+.plek-tape { margin-left: .6em; vertical-align: middle; font-size: .78rem; }
+
+/* ───────── Tabblad ───────── */
+
+.plek-paneel {
+  padding: clamp(var(--s-3), 2vw, var(--s-5));
+  background: var(--paper); color: var(--ink);
+  border: 3px solid var(--ink); border-radius: 10px;
+  box-shadow: 0 5px 0 var(--ink);
+  max-width: 640px;
+}
+.plek-paneel .lab-hand, .plek-paneel .lab-klein { color: var(--ink); }
+
+/* ───────── Bord: Henk zegt het ───────── */
+
+/* Volgorde in de actiebalk: eerst zaterdag of zondag, vlak onder het bord, dan delen, dan wat officieel is. */
+.actie-inner .weekend { order: -1; }
+.actie-inner .share-row { order: 0; }
+.actie-inner .actie-note { order: 1; }
+.actie .share-row:has(.plek-spreek) { flex-wrap: wrap; }
+/* Breed: alles in één rij; het officiële briefje ernaast krijgt de rest. */
+@media (min-width: 861px) {
+  .actie .share-row:has(.plek-spreek) { flex-wrap: nowrap; }
+}
+/* Smal: de groene knop over de hele breedte, daaronder de link en "Henk zegt het". */
+@media (max-width: 560px) {
+  .actie .share-row:has(.plek-spreek) > .btn-share:not(.plek-spreek) { flex: 1 1 100%; }
+  .actie .share-row:has(.plek-spreek) > .plek-spreek { flex: 1 1 0; justify-content: center; padding-inline: var(--s-3); }
+}
+.plek-spreek {
+  background: var(--paper-hi); color: var(--ink);
+  flex: 0 1 auto;
+}
+.plek-spreek:hover { background: #fff6e2; }
+.plek-spreek:active { background: var(--gold-hi); }
+.plek-spreek[aria-pressed="true"] { background: var(--gold); }
+.plek-spreek[aria-pressed="true"]:hover { background: var(--gold-hi); }
+.plek-note {
+  margin-top: var(--s-2);
+  font-size: .9rem; font-weight: 600;
+}
+.plek-note:empty { display: none; }
+
+/* Een opstelling uit een deellink: een briefje, geen alarm. */
+.plek-meegekregen {
+  grid-column: 1 / -1; justify-self: start; order: 2;
+  margin: 0; padding: 4px var(--s-3);
+  background: var(--paper-hi); color: var(--ink);
+  border: 2px solid var(--ink); border-radius: var(--r-hand-sm);
+  box-shadow: 0 3px 0 rgb(0 0 0 / .35);
+  font: 400 1.15rem/1.3 var(--f-hand);
+  rotate: -.6deg;
+}
+.plek-meegekregen a {
+  display: inline-block; margin-block: -8px; padding-block: 8px;
+  color: var(--ink); font-weight: 600; text-underline-offset: 3px;
+}
+.plek-meegekregen a:hover { background: var(--gold-hi); }
+.plek-meegekregen a:active { background: var(--gold); }
+
+/* ───────── Slot: deelplaatje ───────── */
+
+.plek-plaatje { display: grid; justify-items: start; gap: var(--s-3); }
+.plek-plaatje canvas {
+  display: block;
+  width: 100%; max-width: 420px; height: auto;
+  aspect-ratio: 1200 / 630;
+  background: var(--paper-lo);
+  border: 3px solid var(--ink); border-radius: 10px;
+  box-shadow: 0 4px 0 var(--ink);
+}
+.plek-plaatje-rij { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); }
+.plek-status { min-height: 1.4em; margin: 0; font-weight: 600; color: var(--gold-hi); }
+.plek-kop { margin: 0; font: 400 1.05rem/1.2 var(--f-display); color: var(--paper-hi); }
+
+/* ───────── Voor de aftrap: het tactiekbord en de toss onder het bord ───────── */
+
+.plek-titel { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-3); }
+.plek-titel .plek-tape { margin-left: 0; }
+.plek-aftrap {
+  max-width: 1180px; margin: 0 auto;
+  padding: clamp(var(--s-6), 5vw, var(--s-8)) clamp(var(--s-4), 5vw, var(--s-7)) clamp(var(--s-5), 3vw, var(--s-7));
+  color: var(--cream);
+  scroll-margin-top: var(--s-4);
+}
+.plek-aftrap-kop { display: grid; gap: var(--s-2); margin-bottom: var(--s-5); }
+.plek-aftrap h2 {
+  font-family: var(--f-display); font-weight: 400; font-size: clamp(1.9rem, 3.6vw, 3rem); line-height: 1.04;
+  color: var(--paper-hi); text-wrap: balance;
+}
+.plek-aftrap h2:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 6px; border-radius: 4px; box-shadow: none; }
+.plek-aftrap-sub { max-width: 40ch; font-family: var(--f-hand); font-size: 1.45rem; line-height: 1.2; color: var(--gold-hi); }
+.plek-aftrap-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-5); align-items: start; }
+@media (min-width: 1000px) {
+  .plek-aftrap-grid { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--s-6); }
+}
+.plek-aftrap .plek-paneel { max-width: none; }
+.plek-paneel-kop { margin: 0 0 var(--s-3); font: 400 1.5rem/1.1 var(--f-display); color: var(--ink); }
+
+/* De kaart "Het tactiekbord": het deelplaatje als voorbeeld, met de knoppen ernaast. */
+.tb-kaart { display: grid; gap: var(--s-4); grid-template-columns: minmax(0, 1fr); justify-items: center; }
+@media (min-width: 560px) {
+  .tb-kaart { grid-template-columns: minmax(0, 250px) minmax(0, 1fr); justify-items: stretch; align-items: start; }
+}
+.tb-kaart-doek { position: relative; width: min(100%, 280px); }
+.tb-kaart-plaatje {
+  width: 100%; height: auto; aspect-ratio: 1080 / 1350;
+  background: var(--wood-900);
+  border: 3px solid var(--ink); border-radius: 10px;
+  box-shadow: 0 4px 0 var(--ink);
+}
+.tb-kaart-label {
+  position: absolute; bottom: 22%; right: -8px; z-index: 1;
+  padding: 2px var(--s-3);
+  background: var(--gold); color: var(--ink);
+  border: 2px solid var(--ink); border-radius: 6px;
+  font: 400 1.05rem/1.3 var(--f-display);
+  rotate: 5deg;
+  box-shadow: 0 2px 0 rgb(0 0 0 / .35);
+}
+.tb-kaart-acties { display: grid; gap: var(--s-3); align-content: start; width: 100%; }
+.tb-kaart-tekst { margin: 0; font-family: var(--f-hand); font-size: 1.3rem; line-height: 1.2; color: var(--ink-2); }
+.tb-kaart-acties .btn-share { flex: none; width: 100%; }
+
+/* Een tweede knop naast de groene: papier in plaats van groen. */
+.tb-tweede { background: var(--paper-hi); color: var(--ink); }
+.tb-tweede:hover { background: #fff6e2; }
+.tb-tweede:active { background: var(--gold-hi); }
+.btn-share:disabled { opacity: .6; cursor: progress; transform: none; box-shadow: 0 4px 0 var(--ink); }
+.tb-status { min-height: 1.4em; margin: 0; font-size: .92rem; font-weight: 600; color: var(--ink); }
+.tb-status a { color: inherit; text-decoration: underline; text-underline-offset: .18em; }
+.tb-status a:hover { text-decoration-thickness: 2px; }
+
+/* ───────── Home: het bordje aan de muur en de menulink ───────── */
+
+.plek-navlink { color: var(--gold-hi); }
+/* Op de telefoon vervangt het bordje aan het raam deze knop. Specifiek genoeg om `.topnav a` uit mobiel.css te verslaan. */
+@media (max-width: 640px) { .topnav a.plek-navlink { display: none; } }
+
+/* Staat in illustratie-coördinaten, dus altijd op dezelfde plek: liggend op de lege muur
+   direct links van het raam, staand (smalle muren) aan het raamkruis boven het doel. */
+.plek-hanger {
+  --x: .19; --y: .352; --b: clamp(100px, 8.6vw, 136px);
+  position: absolute; z-index: 4;
+  left: calc(var(--sx) + var(--sw) * var(--x) - var(--b) / 2);
+  top: calc(var(--sh) * var(--y) - var(--lift, 0px));
+  width: var(--b); padding: 0;
+  display: flex; flex-direction: column; align-items: center;
+  background: none; border: 0; cursor: pointer;
+  transform-origin: 50% 6px;
+  filter: drop-shadow(0 8px 8px rgb(16 9 5 / .5));
+  -webkit-tap-highlight-color: transparent;
+}
+.plek-hanger-touw { width: 56%; height: auto; margin-bottom: -4px; }
+.plek-hanger-bord {
+  display: grid; gap: 3px; width: 100%; padding: 5px;
+  background: var(--paper-hi);
+  border: 3px solid var(--ink); border-radius: 7px;
+}
+.plek-hanger-veld { width: 100%; height: auto; border: 2px solid var(--ink); border-radius: 3px; }
+.plek-hanger-label { font: 400 max(10px, calc(var(--b) * .112))/1.1 var(--f-display); letter-spacing: .02em; color: var(--ink); text-align: center; }
+/* Een geel briefje met plakband: zegt wat je ermee doet. */
+.plek-hanger-briefje {
+  position: absolute; right: -16%; bottom: -13%;
+  padding: 3px 7px 4px;
+  background: var(--gold-hi); color: var(--ink);
+  border: 2px solid var(--ink); border-radius: 3px;
+  font: 400 max(11px, calc(var(--b) * .12))/1 var(--f-hand);
+  white-space: nowrap; rotate: -7deg;
+  box-shadow: 0 3px 0 rgb(16 9 5 / .45);
+}
+.plek-hanger:hover .plek-hanger-bord, .plek-hanger:focus-visible .plek-hanger-bord { background: #fff6e2; }
+.plek-hanger:hover .plek-hanger-briefje { background: #ffe39a; }
+.plek-hanger:active { scale: .96; }
+.plek-hanger:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; box-shadow: 0 0 0 8px var(--focus); border-radius: 8px; }
+/* Eén keer zwaaien als je binnenkomt, zodat het oog erop valt. Een andere naam dan bij hover, dan start die opnieuw. */
+.plek-hanger { animation: plek-groet 1.6s var(--ease-out) .9s; }
+@media (hover: hover) {
+  .plek-hanger:hover { animation: plek-zwaai 1.1s var(--ease-out); }
+}
+.plek-hanger:focus-visible { animation: plek-zwaai 1.1s var(--ease-out); }
+@keyframes plek-zwaai {
+  0% { transform: rotate(0); }
+  22% { transform: rotate(-5deg); }
+  52% { transform: rotate(3deg); }
+  78% { transform: rotate(-1.4deg); }
+  100% { transform: rotate(0); }
+}
+@keyframes plek-groet {
+  0% { transform: rotate(0); }
+  18% { transform: rotate(-7deg); }
+  42% { transform: rotate(5deg); }
+  64% { transform: rotate(-2.6deg); }
+  84% { transform: rotate(1deg); }
+  100% { transform: rotate(0); }
+}
+@media (orientation: portrait) {
+  .plek-hanger { --x: .5; --y: .094; --b: clamp(84px, 22vw, 110px); }
+  .plek-hanger-bord { padding: 4px; border-width: 2.5px; gap: 2px; }
+  .plek-hanger-veld { border-width: 1.5px; }
+  /* Weinig lucht boven het doel: alleen het briefje, gecentreerd onder het bord. */
+  .plek-hanger-label { display: none; }
+  .plek-hanger-briefje { right: auto; left: 50%; bottom: -13%; translate: -50% 0; rotate: -4deg; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .plek-hanger, .plek-hanger:hover, .plek-hanger:focus-visible { animation: none; }
+}
+
+/* ───────── Het tactiekbord: een eigen scherm ───────── */
+
+.plek-tactiek {
+  min-height: 100svh;
+  color: var(--cream);
+  background:
+    radial-gradient(circle at 1px 1px, rgb(255 236 200 / .05) 1px, transparent 1.6px) 0 0 / 6px 6px,
+    linear-gradient(180deg, var(--wood-800), var(--wood-950));
+}
+.tb-pagina {
+  display: grid; gap: var(--s-5);
+  max-width: 1180px; margin: 0 auto;
+  padding: var(--s-5) clamp(var(--s-4), 4vw, var(--s-7)) var(--s-8);
+}
+.tb-kop { display: grid; justify-items: start; gap: var(--s-3); }
+.tb-kop h1 {
+  font-family: var(--f-display); font-weight: 400; font-size: clamp(2.2rem, 5vw, 3.4rem); line-height: 1.02;
+  color: var(--paper-hi); text-wrap: balance;
+}
+.tb-kop h1:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 6px; border-radius: 4px; box-shadow: none; }
+.tb-sub { max-width: 44ch; font-family: var(--f-hand); font-size: 1.45rem; line-height: 1.2; color: var(--gold-hi); }
+.tb-terug {
+  display: inline-flex; align-items: center; gap: var(--s-1);
+  min-height: 44px; padding: 0 var(--s-4) 0 var(--s-3);
+  background: var(--paper-hi); color: var(--ink);
+  border: var(--line) solid var(--ink); border-radius: var(--r-hand-sm);
+  box-shadow: 0 3px 0 rgb(0 0 0 / .45);
+  font-weight: 600; cursor: pointer;
+  transition: translate var(--d-1) var(--ease-out), box-shadow var(--d-1) var(--ease-out), background-color var(--d-1) ease;
+}
+.tb-terug:hover { background: #fff6e2; }
+.tb-terug:active { translate: 0 3px; box-shadow: none; background: var(--gold-hi); }
+
+/* De wedstrijd als papieren strook met tape. */
+.tb-strook {
+  position: relative; justify-self: start; max-width: 100%;
+  margin: 0; padding: var(--s-2) var(--s-4);
+  background: var(--paper-hi); color: var(--ink);
+  border: 2px solid var(--ink); border-radius: 4px;
+  box-shadow: 0 4px 0 rgb(0 0 0 / .35);
+  font-weight: 600; line-height: 1.35; font-variant-numeric: tabular-nums;
+  rotate: -.5deg;
+}
+.tb-strook::before, .tb-strook::after {
+  content: ""; position: absolute; top: -11px;
+  width: 54px; height: 20px;
+  background: rgb(242 197 95 / .8);
+  border: 1px solid rgb(43 26 16 / .25);
+}
+.tb-strook::before { left: 14px; rotate: -6deg; }
+.tb-strook::after { right: 14px; rotate: 5deg; }
+
+/* Het bord en de zijkant. */
+.tb { --gap: var(--s-4); --voet: 132px; display: grid; gap: var(--gap); grid-template-columns: minmax(0, 1fr); align-items: start; }
+@media (min-width: 1000px) {
+  .tb { --gap: var(--s-6); --voet: 56px; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); }
+}
+
+.tb-bord {
+  display: grid; gap: var(--s-3); justify-items: center;
+  padding: var(--s-4) var(--s-3) var(--s-3);
+  background: linear-gradient(180deg, #fbf6e8, #efe6cf);
+  color: var(--ink);
+  border: 6px solid var(--ink); border-radius: 18px;
+  box-shadow: 0 6px 0 rgb(0 0 0 / .45), inset 0 0 0 2px rgb(255 255 255 / .5);
+}
+.tb-bord-kop { display: flex; justify-content: center; width: 100%; }
+.tb .os-formaties { justify-content: center; }
+.tb .os-form {
+  min-height: 44px; padding-inline: var(--s-4);
+  border-radius: 999px; box-shadow: 0 3px 0 var(--ink);
+}
+.tb-bord .os-veld { width: min(100%, 560px); }
+.tb-bord .os-tekening { box-shadow: 0 3px 0 var(--ink), inset 0 0 0 3px rgb(255 255 255 / .12); }
+.tb-bord .os-disc { box-shadow: 0 3px 0 var(--ink), inset 0 4px 0 rgb(255 255 255 / .22); }
+.tb-bord .os-disc.is-keeper { box-shadow: 0 3px 0 var(--ink), inset 0 4px 0 rgb(255 255 255 / .4); }
+.tb-bord .lab-klein { max-width: 60ch; text-align: center; }
+.tb-voet { position: relative; width: 100%; min-height: var(--voet); }
+.tb-merk {
+  position: absolute; right: var(--s-1); bottom: 0; z-index: 1;
+  margin: 0; rotate: -2deg;
+  font: 400 1.55rem/1 var(--f-hand);
+  color: color-mix(in srgb, #1f4fa8 82%, var(--ink));
+  letter-spacing: .01em;
+}
+
+.tb-zij { display: grid; gap: var(--gap); min-width: 0; align-content: start; }
+.tb-zij .lab-veld span { color: var(--cream); }
+.tb-zij .lab-klein { color: var(--cream-2); }
+.tb-zij .tb-status { color: var(--gold-hi); }
+.tb-zij .os-live:empty { display: none; }
+
+/* Henk staat op de rand van het bord. Smal: in de voet van het bord, naast zijn bubbel. */
+.tb-henk {
+  position: relative; z-index: 2;
+  display: grid; grid-template-columns: 104px minmax(0, 1fr); align-items: start; gap: var(--s-3);
+  margin: calc(-1 * (var(--gap) + 18px + 128px)) var(--s-4) 18px 6px;
+  pointer-events: none;
+}
+.tb-henk-doek { width: 104px; height: 128px; }
+@media (min-width: 1000px) {
+  .tb-henk { grid-template-columns: 150px minmax(0, 1fr); }
+  .tb-henk-doek { width: 150px; height: 184px; }
+}
+.tb-bubbel {
+  position: relative; margin: 0; padding: var(--s-2) var(--s-3);
+  background: var(--paper-hi); color: var(--ink);
+  border: 2.5px solid var(--ink); border-radius: var(--r-hand);
+  font: 400 1.15rem/1.2 var(--f-hand);
+  box-shadow: 0 3px 0 rgb(0 0 0 / .35);
+}
+.tb-bubbel::before, .tb-bubbel::after {
+  content: ""; position: absolute; top: 18px; width: 0; height: 0;
+  border: 9px solid transparent;
+}
+.tb-bubbel::before { left: -21px; border-right-color: var(--ink); }
+.tb-bubbel::after { left: -17px; border-right-color: var(--paper-hi); }
+@media (min-width: 1000px) {
+  .tb-henk { margin: 0; align-items: end; }
+  .tb-bubbel { font-size: 1.25rem; }
+}
+
+/* De bank: een houten bank met naammagneten erop. */
+.tb-zij .os-bank {
+  position: relative; margin-bottom: var(--s-3);
+  padding: var(--s-3) var(--s-3) var(--s-4);
+  background:
+    repeating-linear-gradient(176deg, transparent 0 22px, rgb(110 70 35 / .16) 22px 25px),
+    linear-gradient(180deg, var(--plank-hi), var(--plank) 45%, var(--plank-lo));
+  color: var(--ink);
+  border: 3px solid var(--ink); border-radius: 8px;
+  box-shadow: 0 5px 0 rgb(0 0 0 / .4);
+}
+.tb-zij .os-bank::before, .tb-zij .os-bank::after {
+  content: ""; position: absolute; bottom: -22px; width: 16px; height: 20px;
+  background: var(--ink); border-radius: 0 0 3px 3px;
+}
+.tb-zij .os-bank::before { left: 14%; }
+.tb-zij .os-bank::after { right: 14%; }
+.tb-zij .os-bank-kop { margin: 0; color: #4a2f1c; }
+.tb-zij .os-bank-rij { justify-content: flex-start; gap: var(--s-3) var(--s-2); min-height: 44px; }
+.tb-zij .os-bank-rij .os-tk.os-tk {
+  position: relative; width: auto; max-width: 100%;
+  display: flex; align-items: center; gap: var(--s-1);
+  padding: 3px 12px 3px 3px;
+  background: var(--paper-hi);
+  border: 2px solid var(--ink); border-radius: 999px;
+  box-shadow: 0 3px 0 rgb(0 0 0 / .35);
+}
+.tb-zij .os-bank-rij .os-disc { width: 34px; height: 34px; font-size: 1rem; box-shadow: none; }
+.tb-zij .os-bank-rij .os-naam { max-width: 100%; padding: 0; background: none; border: 0; border-radius: 0; font-size: .9rem; }
+.tb-zij .os-bank-rij .os-weg:not([hidden]) { position: absolute; top: -12px; right: -8px; }
+.tb-zij .os-bank-rij:empty::before {
+  content: "Niemand op de bank. Voeg een naam toe."; font: 400 1.1rem/1.2 var(--f-hand); color: #4a2f1c;
+}
+.tb-zij .os-erbij { justify-content: flex-start; }
+.tb-zij .lab-knop[aria-pressed], .tb-zij .os-erbij .lab-knop { box-shadow: 0 3px 0 var(--ink); }
+
+/* Acties: groen voorop, het plaatje als tweede. */
+.tb-acties { display: grid; gap: var(--s-3); }
+.tb-acties .btn-share { flex: none; width: 100%; }
+.tb-acties .tb-tweede { box-shadow: 0 4px 0 var(--ink); }
+
+/* De spelerspas onder het bord. */
+.tb-pas { display: grid; gap: var(--s-3); max-width: 640px; }
+.tb-pas .plek-thuis-kop { display: flex; align-items: center; gap: var(--s-2); }
+.tb-pas .plek-tape { margin-left: 0; }
+
+/* ───────── Opstelling: spelers erbij en eraf (ook in de kleedkamer) ───────── */
+
+.p-opstelling .os-erbij { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s-2); margin-top: var(--s-2); width: 100%; }
+.p-opstelling .os-erbij input {
+  flex: 1 1 8rem; min-width: 0; min-height: 44px; padding: 0 var(--s-3);
+  border: var(--line) solid var(--ink); border-radius: var(--r-hand-sm);
+  background: var(--paper-hi); color: var(--ink); font: inherit;
+}
+.p-opstelling .os-weg:not([hidden]) {
+  display: grid; place-items: center;
+  width: 28px; height: 28px; padding: 0;
+  background: var(--paper-hi); color: var(--ink);
+  border: 2px solid var(--ink); border-radius: 50%;
+  cursor: pointer;
+  transition: background-color var(--d-1) ease, translate var(--d-1) var(--ease-out);
+}
+.p-opstelling .os-weg:hover { background: var(--gold-hi); }
+.p-opstelling .os-weg:active { translate: 0 2px; }
+.p-opstelling .os-weg .ic { width: 14px; height: 14px; }
+.p-opstelling .os-bank-rij { width: 100%; }
+.p-opstelling .os-bank-rij .os-tk { width: 92px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .p-opstelling .os-weg { transition: none; }
+}

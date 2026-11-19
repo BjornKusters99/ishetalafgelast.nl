@@ -1,0 +1,769 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-18T13:21:33+00:00",
+  "title": "Design System: IsHetAlAfgelast.nl",
+  "extensions": {
+    "colorMeta": {
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#2b1a10",
+        "tonalRamp": [
+          "#0e0a08",
+          "#2c231e",
+          "#4c3f37",
+          "#6f5d52",
+          "#917e73",
+          "#b1a199",
+          "#d2c6c0",
+          "#f4ede9"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Soft Ink",
+        "canonical": "#5a3e2b",
+        "tonalRamp": [
+          "#100a06",
+          "#2e221a",
+          "#513d31",
+          "#765b49",
+          "#987c69",
+          "#b7a091",
+          "#d6c5bb",
+          "#f6ece6"
+        ]
+      },
+      "ink-3": {
+        "role": "neutral",
+        "displayName": "Faded Ink",
+        "canonical": "#664832",
+        "tonalRamp": [
+          "#100a06",
+          "#2f2219",
+          "#513d2f",
+          "#765b47",
+          "#997c67",
+          "#b8a08f",
+          "#d7c5b9",
+          "#f6ece5"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Parchment",
+        "canonical": "#e9d3a6",
+        "tonalRamp": [
+          "#0f0b04",
+          "#2c2413",
+          "#4d4026",
+          "#705f3a",
+          "#92805b",
+          "#b2a386",
+          "#d2c8b3",
+          "#f4eee2"
+        ]
+      },
+      "paper-hi": {
+        "role": "neutral",
+        "displayName": "Light Parchment",
+        "canonical": "#f5e7c7",
+        "tonalRamp": [
+          "#0d0b06",
+          "#2a2519",
+          "#49412f",
+          "#6b6047",
+          "#8d8167",
+          "#ada490",
+          "#cfc9ba",
+          "#f2eee5"
+        ]
+      },
+      "paper-lo": {
+        "role": "neutral",
+        "displayName": "Aged Parchment",
+        "canonical": "#d9bd88",
+        "tonalRamp": [
+          "#0f0a03",
+          "#2e230f",
+          "#503f1f",
+          "#745e31",
+          "#967f52",
+          "#b5a380",
+          "#d5c8af",
+          "#f5eedf"
+        ]
+      },
+      "paper-hover": {
+        "role": "neutral",
+        "displayName": "Hover Cream",
+        "canonical": "#fff6e2",
+        "tonalRamp": [
+          "#0d0b08",
+          "#28251e",
+          "#464136",
+          "#676151",
+          "#898272",
+          "#aaa498",
+          "#cdc9c0",
+          "#f1eee9"
+        ]
+      },
+      "cream": {
+        "role": "neutral",
+        "displayName": "Cream",
+        "canonical": "#f3e6cb",
+        "tonalRamp": [
+          "#0d0b07",
+          "#29241b",
+          "#484132",
+          "#6a604b",
+          "#8c816b",
+          "#ada493",
+          "#cfc8bc",
+          "#f2eee7"
+        ]
+      },
+      "cream-2": {
+        "role": "neutral",
+        "displayName": "Dusty Cream",
+        "canonical": "#cdb994",
+        "tonalRamp": [
+          "#0e0b05",
+          "#2b2416",
+          "#4c402b",
+          "#6f5f41",
+          "#918061",
+          "#b1a38b",
+          "#d2c8b6",
+          "#f3eee4"
+        ]
+      },
+      "wood-950": {
+        "role": "neutral",
+        "displayName": "Cellar Wood",
+        "canonical": "#170d08",
+        "tonalRamp": [
+          "#0d0a09",
+          "#292421",
+          "#49403c",
+          "#6a5e58",
+          "#8c7f79",
+          "#ada39e",
+          "#cfc7c4",
+          "#f2edeb"
+        ]
+      },
+      "wood-900": {
+        "role": "neutral",
+        "displayName": "Canteen Wood",
+        "canonical": "#21140c",
+        "tonalRamp": [
+          "#0e0a08",
+          "#2a231f",
+          "#4a4039",
+          "#6d5e55",
+          "#8e7f76",
+          "#afa29b",
+          "#d0c7c2",
+          "#f3edea"
+        ]
+      },
+      "wood-800": {
+        "role": "neutral",
+        "displayName": "Dark Oak",
+        "canonical": "#2c1b11",
+        "tonalRamp": [
+          "#0e0a08",
+          "#2b231e",
+          "#4c3f37",
+          "#6f5d52",
+          "#917e73",
+          "#b1a199",
+          "#d2c7c0",
+          "#f4ede9"
+        ]
+      },
+      "wood-700": {
+        "role": "neutral",
+        "displayName": "Oak",
+        "canonical": "#3b2517",
+        "tonalRamp": [
+          "#0f0a07",
+          "#2d231c",
+          "#4e3e34",
+          "#735c4e",
+          "#957d6e",
+          "#b4a195",
+          "#d4c6be",
+          "#f5ede8"
+        ]
+      },
+      "wood-500": {
+        "role": "neutral",
+        "displayName": "Walnut",
+        "canonical": "#6b4528",
+        "tonalRamp": [
+          "#110905",
+          "#312115",
+          "#553c29",
+          "#7c583f",
+          "#9f795f",
+          "#bc9e89",
+          "#dac4b5",
+          "#f9ece3"
+        ]
+      },
+      "plank": {
+        "role": "neutral",
+        "displayName": "Painted Plank",
+        "canonical": "#b98953",
+        "tonalRamp": [
+          "#120902",
+          "#33210b",
+          "#583b19",
+          "#805828",
+          "#a3794a",
+          "#c09e7a",
+          "#ddc4ab",
+          "#faecdd"
+        ]
+      },
+      "plank-hi": {
+        "role": "neutral",
+        "displayName": "Lit Plank",
+        "canonical": "#cfa26b",
+        "tonalRamp": [
+          "#120902",
+          "#32210b",
+          "#563c1a",
+          "#7e5929",
+          "#a17a4b",
+          "#be9f7b",
+          "#dbc5ab",
+          "#f9ecdd"
+        ]
+      },
+      "plank-lo": {
+        "role": "neutral",
+        "displayName": "Plank Shade",
+        "canonical": "#8f6239",
+        "tonalRamp": [
+          "#120903",
+          "#332110",
+          "#573b21",
+          "#7f5734",
+          "#a27954",
+          "#bf9e81",
+          "#dcc4b0",
+          "#faece0"
+        ]
+      },
+      "gold": {
+        "role": "primary",
+        "displayName": "Club Gold",
+        "canonical": "#e7ac3c",
+        "tonalRamp": [
+          "#140900",
+          "#362000",
+          "#5d3a00",
+          "#865600",
+          "#aa7800",
+          "#c59e5b",
+          "#e1c597",
+          "#fdecd2"
+        ]
+      },
+      "gold-hi": {
+        "role": "primary",
+        "displayName": "Lit Gold",
+        "canonical": "#f2c55f",
+        "tonalRamp": [
+          "#120a00",
+          "#332200",
+          "#573d00",
+          "#7f5a00",
+          "#a27c1a",
+          "#bea161",
+          "#dcc79b",
+          "#f9edd4"
+        ]
+      },
+      "red": {
+        "role": "secondary",
+        "displayName": "Card Red",
+        "canonical": "#c4392a",
+        "tonalRamp": [
+          "#1b0302",
+          "#460e08",
+          "#761e15",
+          "#a93023",
+          "#d15545",
+          "#e88677",
+          "#fcb5a8",
+          "#ffe3dc"
+        ]
+      },
+      "red-ink": {
+        "role": "secondary",
+        "displayName": "Card Red Ink",
+        "canonical": "#8e2216",
+        "tonalRamp": [
+          "#190403",
+          "#41150f",
+          "#6d291f",
+          "#9e3e31",
+          "#c46151",
+          "#dd8d7f",
+          "#f3b9ae",
+          "#ffe5df"
+        ]
+      },
+      "green": {
+        "role": "secondary",
+        "displayName": "Pitch Green",
+        "canonical": "#4f9d2f",
+        "tonalRamp": [
+          "#030f00",
+          "#0e2d02",
+          "#1e4f05",
+          "#2f730b",
+          "#529638",
+          "#81b66f",
+          "#b0d6a4",
+          "#e0f6d9"
+        ]
+      },
+      "green-ink": {
+        "role": "secondary",
+        "displayName": "Pitch Green Ink",
+        "canonical": "#2d6a19",
+        "tonalRamp": [
+          "#040f02",
+          "#132c0c",
+          "#264d1b",
+          "#3b702c",
+          "#5c934d",
+          "#88b37d",
+          "#b5d4ad",
+          "#e3f5de"
+        ]
+      },
+      "btn-green": {
+        "role": "secondary",
+        "displayName": "Share Green",
+        "canonical": "#2b7337",
+        "tonalRamp": [
+          "#030f04",
+          "#102c14",
+          "#214d27",
+          "#33713c",
+          "#55935c",
+          "#84b387",
+          "#b2d4b4",
+          "#e1f5e2"
+        ]
+      },
+      "btn-green-hi": {
+        "role": "secondary",
+        "displayName": "Share Green Pressed",
+        "canonical": "#24632f",
+        "tonalRamp": [
+          "#040e05",
+          "#132c16",
+          "#254c2a",
+          "#396f41",
+          "#5b9261",
+          "#87b28b",
+          "#b5d3b6",
+          "#e3f4e4"
+        ]
+      },
+      "focus": {
+        "role": "primary",
+        "displayName": "Focus Gold",
+        "canonical": "#f2c55f",
+        "tonalRamp": [
+          "#120a00",
+          "#332200",
+          "#573d00",
+          "#7f5a00",
+          "#a27c1a",
+          "#bea161",
+          "#dcc79b",
+          "#f9edd4"
+        ]
+      },
+      "night": {
+        "role": "neutral",
+        "displayName": "Night",
+        "canonical": "#0f0906",
+        "tonalRamp": [
+          "#0c0b0a",
+          "#282422",
+          "#46413e",
+          "#675f5b",
+          "#88817c",
+          "#aaa4a0",
+          "#cdc8c5",
+          "#f0eeec"
+        ]
+      },
+      "tile": {
+        "role": "neutral",
+        "displayName": "Changing Room Tile",
+        "canonical": "#3a2518",
+        "tonalRamp": [
+          "#0f0a07",
+          "#2d231d",
+          "#4e3e35",
+          "#725c4f",
+          "#947d6f",
+          "#b3a196",
+          "#d4c6be",
+          "#f5ede8"
+        ]
+      },
+      "tile-hi": {
+        "role": "neutral",
+        "displayName": "Lit Tile",
+        "canonical": "#432b1c",
+        "tonalRamp": [
+          "#0f0a07",
+          "#2d221c",
+          "#4f3e33",
+          "#745b4d",
+          "#967c6d",
+          "#b5a094",
+          "#d5c6bd",
+          "#f5ece7"
+        ]
+      },
+      "grout": {
+        "role": "neutral",
+        "displayName": "Grout",
+        "canonical": "#1a0f09",
+        "tonalRamp": [
+          "#0d0a09",
+          "#2a2421",
+          "#49403b",
+          "#6b5e57",
+          "#8d7f78",
+          "#ada29d",
+          "#cfc7c3",
+          "#f2edeb"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Verdict",
+        "purpose": "The verdict word on the result board only, with ink stroke and ink drop."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Page and section headings: home h1 on the scroll, section h2 on wood, kleedkamer h1 in gold."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Headings inside objects: opened locker, bounce-test panel."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "All reading text, forms and buttons (600 for buttons and labels)."
+      },
+      "hand": {
+        "displayName": "Hand",
+        "purpose": "Notes, asides, name strips, match line, loading and error lines."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Uppercase names of data values on parchment; status tape at 0.04em."
+      }
+    },
+    "shadows": [
+      {
+        "name": "ink-edge-sm",
+        "value": "0 3px 0 var(--ink)",
+        "purpose": "Thickness under small pressable controls (lab button, back, close)."
+      },
+      {
+        "name": "ink-edge-md",
+        "value": "0 4px 0 var(--ink)",
+        "purpose": "Thickness under share buttons and framed panels."
+      },
+      {
+        "name": "ink-edge-lg",
+        "value": "0 5px 0 var(--ink)",
+        "purpose": "Thickness under the main CTA, the open locker and the consuls pitch."
+      },
+      {
+        "name": "ink-edge-pressed",
+        "value": "0 0 0 var(--ink)",
+        "purpose": "Pressed state: the edge collapses while the control moves down."
+      },
+      {
+        "name": "hanging-drop",
+        "value": "0 16px 30px rgb(16 9 5 / .45)",
+        "purpose": "Objects hanging over the scene (result board)."
+      },
+      {
+        "name": "scroll-drop",
+        "value": "drop-shadow(0 18px 28px rgb(16 9 5 / .45))",
+        "purpose": "The parchment scroll floating over the scene (filter)."
+      },
+      {
+        "name": "plank-material",
+        "value": "inset 0 -6px 0 rgb(90 55 25 / .35), inset 0 3px 0 rgb(255 230 180 / .35)",
+        "purpose": "Painted wood thickness and top light on the board."
+      },
+      {
+        "name": "input-well",
+        "value": "inset 0 2px 0 rgb(43 26 16 / .08)",
+        "purpose": "Faint pressed-in top on text fields."
+      },
+      {
+        "name": "focus-ring",
+        "value": "outline: 3px solid var(--ink); outline-offset: 2px; box-shadow: 0 0 0 8px var(--focus)",
+        "purpose": "Global gold-ink-gold focus, legible on parchment and wood."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(.23, 1, .32, 1)",
+        "purpose": "Default easing for hover, press and reveals (--ease-out)."
+      },
+      {
+        "name": "ease-io",
+        "value": "cubic-bezier(.77, 0, .175, 1)",
+        "purpose": "In-out moves (--ease-io)."
+      },
+      {
+        "name": "ease-out-quint",
+        "value": "cubic-bezier(.22, 1, .36, 1)",
+        "purpose": "Hinges and entries: locker door, locker FLIP, consuls walk-on, hop."
+      },
+      {
+        "name": "d-1",
+        "value": "140ms",
+        "purpose": "Hover and press feedback."
+      },
+      {
+        "name": "d-2",
+        "value": "220ms",
+        "purpose": "Small transitions; locker door ajar on hover; reduced-motion locker fade."
+      },
+      {
+        "name": "d-3",
+        "value": "420ms",
+        "purpose": "Larger reveals."
+      },
+      {
+        "name": "locker-open",
+        "value": "380ms cubic-bezier(.22, 1, .36, 1)",
+        "purpose": "Door swings to rotateY(-104deg) while the cell grows by FLIP (translate plus clip-path)."
+      },
+      {
+        "name": "locker-close",
+        "value": "240ms cubic-bezier(.22, 1, .36, 1)",
+        "purpose": "Faster reverse; a fading copy of the contents stays in place."
+      },
+      {
+        "name": "stamp",
+        "value": "560ms var(--ease-out)",
+        "purpose": "Verdict word lands: scale 2.4 to 1 with slight rotation, splash behind."
+      },
+      {
+        "name": "verdict-morph",
+        "value": "560ms cubic-bezier(.16, 1, .3, 1)",
+        "purpose": "View Transition group 'oordeel' from home to result; root cross-fade 320ms."
+      },
+      {
+        "name": "thermo-fill",
+        "value": "1s var(--ease-out)",
+        "purpose": "Liquid fills to --p; leading edge skews with the board swing."
+      },
+      {
+        "name": "board-pendulum",
+        "value": "G 2600 px/s2, rope 200px, swing damping 1.5/s, spring k 260, damping 15, max 0.55rad",
+        "purpose": "js/moment.js physics for the hanging board; landscape with rope only."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "animation and transition 1ms; locker swing replaced by fade; pendulum, splash, FLIP and View Transition skipped",
+        "purpose": "Complete reduced-motion path."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "phone-narrow",
+        "value": "520px"
+      },
+      {
+        "name": "phone",
+        "value": "640px"
+      },
+      {
+        "name": "kop-stack",
+        "value": "720px"
+      },
+      {
+        "name": "wall-5",
+        "value": "760px"
+      },
+      {
+        "name": "tablet",
+        "value": "860px"
+      },
+      {
+        "name": "stack",
+        "value": "900px"
+      },
+      {
+        "name": "wall-7",
+        "value": "1180px"
+      },
+      {
+        "name": "orientation",
+        "value": "portrait / landscape switch the result scene layout"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Main CTA",
+      "kind": "button",
+      "refersTo": "button-cta",
+      "description": "Gold painted plank for the one primary action on the home scroll.",
+      "html": "<button class=\"ds-btn-cta\">Is het al afgelast?</button>",
+      "css": ".ds-btn-cta { min-height: 56px; padding: 10px 20px; font-family: var(--f-display); font-size: 1.4rem; letter-spacing: .01em; color: var(--ink); background: linear-gradient(180deg, var(--gold-hi), var(--gold) 70%, #d39a2f); border: 3px solid var(--ink); border-radius: var(--r-hand); box-shadow: 0 5px 0 var(--ink), 0 10px 18px rgb(43 26 16 / .3); cursor: pointer; transition: transform var(--d-1) var(--ease-out), box-shadow var(--d-1) var(--ease-out), filter var(--d-1) ease; } .ds-btn-cta:hover { filter: brightness(1.05) saturate(1.05); } .ds-btn-cta:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink), 0 4px 8px rgb(43 26 16 / .25); } .ds-btn-cta:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; box-shadow: 0 0 0 8px var(--focus); }"
+    },
+    {
+      "name": "Share Button",
+      "kind": "button",
+      "refersTo": "button-share",
+      "description": "Share Green button that sends the verdict to the team group chat.",
+      "html": "<button class=\"ds-btn-share\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.25\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7.9 20A9 9 0 1 0 4 16.1L2 22Z\"/></svg>Stuur naar de groep</button>",
+      "css": ".ds-btn-share { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; padding: 10px 20px; background: var(--btn-green); color: var(--paper-hi); border: 2.5px solid var(--ink); border-radius: var(--r-hand); font-family: var(--f-ui); font-weight: 600; font-size: 1.02rem; box-shadow: 0 4px 0 var(--ink); cursor: pointer; transition: transform var(--d-1) var(--ease-out), box-shadow var(--d-1) var(--ease-out), background-color var(--d-1) ease; } .ds-btn-share:hover { background: var(--btn-green-hi); } .ds-btn-share:active { transform: translateY(4px); box-shadow: 0 0 0 var(--ink); } .ds-btn-share:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; box-shadow: 0 0 0 8px var(--focus); }"
+    },
+    {
+      "name": "Lab Button",
+      "kind": "button",
+      "refersTo": "button-lab",
+      "description": "Shared paper button for prototypes and the kleedkamer back link; gold when pressed.",
+      "html": "<button class=\"ds-btn-lab\">Gooi de munt</button> <button class=\"ds-btn-lab\" aria-pressed=\"true\">Wind mee</button>",
+      "css": ".ds-btn-lab { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 16px; background: var(--paper-hi); color: var(--ink); border: 2.5px solid var(--ink); border-radius: var(--r-hand-sm); box-shadow: 0 3px 0 var(--ink); font-family: var(--f-ui); font-weight: 600; cursor: pointer; transition: translate var(--d-1) var(--ease-out), box-shadow var(--d-1) var(--ease-out), background var(--d-1) var(--ease-out); } .ds-btn-lab:hover { background: #fff6e2; } .ds-btn-lab:active { translate: 0 3px; box-shadow: 0 0 0 var(--ink); } .ds-btn-lab[aria-pressed=\"true\"] { background: var(--gold); } .ds-btn-lab:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; box-shadow: 0 0 0 8px var(--focus); }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Parchment field with ink outline and hand-drawn corners.",
+      "html": "<label class=\"ds-field\"><span>Plaats</span><input placeholder=\"Bijvoorbeeld Zwolle\"></label>",
+      "css": ".ds-field { display: grid; gap: 5px; font-family: var(--f-ui); } .ds-field span { font-weight: 600; font-size: .9rem; color: var(--ink-2); } .ds-field input { min-height: 48px; padding: 10px 14px; font: 500 1rem var(--f-ui); color: var(--ink); background: var(--paper-hi); border: 2.5px solid var(--ink); border-radius: var(--r-hand-sm); box-shadow: inset 0 2px 0 rgb(43 26 16 / .08); transition: background-color var(--d-1) ease, box-shadow var(--d-1) ease; } .ds-field input::placeholder { color: #7a5c40; font-weight: 400; } .ds-field input:hover { background-color: #fbf1da; } .ds-field input:focus { outline: none; background: #fdf6e6; box-shadow: 0 0 0 3px var(--ink), 0 0 0 6px var(--focus); }"
+    },
+    {
+      "name": "Tabs on Wood",
+      "kind": "nav",
+      "refersTo": "tab",
+      "description": "Outlined cream pills on dark wood; the selected tab fills gold.",
+      "html": "<div class=\"ds-tabs\" role=\"tablist\"><button role=\"tab\" aria-selected=\"true\">Vlaggen</button><button role=\"tab\" aria-selected=\"false\">Het briefje</button><button role=\"tab\" aria-selected=\"false\">Noppen</button></div>",
+      "css": ".ds-tabs { display: flex; flex-wrap: wrap; gap: 8px; padding: 16px; background: var(--wood-900); } .ds-tabs button { min-height: 46px; padding: 8px 18px; border: 2px solid rgb(243 230 203 / .35); border-radius: 999px; background: none; color: var(--cream); font: 600 1rem var(--f-ui); cursor: pointer; transition: background-color var(--d-1) ease, color var(--d-1) ease, border-color var(--d-1) ease; } .ds-tabs button:hover { border-color: var(--gold); } .ds-tabs button[aria-selected=\"true\"] { background: var(--gold); color: var(--ink); border-color: var(--ink); } .ds-tabs button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; box-shadow: 0 0 0 8px var(--focus); }"
+    },
+    {
+      "name": "Status Tape",
+      "kind": "chip",
+      "refersTo": "tape-echt",
+      "description": "Torn tape strip naming a prototype's data status.",
+      "html": "<span class=\"ds-tape ds-tape--echt\">Echte data</span> <span class=\"ds-tape ds-tape--werkt\">Werkt al</span> <span class=\"ds-tape ds-tape--nep\">Nagespeeld</span>",
+      "css": ".ds-tape { display: inline-block; padding: 3px 10px 2px; font: 600 .78rem/1.2 var(--f-ui); letter-spacing: .04em; text-transform: uppercase; border-radius: 2px; rotate: -2deg; box-shadow: 0 1px 0 rgb(23 13 8 / .45); clip-path: polygon(2% 0, 98% 6%, 100% 50%, 97% 100%, 3% 94%, 0 45%); } .ds-tape--echt { background: #2f7a2c; color: #f6f1e2; } .ds-tape--werkt { background: var(--gold-hi); color: var(--ink); } .ds-tape--nep { background: var(--ink); color: var(--cream); }"
+    },
+    {
+      "name": "Result Board",
+      "kind": "card",
+      "refersTo": "board-plank",
+      "description": "Painted plank with nails carrying the match line, the hedged verdict and the thermometer.",
+      "html": "<div class=\"ds-board\"><p class=\"ds-board-line\">DVO 5 tegen SDO 7, zaterdag 14:30</p><p class=\"ds-board-word\"><span>Verwachting:</span> AFGELAST</p><div class=\"ds-board-meter\"><div class=\"ds-thermo\"><i style=\"width: 78%\"></i></div><strong>78%</strong></div></div>",
+      "css": ".ds-board { position: relative; max-width: 460px; padding: 22px 28px 20px; color: var(--ink); background: repeating-linear-gradient(176deg, transparent 0 22px, rgb(110 70 35 / .16) 22px 24px, transparent 24px 41px), linear-gradient(180deg, var(--plank-hi), var(--plank) 45%, #a8784a); border: 3px solid var(--ink); border-radius: 14px 18px 12px 20px / 18px 12px 20px 14px; box-shadow: inset 0 -6px 0 rgb(90 55 25 / .35), inset 0 3px 0 rgb(255 230 180 / .35), 0 16px 30px rgb(16 9 5 / .45); } .ds-board::before, .ds-board::after { content: ''; position: absolute; top: 12px; width: 10px; height: 10px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #c9b8a0, #5c4a3a 70%); border: 1.5px solid var(--ink); } .ds-board::before { left: 10.5%; } .ds-board::after { right: 10.5%; } .ds-board-line { margin: 0; font: 400 1.3rem/1.15 var(--f-hand); color: #4a2f1c; } .ds-board-word { margin: 4px 0 0; font: 400 3.6rem/.92 var(--f-display); letter-spacing: .01em; color: var(--red); -webkit-text-stroke: 2.5px var(--ink); paint-order: stroke fill; text-shadow: 0 4px 0 var(--ink); rotate: -2deg; } .ds-board-word span { display: block; font: 400 1.3rem/1 var(--f-hand); color: #4a2f1c; -webkit-text-stroke: 0; text-shadow: none; } .ds-board-meter { display: flex; align-items: center; gap: 16px; margin-top: 16px; } .ds-thermo { position: relative; flex: 1; height: 22px; border: 2.5px solid var(--ink); border-radius: 999px; background: #eef3f2; overflow: hidden; box-shadow: inset 0 3px 0 rgb(255 255 255 / .7); } .ds-thermo i { position: absolute; inset: 0 auto 0 0; background: var(--red); } .ds-board-meter strong { font: 400 2.6rem/1 var(--f-display); font-variant-numeric: tabular-nums; }"
+    },
+    {
+      "name": "Locker Door",
+      "kind": "custom",
+      "refersTo": "locker-door",
+      "description": "Plank locker door with vents, number plate, name strip, tape and handle; swings ajar on hover.",
+      "html": "<div class=\"ds-locker\"><button class=\"ds-locker-door\" aria-label=\"Kluisje 1: Toss-advies, echte data\"><span class=\"ds-vents\"><i></i><i></i><i></i></span><span class=\"ds-nr\">1</span><span class=\"ds-name\">Toss-advies</span><span class=\"ds-tape\">Echte data</span><span class=\"ds-grip\"></span></button></div>",
+      "css": ".ds-locker { position: relative; width: 180px; height: 250px; perspective: 1400px; border-radius: 10px; background: repeating-linear-gradient(90deg, var(--wood-700) 0 38px, var(--wood-800) 38px 40px); box-shadow: inset 0 0 0 3px var(--ink); } .ds-locker-door { position: absolute; inset: 0; display: grid; grid-template-rows: auto auto 1fr auto; justify-items: center; gap: 12px; padding: 16px 12px 24px; border: 3px solid var(--ink); border-radius: 10px; color: var(--ink); cursor: pointer; background: linear-gradient(90deg, transparent 32%, rgb(43 26 16 / .28) 32% calc(32% + 2px), transparent 0 66%, rgb(43 26 16 / .28) 66% calc(66% + 2px), transparent 0), linear-gradient(180deg, var(--plank-hi), var(--plank) 45%, var(--plank-lo)); box-shadow: inset 0 2px 0 rgb(255 255 255 / .18), 0 4px 0 var(--ink); transform-origin: 0 50%; transition: transform var(--d-2) var(--ease-out), filter var(--d-2) var(--ease-out); } .ds-locker-door:hover { transform: rotateY(-14deg); filter: brightness(1.05); } .ds-locker-door:active { transform: rotateY(-6deg) translateY(2px); } .ds-locker-door:focus-visible { outline: 3px solid var(--ink); outline-offset: -7px; box-shadow: 0 0 0 4px var(--focus), 0 4px 0 var(--ink); } .ds-vents { display: grid; gap: 5px; width: 54%; } .ds-vents i { display: block; height: 6px; border-radius: 4px; background: var(--ink); } .ds-nr { display: grid; place-items: center; width: 46px; aspect-ratio: 1; border-radius: 50%; background: var(--cream); border: 2.5px solid var(--ink); box-shadow: inset 0 -3px 0 var(--cream-2); font: 400 1.35rem/1 var(--f-display); } .ds-name { align-self: end; padding: 4px 10px 3px; background: var(--cream); border: 1.5px solid rgb(43 26 16 / .35); font: 400 1.1rem/1.15 var(--f-hand); rotate: -1deg; } .ds-tape { padding: 3px 6px 2px; font: 600 .7rem/1.2 var(--f-ui); letter-spacing: .04em; text-transform: uppercase; background: #2f7a2c; color: #f6f1e2; rotate: -2deg; clip-path: polygon(2% 0, 98% 6%, 100% 50%, 97% 100%, 3% 94%, 0 45%); } .ds-grip { position: absolute; right: 12px; top: 50%; width: 8px; height: 44px; margin-top: -22px; border-radius: 5px; background: var(--wood-800); border: 2px solid var(--ink); } @media (prefers-reduced-motion: reduce) { .ds-locker-door:hover { transform: none; } }"
+    },
+    {
+      "name": "Open Locker Inside",
+      "kind": "card",
+      "refersTo": "locker-inside",
+      "description": "Parchment panel inside an opened locker, with a taped note on what the prototype still needs.",
+      "html": "<section class=\"ds-inside\"><h2>Toss-advies</h2><p>Henk kijkt hoe het veld ligt en waar de wind vandaan komt.</p><aside class=\"ds-slip\"><strong>Wat het nog nodig heeft: </strong>een lijst sportparken. Geen server.</aside></section>",
+      "css": ".ds-inside { display: grid; gap: 16px; max-width: 520px; padding: 24px 24px 24px 32px; background: var(--paper); color: var(--ink); border: 3px solid var(--ink); border-radius: 10px; box-shadow: 0 5px 0 var(--ink); font-family: var(--f-ui); } .ds-inside h2 { margin: 0; font: 400 1.8rem/1.05 var(--f-display); } .ds-inside p { margin: 0; max-width: 62ch; font-size: 1.02rem; line-height: 1.45; } .ds-slip { position: relative; justify-self: start; max-width: 60ch; padding: 12px 16px; margin-top: 8px; background: var(--paper-hi); border: 1.5px solid rgb(43 26 16 / .3); box-shadow: 0 2px 0 rgb(43 26 16 / .2); rotate: -.6deg; font: 400 1.1rem/1.3 var(--f-hand); } .ds-slip::before { content: ''; position: absolute; left: 50%; top: -10px; width: 70px; height: 20px; translate: -50% 0; rotate: 3deg; background: rgb(243 230 203 / .75); border: 1px solid rgb(43 26 16 / .15); } .ds-slip strong { font-weight: 400; color: var(--ink-2); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Drawn Kantine",
+    "overview": "**Creative North Star: \"The Drawn Kantine\"**\n\nEverything on the site is an object you could find at a Dutch amateur football club, drawn in cartoon ink: a parchment scroll for the form, a painted plank hung on a rope for the verdict, a pitch full of linesmen, a gold share band, and in the kleedkamer a wall of wooden lockers on brown tiles. Surfaces are materials (wood, parchment, cream paper, tape), never abstract cards. The scene illustrations in `img/scenes/` set the palette and line weight; CSS objects are drawn to sit inside those illustrations without a seam.\n\nThe page ground is always dark wood. Light comes from the objects on it: parchment and paper carry ink text, dark wood carries cream and gold text. Every object has a heavy ink outline (2.5px to 3px) and slightly asymmetric hand-drawn corners. Type is three voices: Lilita One shouts the headline and the verdict, Fredoka does the honest work of forms and explanations, Patrick Hand is a person writing a note.\n\nMotion is physical and comic: the verdict board swings on its rope with real pendulum physics, the verdict word lands as a stamp that knocks mud or chalk loose, linesmen waddle onto the pitch, locker doors swing open on their hinge. Every one of these is decoration on top of an answer that is complete without it, and every one has a reduced-motion path.",
+    "keyCharacteristics": [
+      "Dark wood ground (wood-900), with parchment, paper and plank objects on it.",
+      "Heavy ink outlines and hand-drawn asymmetric corners on every object.",
+      "A vertical ink edge under solid objects that collapses when a control is pressed.",
+      "Three type voices: Lilita One display, Fredoka UI, Patrick Hand notes.",
+      "Physical, cartoon motion with a complete reduced-motion fallback.",
+      "No dark/light theme switch: the canteen is one world, always lit the same way."
+    ],
+    "rules": [
+      {
+        "name": "The Lit Objects Rule",
+        "body": "The ground is always dark wood. Light surfaces exist only as objects (scroll, paper, plank, locker inside) with an ink outline; ink text goes on them, cream and gold text go on wood.",
+        "section": "colors"
+      },
+      {
+        "name": "The Verdict Colors Rule",
+        "body": "Red and Pitch Green mean \"cancelled\" and \"goes ahead\". They are not used for decoration, status chips or branding.",
+        "section": "colors"
+      },
+      {
+        "name": "The Three Voices Rule",
+        "body": "Lilita One shouts, Fredoka explains, Patrick Hand is a person. Never set reading paragraphs in Lilita One or Patrick Hand, and never set a heading in Fredoka.",
+        "section": "typography"
+      },
+      {
+        "name": "The Ink Outline Rule",
+        "body": "A colored Lilita One word on a mid-tone surface (red on plank is 1.71:1 bare) always carries an ink stroke and ink drop; the outline carries the contrast, not the fill.",
+        "section": "typography"
+      },
+      {
+        "name": "The Straight Down Rule",
+        "body": "The ink edge always falls straight down (x offset 0). It is the object's thickness, not a sticker shadow; never offset it sideways.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Press Rule",
+        "body": "A control with an ink edge moves down by the edge's height on press and the edge disappears. A static object keeps its edge.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do keep the ground dark wood (wood-900) and put light surfaces only on outlined objects.",
+      "Do outline every object in ink at 2.5px (controls) or 3px (large objects).",
+      "Do use the hand corners (`--r-hand`, `--r-hand-sm`) for drawn objects and 10px for built ones such as lockers.",
+      "Do give pressable controls a straight-down ink edge that collapses on press, and keep them at least 44px tall.",
+      "Do use the gold-ink-gold focus ring everywhere; never remove focus without a replacement.",
+      "Do time state changes on the system tokens: 140ms for hover and press, 220ms for small transitions, 420ms for larger reveals, on cubic-bezier(.23, 1, .32, 1).",
+      "Do give every motion a reduced-motion version that keeps the result complete (a fade or an instant state).",
+      "Do set colored display words with an ink stroke and ink drop."
+    ],
+    "donts": [
+      "Don't replace the drawn canteen world (kantine, parchment, wood, Henk, the consul); extend it with new club objects instead.",
+      "Don't offset the ink edge sideways or use it as a colored sticker shadow.",
+      "Don't use red or Pitch Green for anything but the verdict.",
+      "Don't set reading text in Lilita One or Patrick Hand.",
+      "Don't add backdrop blur over the animated scene.",
+      "Don't scale content during a layout animation; clip and translate it."
+    ]
+  }
+}

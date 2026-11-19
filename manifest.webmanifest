@@ -1,16 +1,25 @@
 {
+  "id": "/",
   "name": "IsHetAlAfgelast.nl",
   "short_name": "Afgelast?",
-  "description": "Check of je amateurvoetbalwedstrijd wordt afgelast.",
+  "description": "Gaat je potje door? De afgelastingskans voor je amateurwedstrijd, uitgerekend met het weer rond je sportpark.",
   "lang": "nl",
+  "dir": "ltr",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "background_color": "#21140c",
   "theme_color": "#2c1b11",
+  "categories": ["sports", "weather"],
   "icons": [
-    { "src": "/img/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/img/icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "/img/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    { "src": "/img/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/img/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/img/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "screenshots": [
+    { "src": "/img/screen-uitslag.webp", "sizes": "1080x2340", "type": "image/webp", "form_factor": "narrow", "label": "De uitslag: het bord met de afgelastingskans voor je potje" },
+    { "src": "/img/screen-kantine.webp", "sizes": "1080x2340", "type": "image/webp", "form_factor": "narrow", "label": "De kantine: vul je plaats en aftrap in" },
+    { "src": "/img/screen-breed.webp", "sizes": "1920x1080", "type": "image/webp", "form_factor": "wide", "label": "De uitslag op een groot scherm" }
   ]
 }

@@ -8,12 +8,16 @@
   <link rel="canonical" href="https://www.ishetalafgelast.nl/privacy">
   <meta property="og:image" content="https://www.ishetalafgelast.nl/img/og.jpg">
   <meta name="theme-color" content="#2c1b11">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Afgelast?">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'self'; font-src 'self'; img-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none';">
   <meta name="referrer" content="no-referrer">
   <link rel="icon" href="/img/icon-48.png" type="image/png">
   <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
   <link rel="preload" href="/fonts/lilita-one.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/mobiel.css">
 </head>
 <body>
   <section class="scene doc">
@@ -38,34 +42,76 @@
       <p>IsHetAlAfgelast.nl is een hobbyproject van één maker, zonder bedrijf, adverteerders
       of eigen server erachter. Die maker is verantwoordelijk voor deze site en deze tekst.</p>
       <h2>Wat er gebeurt als je checkt</h2>
-      <p>De berekening gebeurt in je eigen browser. Twee dingen gaan rechtstreeks naar
+      <p>De berekening gebeurt in je eigen browser. Dit gaat rechtstreeks naar
       <a href="https://open-meteo.com/en/terms" rel="noopener">Open-Meteo</a>:</p>
       <ul>
         <li>Tijdens het typen van een plaats: wat je tot dan toe hebt getypt, voor de
         suggesties.</li>
         <li>Bij de check: de coördinaten van de plaats en de speeldatum (met de week
         ervoor), voor het weerbericht.</li>
+        <li>Na de uitslag: dezelfde coördinaten en datum nog een keer, voor de 51
+        weerberekeningen achter de veldkeurders.</li>
+        <li>Heb je een wedstrijd onthouden, dan haalt de homepage bij het openen soms
+        alvast het weerbericht voor die wedstrijd op.</li>
       </ul>
-      <p>Open-Meteo ontvangt daarbij ook je IP-adres. Teamnamen en veldtype blijven in
+      <p>Open-Meteo ontvangt daarbij ook je IP-adres. Teamnamen, elftal en veldtype blijven in
       je browser en gaan niet naar Open-Meteo.</p>
-      <p>Plaats, coördinaten, datum, aftraptijd, veldtype en ingevulde teamnamen staan wel
-      in de resultaatlink. Een link die je deelt bevat ook de kans en het tijdstip van je
+      <p>Plaats, coördinaten, datum, aftraptijd, veldtype, elftal en ingevulde teamnamen staan wel
+      in de resultaatlink en in de teamlink. Een link die je deelt bevat ook de kans en het tijdstip van je
       check, zodat de ontvanger ziet of het weerbericht sindsdien is veranderd. Bij delen, bezoeken of opnieuw laden ontvangt de hostingdienst deze
       URL; ontvangers en het gekozen deelplatform kunnen de link ook lezen. Technische
-      logs kunnen URL's bevatten. Vul geen namen van personen of andere privégegevens in.</p>
+      logs kunnen URL's bevatten. Vul bij de teamnamen geen namen van personen of andere privégegevens in.</p>
+      <h2>Namen bij "Wie vlagt er?" en het briefje</h2>
+      <p>De namen die je daar typt, blijven in je browser. De klussen worden op je eigen
+      toestel verdeeld. Kopieer je de teamlink, dan staan de namen in het deel van de
+      link achter het hekje (#). Browsers sturen dat deel niet mee naar een server, dus
+      ook niet naar ons. Wie de link opent, kan de namen wel lezen en krijgt ze op zijn
+      eigen toestel te zien; de site haalt ze daarna meteen uit de adresbalk. Gebruik
+      voornamen, en zet de link alleen in je eigen groep.</p>
+      <p>Tik je op een WhatsApp-knop, dan gaat de tekst die je ziet naar WhatsApp. Dat
+      geldt ook voor het briefje, het klussenrooster en je opstelling, met de namen die
+      erin staan. De opstellingslink werkt net als de teamlink: de namen staan achter het
+      hekje en gaan niet naar ons.</p>
       <h2>Wat je browser bewaart</h2>
       <p>Zodat de site ook zonder verbinding opent, bewaart je browser de pagina's,
       scripts, lettertypes en afbeeldingen van deze site (een service worker). Daar
-      zitten geen ingevulde gegevens of uitslagen in. Je wist het via de
-      site-instellingen van je browser. Je browsergeschiedenis bevat, zoals bij elke
+      zitten geen ingevulde gegevens of uitslagen in. Je browsergeschiedenis bevat, zoals bij elke
       site, de links die je hebt bezocht.</p>
       <p>Staat "Onthoud mijn wedstrijd op dit toestel" aan (dat is standaard zo), dan
-      bewaart je browser na een check de plaats, het veldtype, de teamnamen, de
+      bewaart je browser na een check de plaats, het veldtype, de teamnamen, het elftal, de
       aftraptijd en de speeldag in de lokale opslag van dit toestel. Zo staat je wedstrijd de volgende
-      keer klaar. Dat blijft op je toestel en gaat nergens heen. Vinkje uit of
-      "Vergeet" wist het meteen.</p>
+      keer klaar. Vinkje uit of "Vergeet" wist het meteen.</p>
+      <p>In dezelfde lokale opslag staan verder:</p>
+      <ul>
+        <li>Jij tegen Henk: je tips, de kans die Henk gaf, de afloop die je zelf aantikt,
+        en welke wedstrijden je al bekeken hebt (datum en afgeronde coördinaten).</li>
+        <li>De namen voor "Wie vlagt er?".</li>
+        <li>Je opstelling op het tactiekbord (namen en bank), je spelerspas en het sportpark
+        dat je kiest voor het toss-advies.</li>
+        <li>Welke plekjes van het zoekplaatje je hebt gevonden.</li>
+        <li>Dat je de veldkeuring al een keer hebt gezien, zodat hij daarna korter duurt.</li>
+      </ul>
+      <p>Dit alles blijft op je toestel en gaat nergens heen. Je wist het via de
+      site-instellingen van je browser ("sitegegevens wissen").</p>
       <p>Een agenda-herinnering maakt je browser zelf als bestand; die gaat alleen naar
       je eigen agenda.</p>
+      <h2 id="app">Op je beginscherm en in de app</h2>
+      <p>Zet je de site op je beginscherm, dan blijft alles hierboven gelden: het is dezelfde
+      site. Je browser onthoudt alleen of je het kaartje "Henk op je beginscherm" hebt
+      weggetikt, zodat het drie weken wegblijft.</p>
+      <p>De app Afgelast? bevat dezelfde bestanden als de site en rekent op dezelfde manier op
+      je toestel. Wat anders is:</p>
+      <ul>
+        <li>In de app tellen we geen bezoeken: er zit geen meetscript in.</li>
+        <li>Seintjes plant je telefoon zelf, als lokale melding. Je keuze (zaterdag of zondag)
+        staat alleen op je toestel. Er is geen account en geen pushdienst, en er gaat niets
+        naar ons. De herinnering voor één wedstrijd werkt net zo, in plaats van een
+        agendabestand.</li>
+        <li>Voor de melding van een algemene afgelasting leest de app één bestand van deze
+        site. De hostingdienst ziet dan je IP-adres, zoals bij elk bezoek.</li>
+        <li>Delen en kopiëren gaan via het deelmenu en het klembord van je telefoon.</li>
+        <li>Verwijder je de app, dan verdwijnt alles wat hij bewaarde mee.</li>
+      </ul>
       <h2>Bezoekers tellen</h2>
       <p>We tellen bezoeken met Cloudflare Web Analytics. Dat werkt zonder cookies,
       bewaart niets op je toestel en volgt je niet over sites heen. Het meetscript
@@ -98,7 +144,7 @@
   </section>
   <footer class="site-footer">
     <img src="/img/logo.webp" srcset="/img/logo-240.webp 240w, /img/logo.webp 480w" sizes="132px" alt="IsHetAlAfgelast.nl" width="480" height="248" loading="lazy">
-    <p>Voor iedereen die op zondagochtend in de kelderklasse speelt.</p>
+    <p>Voor iedereen die in het weekend in de kelderklasse speelt.</p>
     <nav aria-label="Footer">
       <a href="/plaatsen/">Plaatsen</a>
       <a href="/privacy">Privacy</a>

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+<defs>
+  <radialGradient id="leer" cx="38%" cy="32%" r="75%">
+    <stop offset="0" stop-color="#fffaf0"/><stop offset=".55" stop-color="#f3e6cb"/><stop offset="1" stop-color="#d9bd88"/>
+  </radialGradient>
+  <radialGradient id="licht" cx="50%" cy="42%" r="70%">
+    <stop offset="0" stop-color="#6b4528" stop-opacity=".55"/><stop offset="1" stop-color="#0f0906" stop-opacity=".45"/>
+  </radialGradient>
+  <clipPath id="bal"><circle cx="0" cy="0" r="0"/></clipPath>
+</defs><rect x="0.0" y="0" width="204.8" height="1024" fill="#21140c"/>
+<path d="M0.0 0V1024" stroke="#170d08" stroke-width="6.1"/>
+<path d="M51.2 0C63.5 307.2 38.9 614.4 55.3 1024" stroke="#3b2517" stroke-width="3.1" fill="none" opacity=".55"/>
+<path d="M102.4 0C114.7 307.2 90.1 614.4 106.5 1024" stroke="#3b2517" stroke-width="3.1" fill="none" opacity=".55"/>
+<path d="M153.6 0C165.9 307.2 141.3 614.4 157.7 1024" stroke="#3b2517" stroke-width="3.1" fill="none" opacity=".55"/>
+<rect x="204.8" y="0" width="204.8" height="1024" fill="#2c1b11"/>
+<path d="M204.8 0V1024" stroke="#170d08" stroke-width="6.1"/>
+<path d="M256.0 0C268.3 307.2 243.7 614.4 260.1 1024" stroke="#3b2517" stroke-width="3.1" fill="none" opacity=".55"/>
+<path d="M307.2 0C319.5 307.2 294.9 614.4 311.3 1024" stroke="#3b2517" stroke-width="3.1" fill="none" opacity=".55"/>
+<path d="M358.4 0C370.7 307.2 346.1 614.4 362.5 1024" stroke="#3b2517" stroke-width="3.1" fill="none" opacity=".55"/>
+<rect x="409.6" y="0" width="204.8" height="1024" fill="#21140c"/>
+<path d="M409.6 0V1024" stroke="#170d08" stroke-width="6.1"/>
+<path d="M460.8 0C473.1 307.2 448.5 614.4 464.9 1024" stroke="#3b2517" stroke-width="3.1" fill="none" opacity=".55"/>
+<path d="M512.0 0C524.3 307.2 499.7 614.4 516.1 1024" stroke="#3b2517" stroke-width="3.1" fill="none" opacity=".55"/>
+<path d="M563.2 0C575.5 307.2 550.9 614.4 567.3 1024" stroke="#3b2517" stroke-width="3.1" fill="none" opacity=".55"/>
+<rect x="614.4" y="0" width="204.8" height="1024" fill="#2c1b11"/>
+<path d="M614.4 0V1024" stroke="#170d08" stroke-width="6.1"/>
+<path d="M665.6 0C677.9 307.2 653.3 614.4 669.7 1024" stroke="#3b2517" stroke-width="3.1" fill="none" opacity=".55"/>
+<path d="M716.8 0C729.1 307.2 704.5 614.4 720.9 1024" stroke="#3b2517" stroke-width="3.1" fill="none" opacity=".55"/>
+<path d="M768.0 0C780.3 307.2 755.7 614.4 772.1 1024" stroke="#3b2517" stroke-width="3.1" fill="none" opacity=".55"/>
+<rect x="819.2" y="0" width="204.8" height="1024" fill="#21140c"/>
+<path d="M819.2 0V1024" stroke="#170d08" stroke-width="6.1"/>
+<path d="M870.4 0C882.7 307.2 858.1 614.4 874.5 1024" stroke="#3b2517" stroke-width="3.1" fill="none" opacity=".55"/>
+<path d="M921.6 0C933.9 307.2 909.3 614.4 925.7 1024" stroke="#3b2517" stroke-width="3.1" fill="none" opacity=".55"/>
+<path d="M972.8 0C985.1 307.2 960.5 614.4 976.9 1024" stroke="#3b2517" stroke-width="3.1" fill="none" opacity=".55"/>
+<rect width="1024" height="1024" fill="url(#licht)"/>
+</svg>

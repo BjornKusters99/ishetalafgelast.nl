@@ -20,9 +20,12 @@
   <meta property="og:image:alt" content="Getekende voetbalkantine met uitzicht op een regenachtig veld en de tekst: Gaat je potje door? Afgelastingskans voor amateurvoetbal.">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#2c1b11">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Afgelast?">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
   <meta name="referrer" content="no-referrer">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://cloudflareinsights.com https://geocoding-api.open-meteo.com https://api.open-meteo.com https://archive-api.open-meteo.com; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://cloudflareinsights.com https://geocoding-api.open-meteo.com https://api.open-meteo.com https://archive-api.open-meteo.com https://ensemble-api.open-meteo.com; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none';">
 
   <link rel="icon" href="/img/icon-48.png" type="image/png">
   <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
@@ -30,7 +33,10 @@
   <link rel="preload" href="/fonts/lilita-one.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/fonts/fredoka.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/mobiel.css">
+  <script src="/js/route.js"></script>
   <script type="module" src="/js/app.js"></script>
+  <script type="module" src="/js/mobiel.js"></script>
   <script type="module" src="/js/ld.js"></script>
   <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "0a8514a29cb34cc2accd6d92de5417b9"}'></script>
 </head>
@@ -45,9 +51,7 @@
     <symbol id="i-chat" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
     <symbol id="i-ig" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/></symbol>
     <symbol id="i-tt" viewBox="0 0 24 24"><path d="M9 11.5a4.5 4.5 0 1 0 4.5 4.5V2.5h3a4.5 4.5 0 0 0 4.5 4.5"/></symbol>
-    <symbol id="i-fb" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></symbol>
     <symbol id="i-yt" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="m10 9 5 3-5 3z"/></symbol>
-    <symbol id="i-x" viewBox="0 0 24 24"><path d="M4 4h4.5L20 20h-4.5zM4 20l6.6-6.6M13.4 10.6 20 4"/></symbol>
     <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></symbol>
     <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="m18 14 4 4-4 4M18 2l4 4-4 4"/><path d="M2 18h1.97a4 4 0 0 0 3.3-1.7l5.46-8.6A4 4 0 0 1 16.03 6H22M2 6h1.97a4 4 0 0 1 3.3 1.7l.82 1.3M22 18h-5.97a4 4 0 0 1-3.3-1.7l-.82-1.3"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
@@ -56,6 +60,24 @@
     <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14M19 12l-7 7-7-7"/></symbol>
     <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></symbol>
     <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></symbol>
+    <symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="i-consul" viewBox="0 0 28 36">
+      <rect x="18.5" y="1.5" width="8" height="11" rx="1.5" fill="currentColor" stroke="#2b1a10" stroke-width="1.6"/>
+      <path d="M17.5 24 22 12.5" fill="none" stroke="#2b1a10" stroke-width="4" stroke-linecap="round"/>
+      <path d="M4 35c0-8.5 3.4-12.5 8.5-12.5S21 26.5 21 35Z" fill="#241711" stroke="#2b1a10" stroke-width="1.6" stroke-linejoin="round"/>
+      <circle cx="12.5" cy="15.5" r="6.8" fill="#efc7a0" stroke="#2b1a10" stroke-width="1.6"/>
+      <path d="M8 18.200c2.2 2 6.8 2 9 0" fill="none" stroke="#2b1a10" stroke-width="2.4" stroke-linecap="round"/>
+      <path d="M6.5 12c3-3.4 8.5-3.6 11.5-1" fill="none" stroke="#2b1a10" stroke-width="1.6" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="i-deel" viewBox="0 0 24 24"><path d="M12 3v11M8 7l4-4 4 4"/><path d="M8 10H6a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1h-2"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M12 8.5v7M8.5 12h7"/></symbol>
+    <symbol id="i-dots" viewBox="0 0 24 24"><path d="M5 12h.01M12 12h.01M19 12h.01" stroke-width="4"/></symbol>
+    <symbol id="i-kebab" viewBox="0 0 24 24"><path d="M12 5h.01M12 12h.01M12 19h.01" stroke-width="4"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-fluit" viewBox="0 0 24 24"><path d="M2.5 13a5.5 5.5 0 1 0 11 0v-2.5h8v-4H8a5.5 5.5 0 0 0-5.5 5.5Z"/><circle cx="8" cy="13" r="1.6"/><path d="M13.5 6.5V4"/></symbol>
     <symbol id="i-shirt" viewBox="0 0 48 48"><path d="M17 4c1.5 3 4 4.5 7 4.5S29.5 7 31 4l11 5 4 12-8 3v20H10V24l-8-3 4-12z"/></symbol>
   </svg>
 
@@ -103,10 +125,21 @@
         <p class="lede">Wij halen het weer rond je sportpark in Haarlem op en rekenen uit hoe groot de kans op afgelasting is.</p>
         <!--/seo:hero-->
 
+        <p class="seizoen" id="seizoen" hidden></p>
         <div class="saved" id="saved" hidden>
           <p><span class="saved-label">Je wedstrijd</span> <span id="saved-what"></span></p>
+          <p class="saved-now" id="saved-now" role="status" hidden></p>
           <button type="button" class="btn-tiny" id="btn-again">Check opnieuw</button>
           <button type="button" class="btn-forget" id="btn-forget">Vergeet</button>
+        </div>
+        <div class="saved duel" id="duel" hidden>
+          <p><span class="saved-label">Jij tegen Henk</span> <span id="duel-what"></span></p>
+          <div class="duel-btns" id="duel-btns">
+            <button type="button" class="btn-tiny" data-out="door">Hij ging door</button>
+            <button type="button" class="btn-tiny" data-out="af">Afgelast</button>
+            <button type="button" class="btn-forget" data-out="?">Weet ik niet</button>
+          </div>
+          <p class="duel-stand" id="duel-stand" role="status" hidden></p>
         </div>
         <form id="form" class="check-form" novalidate autocomplete="off">
           <div class="field field--city">
@@ -121,24 +154,42 @@
             <label for="date">Wanneer?</label>
             <div class="when">
               <input id="date" name="datum" type="date" required aria-describedby="date-err date-hint">
-              <input id="kickoff" name="aftrap" type="time" value="14:00" step="300" aria-label="Aftraptijd" title="Aftraptijd">
+              <input id="kickoff" name="aftrap" type="time" value="10:00" step="300" aria-label="Aftraptijd" title="Aftraptijd">
             </div>
             <p class="field-err" id="date-err" hidden></p>
             <p class="field-hint" id="date-hint" hidden></p>
           </div>
 
-          <button type="button" class="teams-toggle" id="teams-toggle" aria-expanded="false" aria-controls="home away">
-            + Teamnamen toevoegen <span class="opt">optioneel</span>
+          <button type="button" class="teams-toggle" id="teams-toggle" aria-expanded="false" aria-controls="teams">
+            + Teams en elftal <span class="opt">optioneel</span>
           </button>
 
-          <div class="field field--home">
-            <label for="home">Thuisploeg <span class="opt">optioneel</span></label>
-            <input id="home" name="thuis" type="text" maxlength="40" placeholder="bijv. Quick Boys">
-          </div>
-
-          <div class="field field--away">
-            <label for="away">Uitploeg <span class="opt">optioneel</span></label>
-            <input id="away" name="uit" type="text" maxlength="40" placeholder="bijv. Katwijk" aria-describedby="team-hint">
+          <div class="teams" id="teams">
+            <div class="field field--home">
+              <label for="home">Thuis <span class="opt">optioneel</span></label>
+              <input id="home" name="thuis" type="text" maxlength="40" placeholder="bijv. DVO 5">
+            </div>
+            <div class="field field--away">
+              <label for="away">Uit <span class="opt">optioneel</span></label>
+              <input id="away" name="uit" type="text" maxlength="40" placeholder="bijv. SDO 7" aria-describedby="team-hint">
+            </div>
+            <div class="field field--elftal">
+              <label for="elftal">Jouw elftal</label>
+              <select id="elftal" name="elftal">
+                <option value="">Kies</option>
+                <option value="1">1e</option>
+                <option value="2">2e</option>
+                <option value="3">3e</option>
+                <option value="4">4e</option>
+                <option value="5">5e</option>
+                <option value="6">6e</option>
+                <option value="7">7e</option>
+                <option value="8">8e</option>
+                <option value="9">9e</option>
+                <option value="35">35+</option>
+                <option value="v">Vrouwen</option>
+              </select>
+            </div>
             <p class="field-hint" id="team-hint" hidden></p>
           </div>
 
@@ -177,33 +228,35 @@
           </details>
         </form>
       </div>
+      <button type="button" class="zoek" id="zoek" hidden>
+        <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+        <span id="zoek-label">Zoekplaatje</span>
+      </button>
     </section>
 
     <section class="reken" id="rekenwerk" aria-labelledby="reken-title">
       <!--seo:intro-->
       <header class="reken-head">
         <p class="overline">Het rekenwerk voor Haarlem</p>
-        <h2 id="reken-title">Afgelast in Haarlem? Wij weten het eerder dan de scheids</h2>
+        <h2 id="reken-title">Afgelast in Haarlem? Wij weten het eerder dan de veldkeurder</h2>
         <div class="reken-lede">
           <p>Wedstrijd in Haarlem en slecht weer voorspeld? Bel de terreinmeester nog niet. Check eerst de kans op afgelasting, gebaseerd op het weerbericht voor Haarlem en omgeving.</p>
-          <p>De scheids, laten we hem <button type="button" class="henk-link">Henk</button> noemen, beslist pas op het veld. Ons proefmodel gebruikt <strong>2.100 gesimuleerde wedstrijden</strong> met historische weerdata. De <strong>364 afgelastingen zijn gegenereerd door kansregels</strong>, niet vastgesteld bij echte wedstrijden. Het percentage is nog niet gevalideerd op echte uitslagen. De officiële beslissing ligt bij je club in Haarlem en de scheidsrechter.</p>
+          <p>De scheids, laten we hem <button type="button" class="henk-link">Henk</button> noemen, laat pas op het veld een bal vallen. Wij doen dat eerder, met het weerbericht. Eerlijk is eerlijk: Henk heeft nog geen echte wedstrijd gefloten. Ons model oefent op <strong>2.100 nagespeelde potjes</strong>, met echt weer en bedachte afgelastingen. Een natte vinger met een rekenmachine dus. Je club in Haarlem en de veldkeurder beslissen.</p>
         </div>
       </header>
       <!--/seo:intro-->
 
       <div class="reken-grid">
-        <figure class="appgroep" aria-label="Voorbeeld: de appgroep op zondagochtend">
+        <figure class="appgroep" aria-label="Voorbeeld: de appgroep op de ochtend van de wedstrijd">
           <div class="appgroep-top" aria-hidden="true">
             <span class="appgroep-av">Z7</span>
             <span><strong>Zondag 7 (de echte)</strong><small id="appgroep-typing">Kevin is aan het typen...</small></span>
           </div>
           <ol class="appgroep-log" id="appgroep-log">
-            <li><b>Jeroen</b>Gaat het door vandaag??<time>07:58</time></li>
-            <li><b>Trainer Ad</b>Wacht op de scheids.<time>08:02</time></li>
-            <li><b>Dennis (keeper)</b>Mijn handschoenen liggen nog bij m'n schoonvader.<time>08:05</time></li>
-            <li><b>Kevin</b>Ik ben eerlijk gezegd nog een beetje brak.<time>08:11</time></li>
-            <li><b>Rinus (grensrechter)</b>Vroeger speelden we gewoon door. Ook met sneeuw.<time>08:24</time></li>
-            <li class="me">ishetalafgelast.nl zegt 81%. Ik draai me nog een keer om.<time>08:40</time></li>
+            <li><b>Jeroen</b>gaat het door vandaag??<time>07:58</time></li>
+            <li><b>Kevin</b>ik lig nog, hou me op de hoogte<time>08:11</time></li>
+            <li><b>Rinus</b>vroeger speelden we gewoon door. ook met sneeuw<time>08:24</time></li>
+            <li class="me">ishetalafgelast.nl zegt 81%. ik draai me nog een keer om<time>08:40 · gelezen door 14</time></li>
           </ol>
           <button type="button" class="appgroep-more" id="appgroep-more">Meer gezeur laden</button>
         </figure>
@@ -215,7 +268,7 @@
               <span class="shirt" aria-hidden="true"><svg><use href="#i-shirt"/></svg><b>9</b></span>
               <div>
                 <h4>De week ervoor <span class="tag">topscorer</span></h4>
-                <p>Een veld dat al zeven dagen water slurpt, kan niks meer hebben. Ook niet als het zondag droog is.</p>
+                <p>Een veld dat al zeven dagen water slurpt, kan niks meer hebben. Ook niet als het op de dag zelf droog is.</p>
                 <span class="bar" aria-hidden="true"><i></i></span>
               </div>
             </li>
@@ -231,7 +284,7 @@
               <span class="shirt" aria-hidden="true"><svg><use href="#i-shirt"/></svg><b>1</b></span>
               <div>
                 <h4>Gras of kunstgras <span class="tag">de ondergrond</span></h4>
-                <p>Kunstgras kan beter tegen regen, maar is niet altijd bespeelbaar. Geen idee? Dan gebruiken we de simulatiemix: zeven op de tien voorbeelden zijn gras. Dat is geen gemeten Nederlandse veldverdeling.</p>
+                <p>Kunstgras kan beter tegen regen, maar niet tegen alles. Weet je het niet, dan rekenen we met een mix van zeven grasvelden op de tien. Dat is onze aanname, geen telling.</p>
                 <span class="bar" aria-hidden="true"><i></i></span>
               </div>
             </li>
@@ -239,7 +292,7 @@
               <span class="shirt" aria-hidden="true"><svg><use href="#i-shirt"/></svg><b>7</b></span>
               <div>
                 <h4>Storm <span class="tag">waait alle kanten op</span></h4>
-                <p>Zware windstoten tellen mee, maar het gaat zelden alleen om wind. Behalve voor het dak van de dug-out.</p>
+                <p>Zware windstoten tellen mee, maar het gaat zelden alleen om wind, behalve voor het dak van de dug-out.</p>
                 <span class="bar" aria-hidden="true"><i></i></span>
               </div>
             </li>
@@ -252,7 +305,7 @@
               </div>
             </li>
           </ol>
-          <p class="bank"><strong>Op de bank:</strong> het humeur van de terreinmeester. Zit niet in ons model. Helaas.</p>
+          <p class="bank"><strong>Op de bank:</strong> het humeur van de veldkeurder. Dat zit helaas niet in ons model.</p>
         </div>
       </div>
     </section>
@@ -263,8 +316,7 @@
         <p>Stuur die dit. Scheelt jou veertig berichten.</p>
         <div class="share-row" data-share-row="home">
           <a class="btn-share" data-net="wa" href="https://wa.me/" target="_blank" rel="noopener"><svg class="ic"><use href="#i-chat"/></svg> WhatsApp</a>
-          <a class="btn-net" data-net="fb" href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener" aria-label="Deel via Facebook"><svg class="ic"><use href="#i-fb"/></svg></a>
-          <a class="btn-net" data-net="x" href="https://x.com/intent/post" target="_blank" rel="noopener" aria-label="Deel via X"><svg class="ic"><use href="#i-x"/></svg></a>
+          <button type="button" class="btn-net" data-net="native" aria-label="Delen via een andere app" hidden><svg class="ic"><use href="#i-share"/></svg></button>
           <button type="button" class="btn-net" data-net="copy" aria-label="Kopieer link"><svg class="ic"><use href="#i-link"/></svg></button>
         </div>
         <div class="follow-row">
@@ -326,9 +378,15 @@
         <div class="hotspots" data-eggs="result"></div>
       </div>
 
-      <button type="button" class="btn-back" id="btn-back">
-        <svg class="ic"><use href="#i-back"/></svg> Nieuwe check
-      </button>
+      <p class="dg-hedge" aria-hidden="true">Verwachting:</p>
+      <div class="result-top">
+        <button type="button" class="btn-back" id="btn-back">
+          <svg class="ic"><use href="#i-back"/></svg> Nieuwe check
+        </button>
+        <a class="result-brand" href="/" aria-label="IsHetAlAfgelast.nl, naar de homepage">
+          <img src="/img/logo-240.webp" alt="" width="240" height="124">
+        </a>
+      </div>
 
       <div class="board" id="board">
         <span class="board-rope" aria-hidden="true"></span>
@@ -339,24 +397,36 @@
             <div class="thermo" aria-hidden="true"><span class="thermo-fill" id="thermo-fill"></span></div>
             <p class="board-pct"><strong id="r-pct">0%</strong> <span>kans op afgelasting</span></p>
           </div>
-          <p class="board-note">Schatting op basis van het weer, geen officiële afgelasting. <a href="https://www.voetbal.nl/" target="_blank" rel="noopener">Check je club of Voetbal.nl</a>.</p>
           <p class="board-horizon" id="r-horizon"></p>
-          <p class="board-shared" id="r-shared" hidden></p>
-          <p class="board-weekend" id="r-weekend" hidden></p>
+        </div>
+      </div>
+
+      <div class="actie">
+        <div class="actie-inner">
+          <div class="share-row" data-share-row="result">
+            <a class="btn-share" data-net="wa" id="share-wa" href="https://wa.me/" target="_blank" rel="noopener"><svg class="ic"><use href="#i-chat"/></svg> Stuur naar de appgroep</a>
+            <button type="button" class="btn-net" data-net="native" aria-label="Delen via een andere app" hidden><svg class="ic"><use href="#i-share"/></svg></button>
+            <button type="button" class="btn-net" data-net="copy" id="btn-copy" aria-label="Kopieer link"><svg class="ic"><use href="#i-link"/></svg></button>
+          </div>
+          <div class="weekend" id="r-weekend" role="group" aria-label="Speeldag" hidden></div>
+          <p class="actie-note">
+            <strong id="r-official">Officieel: nog niets bekend.</strong>
+            <span id="r-official-more">Kijk in de <a href="https://www.voetbal.nl/" target="_blank" rel="noopener">Voetbal.nl-app</a> of vraag je club.</span>
+            <span class="actie-shared" id="r-shared" hidden></span>
+          </p>
         </div>
       </div>
     </section>
 
-    <section class="scorebord" aria-label="Het weer op de speeldag">
-      <dl class="conditions">
-        <div><dt><svg class="ic"><use href="#i-temp"/></svg>Temperatuur</dt><dd id="r-temp">-</dd></div>
-        <div><dt><svg class="ic"><use href="#i-rain"/></svg>Regen</dt><dd id="r-precip">-</dd></div>
-        <div><dt><svg class="ic"><use href="#i-wind"/></svg>Windstoten</dt><dd id="r-wind">-</dd></div>
-        <div id="r-week-row"><dt><svg class="ic"><use href="#i-week"/></svg>Week ervoor</dt><dd id="r-week">-</dd></div>
-      </dl>
-      <div class="hours" id="r-hours" hidden>
-        <p class="hours-title" id="r-hours-title"></p>
-        <table class="hours-table" id="r-hours-table"></table>
+    <section class="consuls" id="consuls" aria-labelledby="consuls-title" hidden>
+      <div class="consuls-text">
+        <h2 id="consuls-title"></h2>
+        <p class="consuls-rest" id="consuls-rest"></p>
+        <p class="consuls-note">Elke veldkeurder krijgt zijn eigen weerbericht: 51 berekeningen van hetzelfde weekend. Zo zie je hoe zeker het weer is. Of onze som klopt, is een ander verhaal.</p>
+      </div>
+      <div class="consuls-wrap">
+        <ul class="consuls-veld" id="consuls-veld" aria-hidden="true"></ul>
+        <p class="consul-kaart" id="consul-kaart" aria-hidden="true" hidden></p>
       </div>
     </section>
 
@@ -377,27 +447,26 @@
           <p class="fun" id="r-fun"></p>
           <h3>Wat de doorslag gaf</h3>
           <p class="why" id="r-why"></p>
-          <ul class="weights" id="r-weights"></ul>
-        </div>
-        <div class="share-box">
-          <h3>Gooi 'm in de appgroep</h3>
-          <div class="share-strip">
-            <div class="chat-preview">
-              <p class="bubble" id="share-msg"></p>
-              <button type="button" class="btn-tiny" id="share-shuffle"><svg class="ic"><use href="#i-shuffle"/></svg> Ander berichtje</button>
+          <p class="noppen" id="r-noppen"></p>
+          <dl class="conditions">
+            <div><dt><svg class="ic"><use href="#i-temp"/></svg>Temperatuur</dt><dd id="r-temp">-</dd></div>
+            <div><dt><svg class="ic"><use href="#i-rain"/></svg>Regen</dt><dd id="r-precip">-</dd></div>
+            <div><dt><svg class="ic"><use href="#i-wind"/></svg>Windstoten</dt><dd id="r-wind">-</dd></div>
+            <div id="r-week-row"><dt><svg class="ic"><use href="#i-week"/></svg>Week ervoor</dt><dd id="r-week">-</dd></div>
+          </dl>
+          <details class="waarom" id="waarom">
+            <summary>Waarom? Uur voor uur en de weging <svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+            <div class="hours" id="r-hours" hidden>
+              <h4 class="hours-title" id="r-hours-title"></h4>
+              <ol class="uren" id="r-verslag"></ol>
+              <div class="hours-scroll"><table class="hours-table" id="r-hours-table"></table></div>
             </div>
-            <div class="share-row" data-share-row="result">
-              <a class="btn-share" data-net="wa" id="share-wa" href="https://wa.me/" target="_blank" rel="noopener"><svg class="ic"><use href="#i-chat"/></svg> Stuur naar de appgroep</a>
-              <button type="button" class="btn-net" data-net="native" aria-label="Delen" hidden><svg class="ic"><use href="#i-share"/></svg></button>
-              <a class="btn-net" data-net="fb" href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener" aria-label="Deel via Facebook"><svg class="ic"><use href="#i-fb"/></svg></a>
-              <a class="btn-net" data-net="x" href="https://x.com/intent/post" target="_blank" rel="noopener" aria-label="Deel via X"><svg class="ic"><use href="#i-x"/></svg></a>
-              <button type="button" class="btn-net" data-net="copy" id="btn-copy" aria-label="Kopieer link"><svg class="ic"><use href="#i-link"/></svg></button>
-            </div>
-            <button type="button" class="btn-tiny" id="btn-ics" hidden><svg class="ic"><use href="#i-cal"/></svg> <span id="ics-label">Herinner me om opnieuw te checken</span></button>
-          </div>
+            <h4 class="hours-title">Wat hoe zwaar woog</h4>
+            <ul class="weights" id="r-weights"></ul>
+          </details>
         </div>
       </div>
-      <p class="fineprint">Experimentele modelschatting op basis van het weerbericht en gesimuleerde afgelastingen; nog niet gevalideerd op echte wedstrijden. De vereniging en de scheidsrechter beslissen. Henk heeft altijd gelijk.</p>
+      <p class="fineprint">Een verwachting uit het weerbericht, geen afgelasting. Henk oefent nog: zijn som is niet getoetst op echte wedstrijden. <a href="/#rekenwerk">Hoe Henk rekent</a></p>
     </section>
 
     <section class="extra" aria-labelledby="extra-title">
@@ -405,8 +474,85 @@
         <h2 id="extra-title"></h2>
         <p id="extra-sub"></p>
       </div>
-      <div class="extra-body" id="extra-body"></div>
+      <div class="extra-main">
+        <div class="tabs" id="extra-tabs" role="tablist" aria-label="Extra's voor de speeldag"></div>
+        <div class="extra-body" id="extra-body" role="tabpanel" tabindex="-1"></div>
+      </div>
     </section>
+
+    <section class="slot" aria-labelledby="slot-title">
+      <div class="slot-team" id="slot-team">
+        <h2 id="slot-title">Eén link voor het hele seizoen</h2>
+        <p>Zet hem in de groepsbeschrijving van de appgroep. Hij toont elke week vanzelf de eerstvolgende <span id="team-dag">zondag</span>, en op de ochtend zelf alleen het antwoord.</p>
+        <div class="team-form">
+          <div class="field">
+            <label for="team-name">Naam van je team</label>
+            <input id="team-name" type="text" maxlength="40" placeholder="bijv. DVO 5" autocomplete="off">
+          </div>
+          <button type="button" class="btn-share" id="btn-teamlink"><svg class="ic"><use href="#i-link"/></svg> Kopieer de teamlink</button>
+        </div>
+        <p class="slot-note">De link onthoudt je sportpark, de aftrap en het veld. Speel je uit, dan klopt het weer meestal nog, het veld niet altijd.</p>
+
+        <aside class="kaartje" id="beginscherm" aria-labelledby="beginscherm-title" hidden>
+          <img class="kaartje-icoon" src="/img/icon-192.png" alt="" width="192" height="192" loading="lazy">
+          <div class="kaartje-tekst">
+            <h3 id="beginscherm-title">Henk op je beginscherm</h3>
+            <p id="beginscherm-tekst">Eén tik op Henk en je wedstrijd staat er al. Het blijft gewoon de site, alleen zonder zoeken.</p>
+            <div class="kaartje-knoppen">
+              <button type="button" class="btn-plank" id="beginscherm-ja"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg> Zet op beginscherm</button>
+              <button type="button" class="btn-forget" id="beginscherm-nee">Niet nu</button>
+            </div>
+          </div>
+        </aside>
+
+        <aside class="kaartje" id="seintje" aria-labelledby="seintje-title" hidden>
+          <span class="kaartje-icoon kaartje-fluit" aria-hidden="true"><svg class="ic"><use href="#i-fluit"/></svg></span>
+          <div class="kaartje-tekst">
+            <h3 id="seintje-title">Een seintje van Henk</h3>
+            <p>De avond voor je potje om 19:00: nieuw weerbericht, nieuwe kans. Je telefoon plant het zelf, er gaat niets naar ons.</p>
+            <fieldset class="seintje-keuze">
+              <legend>Ik speel op</legend>
+              <div class="seg">
+                <label><input type="radio" name="seintje" value="uit" checked><span>Uit</span></label>
+                <label><input type="radio" name="seintje" value="6"><span>Zaterdag</span></label>
+                <label><input type="radio" name="seintje" value="0"><span>Zondag</span></label>
+              </div>
+            </fieldset>
+            <p class="kaartje-status" id="seintje-status" role="status"></p>
+          </div>
+        </aside>
+      </div>
+      <div class="slot-acties">
+        <div class="chat-preview">
+          <p class="bubble" id="share-msg"></p>
+          <button type="button" class="btn-tiny" id="share-shuffle"><svg class="ic"><use href="#i-shuffle"/></svg> Ander berichtje</button>
+        </div>
+        <div class="share-row" data-share-row="result-slot">
+          <a class="btn-share" data-net="wa" href="https://wa.me/" target="_blank" rel="noopener"><svg class="ic"><use href="#i-chat"/></svg> Stuur naar de appgroep</a>
+        </div>
+        <p class="duel-stand" id="r-duel" hidden></p>
+        <div class="slot-knop" id="ics-wrap" hidden>
+          <button type="button" class="btn-tiny" id="btn-ics"><svg class="ic"><use href="#i-cal"/></svg> <span id="ics-label">Herinner me om opnieuw te checken</span></button>
+          <p class="slot-note">Je krijgt een afspraak voor je agenda, als bestand.</p>
+        </div>
+        <div class="slot-knop">
+          <button type="button" class="btn-tiny" id="btn-kater"><svg class="ic"><use href="#i-moon"/></svg> Ik ben brak</button>
+          <p class="slot-note">Katermodus: donker scherm, één woord.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ═══════════ Katermodus ═══════════ -->
+  <div id="view-kater" class="view kater" hidden>
+    <p class="kater-wed" id="k-wed"></p>
+    <h1 class="kater-word" id="k-word" tabindex="-1"></h1>
+    <p class="kater-line" id="k-line"></p>
+    <div class="share-row" data-share-row="kater">
+      <a class="btn-share" data-net="wa" id="k-share" href="https://wa.me/" target="_blank" rel="noopener"><svg class="ic"><use href="#i-chat"/></svg> Stuur naar de groep</a>
+    </div>
+    <button type="button" class="kater-more" id="k-more">Toon alles</button>
+    <p class="kater-note">Een verwachting, geen afgelasting. Officieel staat het in de Voetbal.nl-app.</p>
   </div>
 
   </main>
@@ -422,6 +568,13 @@
           <li data-step="weer">Weerbericht ophalen</li>
           <li data-step="model">Bal laten stuiten</li>
         </ol>
+        <div class="tip" id="tip" hidden>
+          <p id="tip-q">Eerst zelf tippen: gaat hij door?</p>
+          <div class="tip-btns">
+            <button type="button" class="btn-tiny" data-tip="door">Gaat door</button>
+            <button type="button" class="btn-tiny" data-tip="af">Afgelast</button>
+          </div>
+        </div>
         <p class="keuring-chat" id="keuring-chat" aria-hidden="true"></p>
         <p class="keuring-verdict" id="keuring-verdict" hidden></p>
       </div>
@@ -434,12 +587,54 @@
     <span id="toast-text"></span>
   </div>
 
+  <dialog class="vel" id="vel" aria-labelledby="vel-title">
+    <div class="vel-inner">
+      <button type="button" class="vel-dicht" id="vel-dicht" aria-label="Sluiten"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+      <div class="vel-scherm" aria-hidden="true">
+        <span class="app-leeg"></span>
+        <span class="app-leeg"></span>
+        <span class="app-henk"><img src="/img/icon-192.png" alt="" width="192" height="192" loading="lazy"><b>Afgelast?</b></span>
+        <span class="app-leeg"></span>
+      </div>
+      <h2 id="vel-title" tabindex="-1" autofocus>Henk op je beginscherm</h2>
+      <p class="vel-hand">Drie tikken. Daarna elke week maar één.</p>
+
+      <div class="vel-prompt" id="vel-prompt" hidden>
+        <button type="button" class="btn-plank btn-plank--groot" id="vel-installeer"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg> Installeer Henk</button>
+        <p>Je telefoon vraagt nog even of het mag. Wil hij niet, dan staan de stappen hieronder.</p>
+      </div>
+
+      <fieldset class="vel-toestel" id="vel-toestel">
+        <legend class="sr-only">Welke telefoon?</legend>
+        <div class="seg">
+          <label><input type="radio" name="toestel" value="ios" checked><span>iPhone</span></label>
+          <label><input type="radio" name="toestel" value="android"><span>Android</span></label>
+        </div>
+      </fieldset>
+
+      <p class="vel-let" id="vel-inapp" hidden><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg> <span>Je zit nu in de browser van een andere app. Open deze pagina eerst in Safari, via het menu van die app.</span></p>
+
+      <ol class="stappen" id="stappen-ios">
+        <li><span class="stap-knop"><svg class="ic" aria-hidden="true"><use href="#i-deel"/></svg></span><p><strong>Tik op Delen</strong> <span>Onderin Safari. Zie je hem niet, tik dan eerst op <svg class="ic ic-inline" role="img" aria-label="de drie puntjes"><use href="#i-dots"/></svg></span></p></li>
+        <li><span class="stap-knop"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg></span><p><strong>Kies Zet op beginscherm</strong> <span>Staat hij er niet bij? Scroll het lijstje even door.</span></p></li>
+        <li><span class="stap-knop stap-knop--tekst" aria-hidden="true">Voeg toe</span><p><strong>Tik op Voeg toe</strong> <span>Henk hangt nu tussen je apps.</span></p></li>
+      </ol>
+      <ol class="stappen" id="stappen-android" hidden>
+        <li><span class="stap-knop"><svg class="ic" aria-hidden="true"><use href="#i-kebab"/></svg></span><p><strong>Open het menu</strong> <span>Rechtsboven in Chrome, de drie puntjes.</span></p></li>
+        <li><span class="stap-knop"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg></span><p><strong>Kies App installeren</strong> <span>Of: Toevoegen aan startscherm.</span></p></li>
+        <li><span class="stap-knop stap-knop--tekst" aria-hidden="true">Installeren</span><p><strong>Tik op Installeren</strong> <span>Henk hangt nu tussen je apps.</span></p></li>
+      </ol>
+      <p class="vel-note" id="vel-note">Op je telefoon werkt het het best: open daar ishetalafgelast.nl.</p>
+    </div>
+  </dialog>
+
   <footer class="site-footer">
     <img src="/img/logo.webp" srcset="/img/logo-240.webp 240w, /img/logo.webp 480w" sizes="132px" alt="IsHetAlAfgelast.nl" width="480" height="248" loading="lazy">
-    <p>Voor iedereen die op zondagochtend in de kelderklasse speelt.</p>
+    <p>Voor iedereen die in het weekend in de kelderklasse speelt.</p>
     <nav aria-label="Footer">
       <a href="/plaatsen/">Plaatsen</a>
       <a href="/privacy">Privacy</a>
+      <button type="button" class="footer-knop" id="footer-beginscherm" hidden>Op je beginscherm</button>
     </nav>
     <nav class="follow" aria-label="Volg ons">
       <a href="https://www.instagram.com/ishetalafgelast.nl/" target="_blank" rel="noopener me">Instagram</a>

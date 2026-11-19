@@ -1,0 +1,396 @@
+/* De kleedkamer (proeftuin.html). Bouwt op de tokens van /styles.css. */
+
+.kleedkamer {
+  --tile: #3a2518;
+  --tile-hi: #432b1c;
+  --grout: #1a0f09;
+  --kast-gap: clamp(8px, 1.1vw, 14px);
+  --kast-h: clamp(210px, 22vw, 290px);
+  color: var(--cream);
+  background:
+    /* tegels van 56px met inktvoeg, elke tweede rij iets lichter zoals echte tegels nooit gelijk zijn */
+    linear-gradient(var(--grout) 0 2px, transparent 2px) 0 0 / 56px 56px,
+    linear-gradient(90deg, var(--grout) 0 2px, transparent 2px) 0 0 / 56px 56px,
+    repeating-linear-gradient(180deg, var(--tile) 0 56px, var(--tile-hi) 56px 112px),
+    var(--wood-900);
+  background-attachment: fixed;
+}
+
+.kk-top {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s-4);
+  padding: var(--s-4) clamp(var(--s-4), 4vw, var(--s-7));
+}
+.kk-brand img { width: clamp(96px, 12vw, 140px); height: auto; }
+.kk-terug {
+  display: inline-flex; align-items: center; gap: var(--s-2);
+  min-height: 44px; padding: 0 var(--s-4);
+  background: var(--paper-hi); color: var(--ink);
+  border: var(--line) solid var(--ink); border-radius: var(--r-hand-sm);
+  box-shadow: 0 3px 0 var(--ink);
+  font-weight: 600; text-decoration: none;
+  transition: translate var(--d-1) var(--ease-out), box-shadow var(--d-1) var(--ease-out);
+}
+.kk-terug:hover { background: #fff6e2; }
+.kk-terug:active { translate: 0 3px; box-shadow: 0 0 0 var(--ink); }
+
+.kk {
+  width: min(100% - 2 * clamp(var(--s-4), 4vw, var(--s-7)), 1480px);
+  margin-inline: auto;
+  padding-bottom: var(--s-8);
+}
+
+/* ───────── Kop ───────── */
+
+.kk-kop {
+  display: grid; gap: var(--s-2) var(--s-6);
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: end;
+  margin: var(--s-5) 0 var(--s-6);
+}
+.kk-kop h1 {
+  font: 400 clamp(2.6rem, 6vw, 4.6rem)/0.95 var(--f-display);
+  color: var(--gold);
+  text-shadow: 0 4px 0 var(--ink);
+  letter-spacing: .01em;
+}
+.kk-regel {
+  max-width: 44ch;
+  font: 400 clamp(1.15rem, 1.6vw, 1.35rem)/1.3 var(--f-hand);
+  color: var(--cream);
+  rotate: -1.2deg;
+  padding-bottom: .4em;
+}
+.kk-legenda {
+  grid-column: 1 / -1;
+  display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-5);
+  list-style: none; padding: 0; margin-top: var(--s-3);
+  font-size: .95rem; color: var(--cream-2);
+}
+.kk-legenda li { display: flex; align-items: center; gap: var(--s-2); }
+@media (max-width: 720px) {
+  .kk-kop { grid-template-columns: 1fr; }
+}
+
+/* ───────── Tape ───────── */
+
+.tape {
+  display: inline-block;
+  padding: 3px 10px 2px;
+  font: 600 .78rem/1.2 var(--f-ui);
+  letter-spacing: .04em; text-transform: uppercase;
+  border-radius: 2px;
+  rotate: -2deg;
+  box-shadow: 0 1px 0 rgb(23 13 8 / .45);
+  /* gescheurde uiteinden */
+  clip-path: polygon(2% 0, 98% 6%, 100% 50%, 97% 100%, 3% 94%, 0 45%);
+}
+.tape--echt { background: #2f7a2c; color: #f6f1e2; }
+.tape--werkt { background: var(--gold-hi); color: var(--ink); }
+.tape--nep { background: var(--ink); color: var(--cream); }
+
+/* ───────── Kluisjeswand ───────── */
+
+.kluisjes {
+  --cols: 3; --open-c: 3; --open-r: 1;
+  list-style: none; padding: 0;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  grid-auto-flow: row dense;
+  grid-auto-rows: var(--kast-h);
+  gap: var(--kast-gap);
+  counter-reset: none;
+}
+@media (min-width: 760px) { .kluisjes { --cols: 5; --open-c: 3; --open-r: 2; } }
+@media (min-width: 1180px) { .kluisjes { --cols: 7; --open-c: 3; --open-r: 2; } }
+
+.kluis {
+  position: relative;
+  z-index: 1;
+  perspective: 1400px;
+  container-type: inline-size;
+  border-radius: 10px;
+  /* de binnenkant: een achterwand van planken met een plankje bovenin */
+  background:
+    linear-gradient(transparent 0 70px, var(--ink) 70px 73px, var(--wood-500) 73px 79px, var(--ink) 79px 81px, transparent 81px),
+    repeating-linear-gradient(90deg, var(--wood-700) 0 38px, var(--wood-800) 38px 40px);
+  box-shadow: inset 0 0 0 3px var(--ink), inset 0 14px 18px rgb(23 13 8 / .45);
+}
+.kluis.is-open {
+  grid-column: span var(--open-c);
+  grid-row: span var(--open-r);
+  z-index: 2;
+}
+
+/* De deur */
+.kluis-deur {
+  position: absolute; inset: 0;
+  display: grid;
+  /* minmax(0, 1fr): een lange naam of tape mag de kolom niet breder maken dan de deur */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto 1fr auto;
+  justify-items: center; align-content: start;
+  gap: var(--s-3);
+  padding: var(--s-4) var(--s-3) var(--s-5);
+  width: 100%;
+  border: 3px solid var(--ink);
+  border-radius: 10px;
+  color: var(--ink);
+  text-align: center;
+  cursor: pointer;
+  background:
+    /* nerf van de planken, met twee naden */
+    linear-gradient(90deg, transparent 32%, rgb(43 26 16 / .28) 32% calc(32% + 2px), transparent 0 66%, rgb(43 26 16 / .28) 66% calc(66% + 2px), transparent 0),
+    repeating-linear-gradient(97deg, rgb(255 255 255 / 0) 0 9px, rgb(255 255 255 / .05) 9px 11px, rgb(0 0 0 / .04) 11px 17px),
+    linear-gradient(180deg, var(--plank-hi), var(--plank) 45%, var(--plank-lo));
+  box-shadow: inset 0 2px 0 rgb(255 255 255 / .18), 0 4px 0 var(--ink);
+  transform-origin: 0 50%;
+  transform-style: preserve-3d;
+  transition:
+    transform var(--d-2) var(--ease-out),
+    filter var(--d-2) var(--ease-out);
+  backface-visibility: hidden;
+}
+.kluis-deur > * { backface-visibility: hidden; }
+/* De binnenkant van de deur: donkerder hout, een strook plakband met een opstelling erop. */
+.kluis-deur::after {
+  content: "";
+  position: absolute; inset: -3px;
+  border: 3px solid var(--ink); border-radius: 10px;
+  background:
+    linear-gradient(var(--cream), var(--cream)) 30% 22% / 40% 18% no-repeat,
+    linear-gradient(rgb(243 230 203 / .7), rgb(243 230 203 / .7)) 38% 19% / 24% 4% no-repeat,
+    repeating-linear-gradient(97deg, rgb(0 0 0 / 0) 0 9px, rgb(0 0 0 / .08) 9px 11px),
+    linear-gradient(180deg, var(--plank-lo), var(--wood-500));
+  transform: rotateY(180deg) translateZ(1px);
+  backface-visibility: hidden;
+  pointer-events: none;
+}
+@media (hover: hover) {
+  /* op een kier: de deur zwaait een paar graden open als je ernaar wijst */
+  .kluis:not(.is-open):not(.kluis--leeg) .kluis-deur:hover { transform: rotateY(-14deg); filter: brightness(1.05); }
+}
+.kluis:not(.is-open) .kluis-deur:active { transform: rotateY(-6deg) translateY(2px); }
+.kluis-deur:focus-visible { outline: 3px solid var(--ink); outline-offset: -7px; box-shadow: 0 0 0 4px var(--focus), 0 4px 0 var(--ink); }
+
+.kluis-rooster { display: grid; gap: 5px; width: 54%; }
+.kluis-rooster i {
+  display: block; height: 6px; border-radius: 4px;
+  background: var(--ink);
+  box-shadow: inset 0 2px 0 rgb(0 0 0 / .6), 0 1px 0 rgb(255 255 255 / .2);
+}
+.kluis-nr {
+  display: grid; place-items: center;
+  width: 46px; aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--cream);
+  border: var(--line) solid var(--ink);
+  box-shadow: inset 0 -3px 0 var(--cream-2);
+  font: 400 1.35rem/1 var(--f-display);
+  color: var(--ink);
+}
+.kluis-naam {
+  align-self: end;
+  max-width: 100%;
+  padding: 4px 10px 3px;
+  background: var(--cream);
+  border: 1.5px solid rgb(43 26 16 / .35);
+  font: 400 clamp(.86rem, 11cqi, 1.2rem)/1.15 var(--f-hand);
+  rotate: -1deg;
+  hyphens: auto;
+}
+.kluis-deur .tape { justify-self: center; max-width: 100%; white-space: nowrap; font-size: clamp(.6rem, 7.4cqi, .78rem); padding-inline: 6px; }
+.kluis-greep {
+  position: absolute; right: 12px; top: 50%;
+  width: 8px; height: 44px; margin-top: -22px;
+  border-radius: 5px;
+  background: var(--wood-800);
+  border: 2px solid var(--ink);
+  box-shadow: inset 2px 0 0 rgb(255 255 255 / .15);
+}
+
+/* Reservekluisjes: dicht, met een hangslot. */
+.kluis--leeg .kluis-deur { cursor: default; filter: saturate(.65) brightness(.82); }
+.kluis--leeg .kluis-deur::after { display: none; }
+.kluis--leeg .kluis-naam { opacity: .85; }
+.kluis-slot {
+  width: 30px; height: 26px; margin-top: var(--s-5);
+  border-radius: 5px;
+  background: #8a8f92;
+  border: 2px solid var(--ink);
+  position: relative;
+}
+.kluis-slot::before {
+  content: ""; position: absolute; left: 50%; bottom: 100%;
+  width: 18px; height: 16px; translate: -50% 2px;
+  border: 3px solid #6b7174; border-bottom: 0; border-radius: 10px 10px 0 0;
+}
+
+/* Open: de deur hangt opengezwaaid aan zijn scharnier, zo breed als hij dicht was. */
+.kluis.is-open .kluis-deur {
+  width: var(--deur-w, 100%);
+  height: var(--deur-h, 100%);
+  bottom: auto;
+  transform: rotateY(-104deg);
+  pointer-events: none;
+  transition: transform 380ms cubic-bezier(.22, 1, .36, 1);
+}
+.kluis.is-instant .kluis-deur, .kluis.is-instant .kluis-binnen { transition: none; animation: none; }
+
+/* ───────── Binnenkant ───────── */
+
+.kluis-binnen {
+  position: relative;
+  display: grid; align-content: start; gap: var(--s-4);
+  min-height: 100%;
+  padding: clamp(var(--s-4), 1.8vw, var(--s-5));
+  padding-left: clamp(var(--s-5), 2.4vw, var(--s-6));
+  background: var(--paper);
+  color: var(--ink);
+  border: 3px solid var(--ink);
+  border-radius: 10px;
+  box-shadow: 0 5px 0 var(--ink);
+  transform-origin: 0 50%;
+  animation: binnen 380ms cubic-bezier(.22, 1, .36, 1) both;
+}
+/* Tegelijk met de deur komt de inhoud naar voren, vanaf de scharnierkant. */
+@keyframes binnen { from { opacity: 0; scale: .94; } 40% { opacity: 1; } }
+
+.kluis-kop {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center; gap: var(--s-2) var(--s-3);
+}
+.kluis-kop h2 {
+  display: flex; align-items: center; gap: var(--s-3);
+  font: 400 clamp(1.5rem, 2.2vw, 1.9rem)/1.05 var(--f-display);
+}
+@media (max-width: 520px) {
+  .kluis-kop { grid-template-columns: minmax(0, 1fr) auto; }
+  .kluis-kop .tape { grid-row: 2; justify-self: start; }
+}
+.kluis-kop h2:focus { outline: none; }
+.kluis-kop h2:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; box-shadow: none; }
+.kluis-nr--klein { width: 36px; font-size: 1.05rem; flex: none; }
+.kluis-dicht {
+  display: grid; place-items: center;
+  width: 44px; height: 44px;
+  background: var(--paper-hi);
+  border: var(--line) solid var(--ink); border-radius: 50%;
+  box-shadow: 0 3px 0 var(--ink);
+  cursor: pointer;
+  transition: translate var(--d-1) var(--ease-out), box-shadow var(--d-1) var(--ease-out), rotate var(--d-2) var(--ease-out);
+}
+.kluis-dicht:hover { rotate: 90deg; background: #fff6e2; }
+.kluis-dicht:active { translate: 0 3px; box-shadow: 0 0 0 var(--ink); }
+.kluis-dicht .ic { width: 20px; height: 20px; }
+
+.kluis-wat { max-width: 62ch; font-size: 1.02rem; line-height: 1.45; }
+
+.lab { position: relative; min-width: 0; }
+.lab-laden, .lab-fout { padding: var(--s-5) 0; font: 400 1.15rem/1.3 var(--f-hand); color: var(--ink-2); }
+.lab-fout { color: var(--red-ink); }
+
+/* Het briefje met wat het nog nodig heeft: met plakband op de binnenkant van de deur. */
+.kluis-briefje {
+  position: relative;
+  justify-self: start;
+  display: block;
+  max-width: 60ch;
+  padding: var(--s-3) var(--s-4);
+  margin-top: var(--s-2);
+  background: var(--paper-hi);
+  border: 1.5px solid rgb(43 26 16 / .3);
+  box-shadow: 0 2px 0 rgb(43 26 16 / .2);
+  rotate: -.6deg;
+  font: 400 1.1rem/1.3 var(--f-hand);
+}
+.kluis-briefje::before {
+  content: ""; position: absolute; left: 50%; top: -10px;
+  width: 70px; height: 20px; translate: -50% 0; rotate: 3deg;
+  background: rgb(243 230 203 / .75);
+  border: 1px solid rgb(43 26 16 / .15);
+}
+.kluis-briefje strong { font-weight: 400; color: var(--ink-2); }
+
+/* ───────── De bank ───────── */
+
+.kk-bank { margin-top: var(--s-7); }
+/* Op een smal scherm bijsnijden (tas en handdoek blijven staan) in plaats van krimpen tot een streep. */
+.kk-bank-tekening { width: 100%; height: clamp(110px, 12.5vw, 150px); }
+.kk-bank-regel {
+  margin-top: var(--s-2);
+  font: 400 1.1rem/1.3 var(--f-hand);
+  color: var(--cream-2);
+  text-align: right;
+}
+
+.kk-voet {
+  padding: var(--s-6) clamp(var(--s-4), 4vw, var(--s-7)) var(--s-7);
+  border-top: 3px solid var(--grout, #1a0f09);
+  background: var(--wood-950);
+  color: var(--cream-2);
+  font-size: .92rem;
+  display: grid; gap: var(--s-2);
+}
+.kk-voet a { color: var(--cream); }
+.kk-voet code { font-size: .9em; color: var(--cream); }
+
+/* ───────── Gedeelde bouwstenen voor de prototypes ─────────
+   Elk prototype mag deze klassen gebruiken; eigen stijl gaat in het css-bestand van zijn groep. */
+
+.lab-knop {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2);
+  min-height: 44px; padding: 0 var(--s-4);
+  background: var(--paper-hi); color: var(--ink);
+  border: var(--line) solid var(--ink); border-radius: var(--r-hand-sm);
+  box-shadow: 0 3px 0 var(--ink);
+  font-weight: 600; cursor: pointer; text-decoration: none;
+  transition: translate var(--d-1) var(--ease-out), box-shadow var(--d-1) var(--ease-out), background var(--d-1) var(--ease-out);
+}
+.lab-knop:hover { background: #fff6e2; }
+.lab-knop:active { translate: 0 3px; box-shadow: 0 0 0 var(--ink); }
+.lab-knop:disabled { opacity: .5; cursor: not-allowed; translate: none; box-shadow: 0 3px 0 var(--ink); }
+.lab-knop--groen { background: var(--btn-green); color: #fbf6ea; }
+.lab-knop--groen:hover { background: var(--btn-green-hi); }
+.lab-knop[aria-pressed="true"] { background: var(--gold); }
+
+.lab-rij { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); }
+.lab-veld { display: grid; gap: 4px; font-size: .9rem; font-weight: 600; }
+.lab-veld input, .lab-veld select {
+  min-height: 44px; padding: 0 var(--s-3);
+  background: var(--paper-hi); color: var(--ink);
+  border: var(--line) solid var(--ink); border-radius: var(--r-hand-sm);
+  font-weight: 400;
+}
+.lab-klein { font-size: .88rem; color: var(--ink-2); }
+.lab-hand { font: 400 1.2rem/1.3 var(--f-hand); }
+.lab-bron { font-size: .8rem; color: var(--ink-2); }
+.lab-bron a { color: inherit; }
+
+@media (prefers-reduced-motion: reduce) {
+  .kluis-deur, .kluis.is-open .kluis-deur { transition: opacity var(--d-1) linear; }
+  .kluis.is-open .kluis-deur { transform: none; opacity: 0; }
+  .kluis-deur:hover { transform: none !important; }
+  .kluis-binnen { animation: fade-in var(--d-2) linear both; }
+  .kluis-dicht:hover { rotate: none; }
+}
+
+/* ───────── ?proef=1 op de uitslagpagina ───────── */
+
+.proef {
+  display: grid; gap: var(--s-4);
+  max-width: 1180px; margin: 0 auto;
+  padding: var(--s-7) clamp(var(--s-5), 5vw, var(--s-7));
+  color: var(--cream);
+}
+.proef-kop { display: flex; align-items: center; gap: var(--s-4); flex-wrap: wrap; }
+.proef-kop h2 { font: 400 clamp(1.8rem, 3.4vw, 2.6rem)/1 var(--f-display); color: var(--gold); }
+.proef-regel { font: 400 1.2rem/1.3 var(--f-hand); color: var(--cream-2); }
+.proef-tabs { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.proef-stage {
+  max-width: 640px;
+  padding: clamp(var(--s-4), 2vw, var(--s-5));
+  background: var(--paper); color: var(--ink);
+  border: 3px solid var(--ink); border-radius: 10px;
+  box-shadow: 0 5px 0 var(--ink);
+}
+.proef-meer a { color: var(--cream); font-weight: 600; text-underline-offset: 3px; }

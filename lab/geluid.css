@@ -1,0 +1,114 @@
+/* Geluid: spraakbericht (spraak), het fluitje (fluit). */
+
+/* ───────── Spraakbericht ───────── */
+
+.p-spraak { display: grid; gap: var(--s-3); container-type: inline-size; }
+.p-spraak .sp-kiezer:empty { display: none; }
+.p-spraak .sp-bubbel {
+  position: relative;
+  margin-left: 10px;
+  padding: var(--s-3) var(--s-4);
+  background: var(--paper-hi);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--r-hand);
+  box-shadow: 0 3px 0 var(--ink);
+}
+.p-spraak .sp-bubbel::before {
+  content: ""; position: absolute; left: -9px; top: 18px;
+  width: 14px; height: 14px; rotate: 45deg;
+  background: var(--paper-hi);
+  border-left: var(--line) solid var(--ink); border-bottom: var(--line) solid var(--ink);
+}
+.p-spraak .sp-kop { display: flex; align-items: baseline; gap: var(--s-2); margin-bottom: var(--s-2); }
+.p-spraak .sp-naam { font: 400 1.15rem/1 var(--f-display); }
+.p-spraak .sp-soort { font: 400 1.05rem/1 var(--f-hand); color: var(--ink-2); }
+.p-spraak .sp-speler { display: flex; align-items: center; gap: var(--s-3); }
+.p-spraak .sp-speel {
+  flex: none; display: grid; place-items: center;
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--btn-green); color: #fbf6ea;
+  border: var(--line) solid var(--ink); box-shadow: 0 3px 0 var(--ink);
+  cursor: pointer;
+  transition: translate var(--d-1) var(--ease-out), box-shadow var(--d-1) var(--ease-out), background var(--d-1) var(--ease-out);
+}
+.p-spraak .sp-speel:hover:not(:disabled) { background: var(--btn-green-hi); }
+.p-spraak .sp-speel:active:not(:disabled) { translate: 0 3px; box-shadow: 0 0 0 var(--ink); }
+.p-spraak .sp-speel:disabled { opacity: .5; cursor: not-allowed; }
+.p-spraak .sp-speel .ic { width: 24px; height: 24px; fill: currentColor; stroke-width: 3; }
+.p-spraak .sp-midden { flex: 1 1 0; min-width: 0; display: grid; }
+.p-spraak .sp-golf { display: flex; align-items: center; gap: 2px; height: 40px; }
+.p-spraak .sp-golf i {
+  flex: 1 1 0; min-width: 2px; border-radius: 2px;
+  background: color-mix(in srgb, var(--ink) 34%, var(--paper-hi));
+  transition: background var(--d-1) var(--ease-out);
+}
+.p-spraak .sp-golf i.is-gespeeld { background: var(--ink); }
+.p-spraak .sp-rij { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); }
+.p-spraak .sp-tijd { font: 600 .9rem/1 var(--f-ui); font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.p-spraak .sp-tempo {
+  min-width: 56px; min-height: 44px; padding: 0 var(--s-3);
+  background: var(--paper); color: var(--ink);
+  border: var(--line) solid var(--ink); border-radius: var(--r-hand-sm);
+  font: 600 .95rem/1 var(--f-ui); cursor: pointer;
+}
+.p-spraak .sp-tempo:hover { background: #fff6e2; }
+.p-spraak .sp-meld:empty { display: none; }
+.p-spraak .sp-tekstkop { font: 400 1.15rem/1.3 var(--f-hand); color: var(--ink-2); }
+.p-spraak .sp-tekst { margin-top: 2px; max-width: 52ch; }
+@container (max-width: 340px) {
+  .p-spraak .sp-golf { gap: 1px; }
+  .p-spraak .sp-bubbel { padding-inline: var(--s-3); }
+}
+
+/* ───────── Het fluitje ───────── */
+
+.p-fluit { display: grid; gap: var(--s-3); }
+.p-fluit .fl-bord { position: relative; display: grid; place-items: center; }
+.p-fluit .fl-fluit { width: min(100%, 300px); height: auto; overflow: visible; color: var(--ink-2); }
+.p-fluit .fl-brass { fill: var(--gold); stroke: var(--ink); stroke-width: 3; stroke-linejoin: round; }
+.p-fluit .fl-lus { fill: none; stroke: var(--ink); stroke-width: 5; }
+.p-fluit .fl-kamer { fill: var(--paper-hi); stroke: var(--ink); stroke-width: 2.5; }
+.p-fluit .fl-erwt { fill: var(--plank-lo); stroke: var(--ink); stroke-width: 2.5; }
+.p-fluit .fl-gleuf { fill: var(--ink); }
+.p-fluit .fl-glans { fill: none; stroke: var(--paper-hi); stroke-width: 4; stroke-linecap: round; opacity: .75; }
+.p-fluit .fl-erwtdraai, .p-fluit .fl-lijf { transform-origin: 120px 118px; }
+.p-fluit .fl-ring { opacity: 0; transform-box: fill-box; transform-origin: center; }
+.p-fluit .fl-tuut {
+  position: absolute; right: 2%; top: 4%;
+  font: 400 2.3rem/1 var(--f-display);
+  color: var(--red-ink); rotate: -8deg;
+  opacity: 0; transition: opacity 120ms var(--ease-out);
+}
+.p-fluit.is-klinkt .fl-tuut { opacity: 1; }
+.p-fluit.is-klinkt .fl-ring { animation: fl-ring 720ms var(--ease-out) infinite; }
+.p-fluit.is-klinkt .fl-lijf { animation: fl-tril 70ms linear infinite alternate; }
+.p-fluit.is-klinkt .fl-erwtdraai { animation: fl-draai 150ms linear infinite; }
+.p-fluit.is-klinkt .fl-ring:nth-child(2) { animation-delay: 240ms; }
+.p-fluit.is-klinkt .fl-ring:nth-child(3) { animation-delay: 480ms; }
+@keyframes fl-ring { from { transform: scale(.4); opacity: .85; } to { transform: scale(2.6); opacity: 0; } }
+@keyframes fl-tril { from { transform: translate(-1.6px, .8px) rotate(-.7deg); } to { transform: translate(1.6px, -.8px) rotate(.7deg); } }
+@keyframes fl-draai { to { transform: rotate(360deg); } }
+.p-fluit .fl-status { text-align: center; min-height: 1.4em; }
+.p-fluit .fl-rij { justify-content: center; }
+.p-fluit .fl-knop { flex: 1 1 auto; }
+.p-fluit .fl-groot {
+  display: grid; place-items: center;
+  width: 100%; min-height: 76px; padding: var(--s-3) var(--s-4);
+  background: var(--btn-green); color: #fbf6ea;
+  border: var(--line) solid var(--ink); border-radius: var(--r-hand);
+  box-shadow: 0 5px 0 var(--ink);
+  font: 400 1.8rem/1 var(--f-display);
+  cursor: pointer; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none;
+  transition: translate var(--d-1) var(--ease-out), box-shadow var(--d-1) var(--ease-out), background var(--d-1) var(--ease-out);
+}
+.p-fluit .fl-groot:hover { background: var(--btn-green-hi); }
+.p-fluit .fl-groot:active, .p-fluit .fl-groot.is-vast { translate: 0 5px; box-shadow: 0 0 0 var(--ink); background: var(--btn-green-hi); }
+.p-fluit .fl-groot-t { pointer-events: none; }
+.p-fluit .fl-meld:empty { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .p-spraak .sp-golf i, .p-spraak .sp-speel, .p-fluit .fl-groot { transition: none; }
+  .p-fluit .fl-tuut { transition: none; }
+  .p-fluit.is-klinkt .fl-ring, .p-fluit.is-klinkt .fl-lijf, .p-fluit.is-klinkt .fl-erwtdraai { animation: none; }
+  .p-fluit.is-klinkt .fl-erwtdraai { transform: rotate(-65deg); }
+}

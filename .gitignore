@@ -37,3 +37,9 @@ playwright-report/
 OVERDRACHT.md
 docs/security-github-pages/
 .wrangler/
+
+# App-schil (Capacitor): de webbundel wordt gebouwd, niet bewaard
+_app/
+
+# Ruwe Overpass-antwoorden voor tools/osm_parken.py
+.osm-cache/
