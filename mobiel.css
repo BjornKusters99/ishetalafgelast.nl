@@ -38,8 +38,8 @@
   }
 
   /* Datum krijgt de ruimte, de aftraptijd past in "10:00". */
-  .when { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); }
-  .field input[type="time"] { width: 100%; }
+  .when { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); }
+  .field .when input[type="date"], .field .when input[type="time"] { width: 100%; padding-inline: 10px; }
 
   /* ─────────── Home: het rekenwerk ─────────── */
 
