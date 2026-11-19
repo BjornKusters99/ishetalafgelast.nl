@@ -439,7 +439,7 @@ test("hourly forecast is context: requested from the forecast API and split per 
 
 test("general cancellation banner only shows with text, a KNVB or Voetbal.nl source and an end date not passed", () => {
   const context = vm.createContext({});
-  vm.runInContext(app.slice(app.indexOf("const STATUS_SOURCE"), app.indexOf('fetch("/status.json"')) + ";globalThis.f = statusBanner;", context);
+  vm.runInContext(app.slice(app.indexOf("const STATUS_SOURCE"), app.indexOf("fetch(", app.indexOf("const STATUS_SOURCE"))) + ";globalThis.f = statusBanner;", context);
   const on = { algemeen_afgelast: true, tekst: "Alle amateurwedstrijden dit weekend afgelast.", bron: "https://www.knvb.nl/nieuws/x", tot: "2026-10-25" };
   assert.deepEqual(JSON.parse(JSON.stringify(context.f(on, "2026-10-24"))), { text: on.tekst, href: on.bron });
   assert.ok(context.f({ ...on, bron: "https://www.voetbal.nl/" }, "2026-10-24"));

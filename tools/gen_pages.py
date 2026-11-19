@@ -237,14 +237,14 @@ def place_page(naam: str, prov: str) -> str:
     out = swap(out, "intro", (
         '      <header class="reken-head">\n'
         f'        <p class="overline">Het rekenwerk voor {naam}</p>\n'
-        f'        <h2 id="reken-title">Afgelast in {naam}? Wij weten het eerder dan de consul</h2>\n'
+        f'        <h2 id="reken-title">Afgelast in {naam}? Wij weten het eerder dan de veldkeurder</h2>\n'
         '        <div class="reken-lede">\n'
         f"          <p>{intro}</p>\n"
         '          <p>De scheids, laten we hem <button type="button" class="henk-link">Henk</button> noemen, '
         "laat pas op het veld een bal vallen. Wij doen dat eerder, met het weerbericht. Eerlijk is eerlijk: "
         "Henk heeft nog geen echte wedstrijd gefloten. Ons model oefent op <strong>2.100 nagespeelde potjes</strong>, "
         "met echt weer en bedachte afgelastingen. Een natte vinger met een rekenmachine dus. "
-        f"Je club in {naam} en de consul beslissen.</p>\n"
+        f"Je club in {naam} en de veldkeurder beslissen.</p>\n"
         "        </div>\n"
         "      </header>"
     ))
@@ -284,6 +284,9 @@ def doc_page(title: str, desc: str, path: str, body: str, *, noindex: bool = Fal
   <meta name="description" content="{html.escape(desc)}">
 {robots}{canon}  <meta property="og:image" content="{BASE_URL}/img/og.jpg">
   <meta name="theme-color" content="#2c1b11">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Afgelast?">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   {NO_SCRIPT_CSP}
   <meta name="referrer" content="no-referrer">
   <link rel="icon" href="/img/icon-48.png" type="image/png">
@@ -386,7 +389,7 @@ PRIVACY = """      <h1>Privacy</h1>
         <li>Bij de check: de coördinaten van de plaats en de speeldatum (met de week
         ervoor), voor het weerbericht.</li>
         <li>Na de uitslag: dezelfde coördinaten en datum nog een keer, voor de 51
-        weerberekeningen achter de consuls.</li>
+        weerberekeningen achter de veldkeurders.</li>
         <li>Heb je een wedstrijd onthouden, dan haalt de homepage bij het openen soms
         alvast het weerbericht voor die wedstrijd op.</li>
       </ul>
@@ -405,7 +408,9 @@ PRIVACY = """      <h1>Privacy</h1>
       eigen toestel te zien; de site haalt ze daarna meteen uit de adresbalk. Gebruik
       voornamen, en zet de link alleen in je eigen groep.</p>
       <p>Tik je op een WhatsApp-knop, dan gaat de tekst die je ziet naar WhatsApp. Dat
-      geldt ook voor het briefje en het klussenrooster, met de namen die erin staan.</p>
+      geldt ook voor het briefje, het klussenrooster en je opstelling, met de namen die
+      erin staan. De opstellingslink werkt net als de teamlink: de namen staan achter het
+      hekje en gaan niet naar ons.</p>
       <h2>Wat je browser bewaart</h2>
       <p>Zodat de site ook zonder verbinding opent, bewaart je browser de pagina's,
       scripts, lettertypes en afbeeldingen van deze site (een service worker). Daar
@@ -420,6 +425,8 @@ PRIVACY = """      <h1>Privacy</h1>
         <li>Jij tegen Henk: je tips, de kans die Henk gaf, de afloop die je zelf aantikt,
         en welke wedstrijden je al bekeken hebt (datum en afgeronde coördinaten).</li>
         <li>De namen voor "Wie vlagt er?".</li>
+        <li>Je opstelling op het tactiekbord (namen en bank), je spelerspas en het sportpark
+        dat je kiest voor het toss-advies.</li>
         <li>Welke plekjes van het zoekplaatje je hebt gevonden.</li>
         <li>Dat je de veldkeuring al een keer hebt gezien, zodat hij daarna korter duurt.</li>
       </ul>
@@ -427,6 +434,23 @@ PRIVACY = """      <h1>Privacy</h1>
       site-instellingen van je browser ("sitegegevens wissen").</p>
       <p>Een agenda-herinnering maakt je browser zelf als bestand; die gaat alleen naar
       je eigen agenda.</p>
+      <h2 id="app">Op je beginscherm en in de app</h2>
+      <p>Zet je de site op je beginscherm, dan blijft alles hierboven gelden: het is dezelfde
+      site. Je browser onthoudt alleen of je het kaartje "Henk op je beginscherm" hebt
+      weggetikt, zodat het drie weken wegblijft.</p>
+      <p>De app Afgelast? bevat dezelfde bestanden als de site en rekent op dezelfde manier op
+      je toestel. Wat anders is:</p>
+      <ul>
+        <li>In de app tellen we geen bezoeken: er zit geen meetscript in.</li>
+        <li>Seintjes plant je telefoon zelf, als lokale melding. Je keuze (zaterdag of zondag)
+        staat alleen op je toestel. Er is geen account en geen pushdienst, en er gaat niets
+        naar ons. De herinnering voor één wedstrijd werkt net zo, in plaats van een
+        agendabestand.</li>
+        <li>Voor de melding van een algemene afgelasting leest de app één bestand van deze
+        site. De hostingdienst ziet dan je IP-adres, zoals bij elk bezoek.</li>
+        <li>Delen en kopiëren gaan via het deelmenu en het klembord van je telefoon.</li>
+        <li>Verwijder je de app, dan verdwijnt alles wat hij bewaarde mee.</li>
+      </ul>
       <h2>Bezoekers tellen</h2>
       <p>We tellen bezoeken met Cloudflare Web Analytics. Dat werkt zonder cookies,
       bewaart niets op je toestel en volgt je niet over sites heen. Het meetscript

@@ -256,10 +256,10 @@ test("duel Henk predicts af from HENK_AF upwards", () => {
 
 /* ─────────── teksten.js ─────────── */
 
-test("consulText picks the head from the majority and singular for one consul", () => {
-  assert.equal(consulText({ af: 30, twijfel: 15, vrij: 6 }).head, "30 van de 51 consuls keuren af.");
-  assert.equal(consulText({ af: 6, twijfel: 30, vrij: 15 }).head, "30 van de 51 consuls weten het nog niet.");
-  assert.equal(consulText({ af: 6, twijfel: 15, vrij: 30 }).head, "30 van de 51 consuls geven het veld vrij.");
+test("consulText picks the head from the majority and singular for one veldkeurder", () => {
+  assert.equal(consulText({ af: 30, twijfel: 15, vrij: 6 }).head, "30 van de 51 veldkeurders keuren af.");
+  assert.equal(consulText({ af: 6, twijfel: 30, vrij: 15 }).head, "30 van de 51 veldkeurders weten het nog niet.");
+  assert.equal(consulText({ af: 6, twijfel: 15, vrij: 30 }).head, "30 van de 51 veldkeurders geven het veld vrij.");
   const one = consulText({ af: 49, twijfel: 1, vrij: 1 });
   assert.equal(one.rest, "Eén twijfelt, één ziet het zitten.");
   assert.equal(consulText({ af: 40, twijfel: 11, vrij: 0 }).rest, "11 twijfelen.");
@@ -359,7 +359,7 @@ test("groupIndex maps elftal and weekday to an app group", () => {
   assert.equal(groupIndex("", null), -1);
 });
 
-test("DUEL.stand covers empty, singular, plural, helper consul, lead, behind and tied", () => {
+test("DUEL.stand covers empty, singular, plural, helper veldkeurder, lead, behind and tied", () => {
   const s = (over) => DUEL.stand({ rondes: 3, jij: 1, henk: 1, reeks: 0, hulpconsul: false, ...over });
   assert.equal(s({ rondes: 0 }), "");
   assert.match(s({ rondes: 1, jij: 1, henk: 0 }), /^Stand na één speelronde: jij 1, Henk 0\./);
@@ -367,7 +367,7 @@ test("DUEL.stand covers empty, singular, plural, helper consul, lead, behind and
   assert.match(s({ jij: 2, henk: 1 }), /fluiten/);
   assert.match(s({ jij: 0, henk: 1 }), /vlaggen/);
   const hulp = s({ rondes: 5, jij: 5, henk: 1, reeks: 5, hulpconsul: true });
-  assert.match(hulp, /5 keer op rij goed: je bent nu hulpconsul\.$/);
+  assert.match(hulp, /5 keer op rij goed: je bent nu hulpkeurder\.$/);
   assert.doesNotMatch(hulp, /fluiten/);
 });
 

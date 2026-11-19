@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Dict, Set
 
 FILES = {
-    "_headers", "index.html", "404.html", "privacy.html",
+    "_headers", "index.html", "404.html", "privacy.html", "proeftuin.html",
     "styles.css", "sw.js", "manifest.webmanifest", "robots.txt", "sitemap.xml",
     "status.json",
 }
@@ -19,6 +19,8 @@ DIRECTORIES: Dict[str, Set[str]] = {
     "plaatsen": {".html"},
     "fonts": {".woff2"},
     "img": {".webp", ".png", ".jpg"},
+    # Proeftuin (De kleedkamer): prototypes, niet gelinkt vanaf de site en noindex.
+    "lab": {".js", ".css", ".json", ".webp", ".avif", ".png", ".jpg"},
 }
 
 

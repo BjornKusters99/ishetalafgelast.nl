@@ -2,13 +2,30 @@
   "name": "ishetalafgelast",
   "private": true,
   "scripts": {
-    "test": "node --test tools/test_security.mjs tools/test_logic.mjs tools/test_engine.mjs tools/test_team.mjs && python3 -m unittest discover -s tools -p 'test_*.py'",
+    "test": "node --test tools/test_security.mjs tools/test_logic.mjs tools/test_engine.mjs tools/test_team.mjs tools/test_parken.mjs tools/test_telefoon.mjs && python3 -m unittest discover -s tools -p 'test_*.py'",
     "test:e2e": "node tools/e2e.cjs && node tools/test_worker.cjs",
     "build": "python3 tools/gen_pages.py && python3 tools/build_site.py",
-    "preview": "npm run build && wrangler dev --port 8788"
+    "preview": "npm run build && wrangler dev --port 8788",
+    "app:build": "python3 tools/gen_pages.py && python3 tools/build_app.py && cap sync",
+    "app:icons": "python3 tools/app_icon.py && npx --yes @capacitor/assets@4.0.0 generate --ios --android --iconBackgroundColor '#21140c' --splashBackgroundColor '#21140c' --iconBackgroundColorDark '#21140c' --splashBackgroundColorDark '#21140c'",
+    "app:ios": "npm run app:build && cap open ios",
+    "app:android": "npm run app:build && cap open android",
+    "test:app": "python3 tools/build_app.py && node tools/e2e_app.cjs"
   },
   "devDependencies": {
+    "@capacitor/cli": "8.6.0",
     "playwright": "1.64.1",
     "wrangler": "4.156.2"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.6.0",
+    "@capacitor/app": "8.1.2",
+    "@capacitor/clipboard": "8.0.1",
+    "@capacitor/core": "8.6.0",
+    "@capacitor/haptics": "8.0.2",
+    "@capacitor/ios": "8.6.0",
+    "@capacitor/local-notifications": "8.3.1",
+    "@capacitor/share": "8.0.3",
+    "@capacitor/splash-screen": "8.0.2"
   }
 }
