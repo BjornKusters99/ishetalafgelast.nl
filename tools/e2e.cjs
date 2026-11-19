@@ -636,7 +636,7 @@ const noBeacon = (rt) => rt.fulfill({ contentType: "text/javascript", body: "" }
     ok(/elftal=7/.test(p.url()), "elftal 7 in de URL");
     const [c2, p2] = await fresh();
     await p2.goto(BASE + "/", { waitUntil: "networkidle" });
-    await p2.fill("#kickoff", "11:00");
+    await p2.selectOption("#kickoff", "11:00");
     await p2.selectOption("#elftal", "7");
     ok((await p2.inputValue("#kickoff")) === "11:00", "elftal 7: eigen aftrap blijft staan");
     await c.close();
