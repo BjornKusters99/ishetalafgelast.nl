@@ -5,6 +5,7 @@ import { drawReferee } from "./stuitproef.js";
 import { GROUPS } from "./teksten.js";
 
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+const touch = matchMedia("(pointer: coarse)");
 const live = document.getElementById("egg-live");
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
 
@@ -122,6 +123,10 @@ const SPOTS = {
       ["tap", 0, 53, 14.3, 11],
       ["plaquette", 85.2, 35, 9.3, 5.7],
       ["prikbord", 0.7, 27, 14, 22],
+      // Op de telefoon zijn de lampen de lichtmasten in het raam; het fust staat onderaan in de kantinestrook (js/mobiel.js).
+      ["lamp", 19.5, 16.5, 7, 5],
+      ["lamp", 73.5, 16.5, 7, 5],
+      ["fust", 86, 80, 14, 19],
     ],
   },
   afgelast: {
@@ -142,6 +147,7 @@ const SPOTS = {
       ["bier", 48.6, 61, 8.1, 6.9],
       ["pizza", 64.2, 50.9, 28.4, 18.5],
       ["lampje", 4.6, 36.3, 11.6, 6.9],
+      ["vlag", 77, 30.5, 7.5, 7],
     ],
   },
   doorgaat: {
@@ -254,18 +260,42 @@ function markFound(id) {
 }
 showZoek();
 // Een tik op de teller wijst één plekje aan dat je nog mist.
+// Een plekje onder de perkamentrol (op de telefoon is die bijna schermbreed) is niet aan te tikken.
+function onderRol(b) {
+  const rol = document.getElementById("check")?.getBoundingClientRect();
+  if (!rol) return false;
+  const h = b.getBoundingClientRect();
+  const x = h.left + h.width / 2;
+  const y = h.top + h.height / 2;
+  return x > rol.left && x < rol.right && y > rol.top && y < rol.bottom;
+}
+function wijsAan(hint) {
+  hint.classList.remove("is-hint");
+  void hint.offsetWidth;
+  hint.classList.add("is-hint");
+}
 zoekBtn?.addEventListener("click", () => {
   const r = zoekBtn.getBoundingClientRect();
-  const open = [...document.querySelectorAll("#view-home .hotspot")].filter((b) => b.offsetParent && !found.has(b.dataset.egg));
+  const open = [...document.querySelectorAll("#view-home .hotspot")]
+    .filter((b) => b.offsetParent && !found.has(b.dataset.egg) && !onderRol(b));
   if (!open.length) {
     say(found.size === ZOEK_IDS.length ? "Alles gevonden. Henk is onder de indruk." : "Hier is alles gevonden. De rest zit in de uitslag.", r.left + r.width / 2, r.top);
     return;
   }
   const hint = pick(open);
-  hint.classList.remove("is-hint");
-  void hint.offsetWidth;
-  hint.classList.add("is-hint");
-  say("Daar ergens. Tik er maar op.", r.left + r.width / 2, r.top);
+  const h = hint.getBoundingClientRect();
+  if (h.bottom > 0 && h.top < innerHeight) {
+    wijsAan(hint);
+    say("Daar ergens. Tik er maar op.", r.left + r.width / 2, r.top);
+    return;
+  }
+  // Buiten beeld (de teller en de plekjes staan op een telefoon ver uit elkaar): eerst erheen.
+  hint.scrollIntoView({ block: "center", behavior: reduceMotion.matches ? "auto" : "smooth" });
+  setTimeout(() => {
+    const n = hint.getBoundingClientRect();
+    wijsAan(hint);
+    say("Daar ergens. Tik er maar op.", n.left + n.width / 2, n.top);
+  }, reduceMotion.matches ? 60 : 650);
 });
 
 const counts = {};
@@ -287,7 +317,7 @@ function act(id, el, x, y) {
   markFound(id);
   if (id === "vaantje") {
     const on = toggleBalbezit();
-    say(on ? LINES.vaantje[0] : LINES.vaantje[1], x, y);
+    say(on ? (touch.matches ? "Balbezit! Elke tik is nu een schot. Tik maar raak." : LINES.vaantje[0]) : LINES.vaantje[1], x, y);
     return;
   }
   if (id === "lamp") blackout(el.closest(".stage"));
@@ -400,16 +430,31 @@ export function parade(text = "PRRRT! Iedereen naar de kantine!") {
 /* ─────────── toetsenbord: Konami, "henk", "egs20", "egs6" of "keeper" ─────────── */
 
 const KONAMI = "ArrowUp ArrowUp ArrowDown ArrowDown ArrowLeft ArrowRight ArrowLeft ArrowRight b a";
+const CODES = {
+  konami: "Cheatcode? Gele kaart. En nu spelen.",
+  henk: "Je riep?",
+  egs20: SHOUTOUT,
+  egs6: KAMPIOENEN,
+  keeper: KEEPER,
+};
+
+/** Speel een code af ("henk", "egs20", ...). Een telefoon heeft geen toetsenbord, dus js/mobiel.js roept dit ook aan. */
+export function cheat(code) {
+  const text = CODES[code];
+  if (!text) return false;
+  parade(text);
+  return true;
+}
+
 let keys = [];
 addEventListener("keydown", (e) => {
   if (e.target.closest?.("input, textarea, select")) return;
   keys = [...keys, e.key].slice(-10);
   const seq = keys.join(" ");
-  if (seq.endsWith(KONAMI)) parade("Cheatcode? Gele kaart. En nu spelen.");
-  else if (seq.toLowerCase().endsWith("h e n k")) parade("Je riep?");
-  else if (seq.toLowerCase().endsWith("e g s 2 0")) parade(SHOUTOUT);
-  else if (seq.toLowerCase().endsWith("e g s 6")) parade(KAMPIOENEN);
-  else if (seq.toLowerCase().endsWith("k e e p e r")) parade(KEEPER);
+  if (seq.endsWith(KONAMI)) return void cheat("konami");
+  const typed = seq.toLowerCase().replaceAll(" ", "");
+  const code = ["henk", "egs20", "egs6", "keeper"].find((c) => typed.endsWith(c));
+  if (code) cheat(code);
 });
 
 /* ─────────── appgroep op de homepage ─────────── */
