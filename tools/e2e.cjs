@@ -501,7 +501,7 @@ const noBeacon = (rt) => rt.fulfill({ contentType: "text/javascript", body: "" }
     await p.goto(link());
     await p.waitForSelector("#consuls:not([hidden])", { timeout: 8000 });
     ok((await p.locator("#consuls-veld li").count()) === 51, "consuls: precies 51 poppetjes");
-    ok(/van de 51 consuls/.test(await p.textContent("#consuls-title")), "consuls: titel noemt de 51: " + await p.textContent("#consuls-title"));
+    ok(/van de 51 veldkeurders/.test(await p.textContent("#consuls-title")), "consuls: titel noemt de 51: " + await p.textContent("#consuls-title"));
     await c.close();
     const [c2, p2] = await fresh({ ens: 500 });
     const answered = p2.waitForResponse((r) => r.url().includes("ensemble-api.open-meteo.com"));
