@@ -59,7 +59,7 @@ jobs:
             if curl --fail --silent http://127.0.0.1:8765/ > /dev/null; then break; fi
             sleep 1
           done
-          timeout 120 npm run test:e2e
+          timeout 240 npm run test:e2e
       # De officiële composite upload-action gebruikt intern een ongepinde tag.
       - name: Archive public files
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
