@@ -161,7 +161,7 @@ function vlag(ctx) {
     const dl = el("dl", { className: "klussen" }, ...KLUSSEN.map(([key, label]) => el("div", {}, el("dt", { textContent: label }), el("dd", { textContent: wie[key] }))));
     out.replaceChildren(el("p", { className: "klussen-week", textContent: `Week ${k.week}` }), dl);
     const rijden = k.rijden.length ? `, ${k.rijden.join(" en ")} ${k.rijden.length > 1 ? "rijden" : "rijdt"}` : "";
-    wa.href = waHref(`Week ${k.week}${team ? ` bij ${team}` : ""}: ${k.vlaggen} vlagt${k.was ? `, ${k.was} heeft de was` : ""}${rijden}. Verdeeld door Henk, klagen kan bij de consul.`);
+    wa.href = waHref(`Week ${k.week}${team ? ` bij ${team}` : ""}: ${k.vlaggen} vlagt${k.was ? `, ${k.was} heeft de was` : ""}${rijden}. Verdeeld door Henk, klagen kan bij de veldkeurder.`);
   };
   input.addEventListener("input", () => {
     ctx.setNames(parseNames(input.value));
@@ -186,10 +186,24 @@ const TABS = {
 };
 
 /**
+ * Extra tabbladen van buiten (nu alleen de proef, ?proef=1). Een tabblad krijgt bij elke opening een
+ * eigen AbortSignal; dat stopt zodra je een ander tabblad opent of er een nieuwe uitslag komt.
+ * def: { label, moods: ["doorgaat", ...], after?: bestaand id, panel(ctx, signal) -> [title, sub, kids] }.
+ */
+const EXTERN = new Map();
+export function registerExtra(id, def) { EXTERN.set(id, def); }
+let tabCtrl = null;
+
+/**
  * ctx: { mood, q, pct, dag ("zaterdag"), url, names(): string[], setNames(list), burst() }.
  */
 export function renderExtra(ctx) {
-  const ids = TABS[ctx.mood];
+  const ids = [...TABS[ctx.mood]];
+  for (const [id, def] of EXTERN) {
+    if (!def.moods.includes(ctx.mood) || (def.available && !def.available(ctx))) continue;
+    const at = def.after ? ids.indexOf(def.after) : -1;
+    ids.splice(at >= 0 ? at + 1 : ids.length, 0, id);
+  }
   const tabs = $("#extra-tabs");
   const body = $("#extra-body");
 
@@ -200,7 +214,9 @@ export function renderExtra(ctx) {
       b.tabIndex = on ? 0 : -1;
       if (on && focus) b.focus();
     }
-    const [title, sub, kids] = PANELS[id](ctx);
+    tabCtrl?.abort();
+    tabCtrl = new AbortController();
+    const [title, sub, kids] = PANELS[id] ? PANELS[id](ctx) : EXTERN.get(id).panel(ctx, tabCtrl.signal);
     $("#extra-title").textContent = title;
     $("#extra-sub").textContent = sub;
     body.setAttribute("aria-labelledby", `tab-${id}`);
@@ -208,7 +224,7 @@ export function renderExtra(ctx) {
   };
 
   tabs.replaceChildren(...ids.map((id) => {
-    const b = el("button", { type: "button", id: `tab-${id}`, textContent: LABEL[id] });
+    const b = el("button", { type: "button", id: `tab-${id}`, textContent: LABEL[id] || EXTERN.get(id).label });
     b.setAttribute("role", "tab");
     b.setAttribute("aria-controls", "extra-body");
     b.dataset.tab = id;

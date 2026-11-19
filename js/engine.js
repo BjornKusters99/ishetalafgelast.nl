@@ -178,7 +178,7 @@ async function fetchDays(lat, lon, dates, signal) {
     const i = 7 + Math.round((parseDay(iso) - first) / DAY_MS);
     const w = featuresAt(d, i);
     if (hours[iso]) w.hours = hours[iso];
-    // De acht dagwaarden zelf: de 51 consuls vullen hiermee de dagen aan die hun eigen bericht mist.
+    // De acht dagwaarden zelf: de 51 veldkeurders vullen hiermee de dagen aan die hun eigen bericht mist.
     w.series = Object.fromEntries(Object.keys(DAILY_LIMITS).map((key) => [key, d[key].slice(i - 7, i + 1)]));
     return [iso, w];
   }));
@@ -306,13 +306,14 @@ const ENSEMBLE_URL = "https://ensemble-api.open-meteo.com/v1/ensemble";
 const CONSULS = 51;
 
 /**
- * De 51 consuls: het ECMWF-ensemble rekent hetzelfde weekend 51 keer door, elk met
+ * De 51 veldkeurders: het ECMWF-ensemble rekent hetzelfde weekend 51 keer door, elk met
  * een iets ander begin. Elke berekening krijgt onze som op zijn eigen weerbericht.
  * Dagen die een berekening mist (het verleden) komen uit `series`, de dagwaarden
- * van het gewone weerbericht. Geeft per consul de kans (0..1), of null als er te
- * weinig berekeningen zijn. Dit toont de onzekerheid van het weer, niet die van het model.
+ * van het gewone weerbericht. Geeft per veldkeurder de kans (0..1), of null als er te
+ * weinig berekeningen zijn. Met `detail` krijgt elke veldkeurder ook zijn eigen weer mee:
+ * { p, mm, temp, gust }. Dit toont de onzekerheid van het weer, niet die van het model.
  */
-export async function fetchConsuls(lat, lon, isoDate, series, veldtype, signal) {
+export async function fetchConsuls(lat, lon, isoDate, series, veldtype, signal, { detail = false } = {}) {
   const ahead = isValidDay(isoDate) ? daysAhead(isoDate) : -1;
   const keys = Object.keys(DAILY_LIMITS);
   if (ahead < 0 || ahead > MAX_DAYS_AHEAD || !keys.every((key) => Array.isArray(series?.[key]) && series[key].length === 8)) return null;
@@ -344,8 +345,12 @@ export async function fetchConsuls(lat, lon, isoDate, series, veldtype, signal) 
         return ok ? v : fallback;
       });
     }
-    // Alleen consuls met een eigen bericht voor de speeldag stemmen mee.
-    if (own === keys.length) votes.push(predict(featuresAt(days, 7), veldtype).probability);
+    // Alleen veldkeurders met een eigen bericht voor de speeldag stemmen mee.
+    if (own === keys.length) {
+      const w = featuresAt(days, 7);
+      const p = predict(w, veldtype).probability;
+      votes.push(detail ? { p, mm: w.precipitation, temp: w.temperature, gust: w.wind_gusts } : p);
+    }
   }
   return votes.length >= CONSULS / 2 ? votes : null;
 }

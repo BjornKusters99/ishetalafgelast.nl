@@ -4,8 +4,13 @@ import { Stuitproef, bounceProfile, moodFor } from "./stuitproef.js";
 import { say, parade, mountHotspots, mountAppgroep, kiesAppgroep, appgroep } from "./eggs.js";
 import * as duel from "./duel.js";
 import { ELFTAL, validElftal, isReserve, dagFromParam, dagToParam, nextMatchDay, isMatchMorning, isZomerstop, localIso, parseNames } from "./team.js";
-import { DERBY, WEEKDAY, HOME_SHARE, HENK, STEP_TEXT, KEURING_TITLE, KEURING_LINES, FUN, FUN_ELFTAL, SHARE_MSG, KATER, DUEL, consulText, noppenAdvies, wedstrijdVerslag, groupIndex } from "./teksten.js";
+import { DERBY, WEEKDAY, HOME_SHARE, HENK, STEP_TEXT, KEURING_TITLE, KEURING_LINES, FUN, FUN_ELFTAL, SHARE_MSG, KATER, DUEL, SEINTJE, consulText, noppenAdvies, wedstrijdVerslag, groupIndex } from "./teksten.js";
 import { renderExtra, el } from "./extra.js";
+import { hangBoard, splash, thud } from "./moment.js";
+import { isApp, origin, SITE, appShare, appCopy, initApp, notifyPermission, planMatch } from "./native.js";
+
+// ?proef=1: prototypes uit de kleedkamer onder de uitslag. Zonder de schakelaar wordt er niets geladen.
+const proef = new URLSearchParams(location.search).get("proef") === "1" ? import("../lab/proef.js").catch(() => null) : null;
 
 /* ─────────── Namen uit een teamlink ─────────── */
 
@@ -45,6 +50,10 @@ const resultView = $("#view-result");
 const katerView = $("#view-kater");
 const homeStage = mountStage($("#view-home .stage"), "kantine");
 const resultStage = mountStage($("#view-result .stage"), null);
+const portrait = matchMedia("(orientation: portrait)");
+// Het uitslagbord hangt aan een touw. `impact` is de klap van de huidige onthulling.
+let impact = null;
+const hanger = hangBoard($("#board"), { meter: $(".thermo"), onImpact: () => impact?.() });
 // Tijdens het typen staat de kantine stil: dat scheelt telefoons rekenwerk.
 form.addEventListener("focusin", (e) => e.target.matches("input") && homeStage.pause("invoer"));
 form.addEventListener("focusout", () => homeStage.resume("invoer"));
@@ -343,7 +352,10 @@ function clampNum(v, lo, hi, dflt) {
   return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : dflt;
 }
 
-const shareUrl = (q) => `${location.origin}${location.pathname}?${toParams(q)}`;
+// In de app laadt een pagina als bestand (oss.html); op de site heet hij zonder .html.
+const pagePath = () => location.pathname.replace(/(?:index)?\.html$/, "");
+const localUrl = (q) => `${location.pathname}?${toParams(q)}`;
+const shareUrl = (q) => `${origin}${pagePath()}?${toParams(q)}`;
 // Alleen de link die je deelt krijgt kans en tijdstip; de adresbalk blijft zonder.
 const sharedUrl = (q, pct, at) => `${shareUrl(q)}&p=${pct}&ts=${Math.floor(at.getTime() / 1000)}`;
 
@@ -356,7 +368,7 @@ function setShare(row, text, url) {
   for (const a of row.querySelectorAll("[data-net]")) {
     const net = a.dataset.net;
     if (net === "wa") a.href = `https://wa.me/?text=${enc(`${text} ${url}`)}`;
-    else if (net === "native") a.hidden = !navigator.share;
+    else if (net === "native") a.hidden = !isApp && !navigator.share;
     a.dataset.text = text;
     a.dataset.url = url;
   }
@@ -365,7 +377,7 @@ function setShare(row, text, url) {
 async function copyLink(btn, url = btn.dataset.url || location.href, done = "Link gekopieerd. Plakken maar.") {
   const r = btn.getBoundingClientRect();
   try {
-    await navigator.clipboard.writeText(url);
+    if (!(await appCopy(url))) await navigator.clipboard.writeText(url);
     say(done, r.left + r.width / 2, r.top);
   } catch {
     showToast("Kopiëren lukte niet. Deel de link uit de adresbalk.");
@@ -373,6 +385,7 @@ async function copyLink(btn, url = btn.dataset.url || location.href, done = "Lin
 }
 
 async function nativeShare(text, url) {
+  if (await appShare(text, url)) return true;
   try {
     await navigator.share({ title: "IsHetAlAfgelast.nl", text, url });
     return true;
@@ -394,11 +407,11 @@ document.addEventListener("click", async (e) => {
 });
 
 const homeShareText = pick(HOME_SHARE);
-const homeUrl = `${location.origin}/`;
+const homeUrl = `${origin}/`;
 setShare($('[data-share-row="home"]'), homeShareText, homeUrl);
 
 $(".sticker").addEventListener("click", async () => {
-  if (navigator.share && (await nativeShare(homeShareText, homeUrl))) return;
+  if ((isApp || navigator.share) && (await nativeShare(homeShareText, homeUrl))) return;
   window.open(`https://wa.me/?text=${enc(`${homeShareText} ${homeUrl}`)}`, "_blank", "noopener");
 });
 
@@ -485,10 +498,13 @@ function openKeuring() {
   keuringStuit.startLoading();
 }
 
-async function closeKeuring() {
+/** instant: binnen een view transition, waar de overgang zelf de keuring laat verdwijnen. */
+async function closeKeuring(instant = false) {
   clearInterval(chatTimer);
-  keuring.classList.add("is-leaving");
-  await wait(360);
+  if (!instant) {
+    keuring.classList.add("is-leaving");
+    await wait(360);
+  }
   keuring.hidden = true;
   keuringStuit.stop();
   homeStage.resume();
@@ -584,7 +600,9 @@ async function runCheck(q, push, quick = false, kater = false) {
       await Promise.race([keuringStuit.finale(pred.probability, weather), wait(keuringSeen ? 1500 : 3000), skipped, aborted]);
       setStep("model", "done");
       clearInterval(chatTimer);
-      $("#keuring-title").textContent = v.label;
+      // Het oordeelwoord apart: alleen dat woord vliegt straks het bord in.
+      const [pre, word] = v.label.includes(": ") ? [v.label.slice(0, v.label.indexOf(": ") + 2), v.label.slice(v.label.indexOf(": ") + 2)] : ["", v.label];
+      $("#keuring-title").replaceChildren(pre, el("span", { className: "kt-woord", textContent: word }));
       $("#keuring-chat").hidden = true;
       const kv = $("#keuring-verdict");
       kv.textContent = v.keuring;
@@ -601,12 +619,31 @@ async function runCheck(q, push, quick = false, kater = false) {
     }
 
     const result = { q: where, weather, pred, v, other, at: new Date(), kater };
-    if (push) history.pushState({ result: true }, "", shareUrl(result.q));
-    renderResult(result);
+    if (push) history.pushState({ result: true }, "", localUrl(result.q));
+    const owned = overlayOwner === ctrl;
+    if (owned && !kater && "startViewTransition" in document && !reduceMotion.matches) {
+      // Henks oordeel vliegt van de keuring het bord in: dezelfde woorden, één beweging.
+      const from = $("#keuring-title .kt-woord") || $("#keuring-title");
+      from.style.viewTransitionName = "oordeel";
+      const vt = document.startViewTransition(async () => {
+        from.style.viewTransitionName = "";
+        renderResult(result);
+        revealTarget().style.viewTransitionName = "oordeel";
+        await closeKeuring(true);
+      });
+      await vt.updateCallbackDone;
+      $("#verdict-word").focus({ preventScroll: true });
+      await vt.finished.catch(() => {});
+      revealTarget().style.viewTransitionName = "";
+      if (run === ctrl) playReveal("morph");
+    } else {
+      renderResult(result);
+      playReveal(kater ? "none" : "drop");
+      if (owned) await closeKeuring();
+      (kater ? $("#k-word") : $("#verdict-word")).focus({ preventScroll: true });
+    }
     // Alleen wat de gebruiker zelf checkt, niet een link van een ander.
     if (push) remember(result.q);
-    if (overlayOwner === ctrl) await closeKeuring();
-    (kater ? $("#k-word") : $("#verdict-word")).focus({ preventScroll: true });
   } catch (err) {
     if (overlayOwner === ctrl) await closeKeuring();
     // Afgebroken door navigatie of een nieuwere check: die bepaalt wat er te zien is.
@@ -856,14 +893,20 @@ function renderResult({ q, weather: w, pred, v, other, at, kater }) {
   renderReminder(q);
   renderTeamlink(q);
   renderKater();
-  renderExtra({
+  const extraCtx = {
     mood: v.mood, q, pct, url: current.url,
     dag: fmtWeekday.format(day(q.date)),
     names: () => names,
     setNames: saveNames,
     burst: () => resultStage.burst(),
-  });
+  };
+  renderExtra(extraCtx);
   renderConsuls(q, w);
+  proef?.then((m) => m?.show({
+    city: q.city, lat: q.lat, lon: q.lon, veld: q.veld, date: q.date, kickoff: q.kickoff, home: q.home, away: q.away,
+    p: pred.probability, mood: v.mood, label: v.label, url: current.url, extra: extraCtx,
+    weer: `${nl1.format(w.temperature)} °C\n${nl1.format(w.precipitation)} mm regen\n${nl0.format(w.wind_gusts)} km/u wind`,
+  }));
 
   // De kans is nu in beeld: Henks voorspelling ligt vast en tippen op deze wedstrijd kan niet meer.
   if (!q.manual && q.date >= localIso()) {
@@ -877,26 +920,21 @@ function renderResult({ q, weather: w, pred, v, other, at, kater }) {
   showView(kater ? "kater" : "result");
   fitSigns();
 
-  // Stempel, thermometer en teller pas na het tonen, zodat de transitie zichtbaar is.
-  const word = $("#verdict-word");
-  word.classList.remove("is-stamped");
-  void word.offsetWidth;
-  word.classList.add("is-stamped");
-  const fill = $("#thermo-fill");
-  const liquid = $(".dg-liquid i");
-  fill.style.transform = "scaleX(0)";
-  liquid.style.transform = "scaleY(0)";
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    fill.style.transform = `scaleX(${Math.max(0.04, p)})`;
-    liquid.style.transform = `scaleY(${Math.max(0.03, p)})`;
-  }));
-  countUp($("#r-pct"), pct);
-  if (v.scene === "doorgaat" && !kater) setTimeout(() => resultStage.burst(), 350);
+  // Tot de onthulling staan thermometer en teller op nul; playReveal() laat ze lopen.
+  hanger.reset();
+  // Het getal verschijnt pas bij de klap van de stempel (playReveal); anders staat er "Afgelast" naast 0%.
+  $("#r-pct").style.visibility = "hidden";
+  $("#verdict-word").classList.remove("is-stamped", "is-waiting");
+  setMeter(0, 0, false);
+  $("#r-pct").textContent = "0%";
+  reveal = { p, pct, v };
 
   // Stuitproef op de uitslag: valt zodra je hem ziet
   if (!resultStuit) {
     resultStuit = new Stuitproef($("#stuit-canvas"), {
       onCard: (color, n) => {
+        // Voor wie wil meeluisteren (de proef laat Henk dan fluiten).
+        document.dispatchEvent(new CustomEvent("henk:kaart", { detail: { color, n } }));
         if (color === "red") $("#stuit-cap").textContent = "Rood. Je bent van het veld gestuurd. Dan zit je alvast in de kantine.";
         else if (n === 1) $("#stuit-cap").textContent = "Gele kaart. Henk houdt niet van aanraken.";
       },
@@ -907,6 +945,73 @@ function renderResult({ q, weather: w, pred, v, other, at, kater }) {
   resultStuit.cardCount = 0;
   $("#stuit-cap").textContent = v.keuring;
   stuitSeen = false;
+}
+
+/* ─────────── De onthulling ─────────── */
+
+let reveal = null;
+const isDoorgaatScene = () => $(".scene--result").dataset.mood === "doorgaat" && !portrait.matches;
+/** Waar het oordeel landt: het bord, of op een liggend scherm bij "gaat door" het getekende bord. */
+const revealTarget = () => (isDoorgaatScene() ? $(".dg-pct") : $("#verdict-word"));
+
+/** Thermometer en vloeistof in de getekende fles op kans p; animate=false zet ze direct. */
+function setMeter(p, liquidP, animate = true) {
+  const fill = $("#thermo-fill");
+  const liquid = $(".dg-liquid i");
+  fill.classList.toggle("is-instant", !animate);
+  liquid.style.transition = animate ? "" : "none";
+  fill.style.setProperty("--p", p.toFixed(3));
+  liquid.style.transform = `scaleY(${liquidP})`;
+}
+
+/**
+ * morph: het woord is er al via de view transition, alleen de klap nog.
+ * drop: het bord valt aan zijn touw; bij het vangen slaat de stempel.
+ * none: katermodus, alles staat er meteen.
+ */
+function playReveal(mode) {
+  if (!reveal) return;
+  const { p, pct, v } = reveal;
+  reveal = null;
+  const word = $("#verdict-word");
+  const kind = v.early || v.mood === "twijfel" ? "twijfel" : v.mood;
+  const finalP = Math.max(0.04, p);
+  const finalL = Math.max(0.03, p);
+  if (mode === "none" || reduceMotion.matches) {
+    impact = null;
+    setMeter(finalP, finalL, false);
+    $("#r-pct").textContent = `${pct}%`;
+    $("#r-pct").style.visibility = "";
+    return;
+  }
+  const hit = () => {
+    const door = isDoorgaatScene();
+    splash(door ? $(".dg-live") : $(".board-plank"), revealTarget(), kind,
+      [".board-kicker", ".board-hedge", ".board-pct", ".board-horizon", ".thermo", ".dg-weather"].map((s) => $(s)));
+    thud(kind);
+    hanger.jolt(v.mood === "afgelast" ? 1.15 : 0.8);
+    requestAnimationFrame(() => setMeter(finalP, finalL));
+    $("#r-pct").style.visibility = "";
+    countUp($("#r-pct"), pct);
+    if (v.scene === "doorgaat") resultStage.burst();
+  };
+  if (mode === "morph") {
+    impact = null;
+    hit();
+    return;
+  }
+  // Vallen: het woord wacht, en slaat pas als het touw het bord vangt.
+  word.classList.add("is-waiting");
+  impact = () => {
+    impact = null;
+    word.classList.remove("is-waiting");
+    void word.offsetWidth;
+    word.classList.add("is-stamped");
+    // De stempel raakt het hout op ruim de helft van zijn animatie.
+    setTimeout(hit, 330);
+  };
+  if (isDoorgaatScene() || $(".scene--result").dataset.mood === "kantine" && !portrait.matches) impact();
+  else hanger.drop();
 }
 
 /** Lange namen op de getekende borden: eerst krimpen, daarna over twee regels. */
@@ -932,13 +1037,13 @@ addEventListener("resize", () => {
 });
 document.fonts?.ready.then(fitSigns);
 
-/* ─────────── De 51 consuls ─────────── */
+/* ─────────── De 51 veldkeurders ─────────── */
 
 const CONSUL_KIND = { afgelast: "af", twijfel: "twijfel", doorgaat: "vrij" };
 const CONSUL_ORDER = ["af", "twijfel", "vrij"];
 let consulRun = null;
 
-/** Eén consul per weerscenario, elk met zijn eigen kaart. Komt na de uitslag binnen; lukt het niet, dan blijft het vak weg. */
+/** Eén veldkeurder per weerscenario, elk met zijn eigen kaart. Komt na de uitslag binnen; lukt het niet, dan blijft het vak weg. */
 async function renderConsuls(q, w) {
   consulRun?.abort();
   const box = $("#consuls");
@@ -946,19 +1051,29 @@ async function renderConsuls(q, w) {
   if (q.manual || q.lat == null || !w.series) return;
   const ctrl = new AbortController();
   consulRun = ctrl;
-  let probs = null;
+  let crew = null;
   try {
-    probs = await fetchConsuls(q.lat, q.lon, q.date, w.series, q.veld, ctrl.signal);
-  } catch { /* de consuls zijn een extraatje: zonder hen staat de uitslag er ook */ }
-  if (!probs || ctrl.signal.aborted) return;
-  const kinds = probs.map((p) => CONSUL_KIND[moodFor(p)]).sort((a, b) => CONSUL_ORDER.indexOf(a) - CONSUL_ORDER.indexOf(b));
+    crew = await fetchConsuls(q.lat, q.lon, q.date, w.series, q.veld, ctrl.signal, { detail: true });
+  } catch { /* de veldkeurders zijn een extraatje: zonder hen staat de uitslag er ook */ }
+  if (!crew || ctrl.signal.aborted) return;
+  // Rugnummer in de volgorde van de berekeningen; op het veld staan ze per kaart, de strengste voorop.
+  const men = crew
+    .map((c, i) => ({ ...c, nr: i + 1, kind: CONSUL_KIND[moodFor(c.p)] }))
+    .sort((a, b) => CONSUL_ORDER.indexOf(a.kind) - CONSUL_ORDER.indexOf(b.kind) || b.p - a.p);
   const votes = { af: 0, twijfel: 0, vrij: 0 };
-  for (const k of kinds) votes[k]++;
+  for (const m of men) votes[m.kind]++;
   const text = consulText(votes);
   $("#consuls-title").textContent = text.head;
   $("#consuls-rest").textContent = [text.rest, text.mood].filter(Boolean).join(" ");
-  $("#consuls-veld").replaceChildren(...kinds.map((k, i) => {
-    const li = el("li", { className: `c-${k}${i && kinds[i - 1] !== k ? " c-gap" : ""}` });
+  // Nek aan nek: wie op de grens tussen de twee grootste groepen staat, gaat in discussie.
+  const [top, second] = Object.entries(votes).sort((a, b) => b[1] - a[1]);
+  const fight = second[1] > 0 && top[1] - second[1] <= 4;
+  const border = men.findIndex((m, i) => i && m.kind !== men[i - 1].kind && [top[0], second[0]].includes(m.kind) && [top[0], second[0]].includes(men[i - 1].kind));
+  const veld = $("#consuls-veld");
+  consulOf = new Map();
+  veld.replaceChildren(...men.map((m, i) => {
+    const near = fight && border > 0 && i >= border - 3 && i < border + 3;
+    const li = el("li", { className: `c-${m.kind}${i && men[i - 1].kind !== m.kind ? " c-gap" : ""}${near ? " c-ruzie" : ""}` });
     li.style.setProperty("--i", i);
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("viewBox", "0 0 28 36");
@@ -966,10 +1081,70 @@ async function renderConsuls(q, w) {
     use.setAttribute("href", "#i-consul");
     svg.append(use);
     li.append(svg);
+    consulOf.set(li, m);
     return li;
   }));
+  hideConsulCard();
   box.hidden = false;
+  // Ze lopen pas het veld op als je kijkt. Zonder beweging staan ze er gewoon.
+  veld.classList.remove("is-ready", "is-playing");
+  consulWatch?.disconnect();
+  if (reduceMotion.matches) return;
+  veld.classList.add("is-ready");
+  consulWatch = new IntersectionObserver(([e]) => {
+    if (!e.isIntersecting) return;
+    consulWatch.disconnect();
+    veld.classList.replace("is-ready", "is-playing");
+  }, { threshold: 0.35 });
+  consulWatch.observe(veld);
 }
+
+/* Eén kaartje voor alle veldkeurders: wie je aanwijst of aantikt, laat zijn eigen weerbericht zien. */
+let consulOf = new Map();
+let consulWatch = null;
+const consulCard = $("#consul-kaart");
+const CONSUL_SAYS = { af: "keurt af", twijfel: "twijfelt", vrij: "geeft vrij" };
+function showConsulCard(li) {
+  const m = consulOf.get(li);
+  if (!m) return;
+  const veld = $("#consuls-veld");
+  consulCard.replaceChildren(
+    el("strong", { textContent: `Veldkeurder ${m.nr} ${CONSUL_SAYS[m.kind]}: ${Math.round(m.p * 100)}%` }),
+    el("span", { textContent: `${nl1.format(m.mm)} mm regen, ${nl1.format(m.temp)} °C, wind tot ${nl0.format(m.gust)} km/u` }),
+  );
+  consulCard.hidden = false;
+  const vr = veld.getBoundingClientRect();
+  const lr = li.getBoundingClientRect();
+  const half = consulCard.offsetWidth / 2;
+  const x = Math.min(Math.max(lr.left - vr.left + lr.width / 2, half + 6), vr.width - half - 6);
+  // Te dicht bij de bovenrand (of onder de deelbalk): dan hangt het kaartje onder de veldkeurder.
+  const below = lr.top - consulCard.offsetHeight - 16 < 72;
+  consulCard.classList.toggle("is-onder", below);
+  consulCard.style.left = `${x}px`;
+  consulCard.style.top = `${below ? lr.bottom - vr.top + 8 : lr.top - vr.top - 8}px`;
+  for (const other of veld.querySelectorAll(".is-aangewezen")) other.classList.remove("is-aangewezen");
+  li.classList.add("is-aangewezen");
+}
+function hideConsulCard() {
+  consulCard.hidden = true;
+  for (const li of document.querySelectorAll("#consuls-veld .is-aangewezen")) li.classList.remove("is-aangewezen");
+}
+$("#consuls-veld").addEventListener("pointerover", (e) => {
+  const li = e.target.closest("li");
+  if (li && e.pointerType === "mouse") showConsulCard(li);
+});
+$("#consuls-veld").addEventListener("pointerleave", (e) => e.pointerType === "mouse" && hideConsulCard());
+$("#consuls-veld").addEventListener("click", (e) => {
+  const li = e.target.closest("li");
+  if (!li) return hideConsulCard();
+  if (li.classList.contains("is-aangewezen") && !consulCard.hidden && matchMedia("(pointer: coarse)").matches) return hideConsulCard();
+  showConsulCard(li);
+  // Aangetikt: hij springt even op, zoals iemand die zijn naam hoort.
+  li.classList.remove("is-op");
+  void li.offsetWidth;
+  li.classList.add("is-op");
+});
+document.addEventListener("keydown", (e) => e.key === "Escape" && hideConsulCard());
 
 /* ─────────── Katermodus en teamlink ─────────── */
 
@@ -1004,7 +1179,7 @@ $("#btn-teamlink").addEventListener("click", (e) => {
   const team = $("#team-name").value.trim().slice(0, 40);
   // De namen voor "wie vlagt er" gaan achter het hekje: dat deel bereikt geen server.
   const wie = names.length ? `#wie=${enc(names.join(","))}` : "";
-  copyLink(e.currentTarget, `${location.origin}/?${teamParams(current.q, team)}${wie}`, "Teamlink gekopieerd. Plak hem in de groepsbeschrijving.");
+  copyLink(e.currentTarget, `${origin}/?${teamParams(current.q, team)}${wie}`, "Teamlink gekopieerd. Plak hem in de groepsbeschrijving.");
 });
 
 /* ─────────── Jij tegen Henk ─────────── */
@@ -1043,9 +1218,9 @@ function showDuel() {
 function countUp(el, to) {
   if (reduceMotion.matches) return void (el.textContent = `${to}%`);
   const t0 = performance.now();
-  const dur = 1300;
+  const dur = 1000;
   const tick = (now) => {
-    const k = Math.min(1, (now - t0 - 250) / dur);
+    const k = Math.min(1, (now - t0) / dur);
     const e = k <= 0 ? 0 : 1 - Math.pow(1 - k, 4);
     el.textContent = `${Math.round(to * e)}%`;
     if (k < 1) requestAnimationFrame(tick);
@@ -1070,6 +1245,7 @@ $("#stuit-drop").addEventListener("click", () => resultStuit?.drop());
 /* ─────────── Views ─────────── */
 
 function showView(which) {
+  document.documentElement.classList.remove("is-uitslaglink");
   homeView.hidden = which !== "home";
   resultView.hidden = which !== "result";
   katerView.hidden = which !== "kater";
@@ -1079,6 +1255,7 @@ function showView(which) {
 }
 
 function showHome(focus) {
+  proef?.then((m) => { m?.hide(); m?.home?.(); });
   document.title = HOME_TITLE;
   showView("home");
   if (focus) cityInput.focus({ preventScroll: true });
@@ -1098,6 +1275,7 @@ $("#btn-back").addEventListener("click", () => {
 });
 
 window.addEventListener("popstate", () => {
+  if (history.state?.tactiek || $("#view-tactiek")?.hidden === false) return; // het tactiekbord van de proef handelt dit zelf af
   goingBack = false;
   const q = fromParams(new URLSearchParams(location.search));
   if (q) {
@@ -1170,7 +1348,8 @@ function reminderAt(q) {
 function renderReminder(q) {
   const at = reminderAt(q);
   $("#ics-wrap").hidden = !at;
-  if (at) $("#ics-label").textContent = `Herinner me ${fmtWeekday.format(at)} om 19:45`;
+  if (at) $("#ics-label").textContent = `${isApp ? "Seintje" : "Herinner me"} ${fmtWeekday.format(at)} om 19:45`;
+  beginscherm?.then((b) => b?.setDay(day(q.date)));
 }
 
 /** Een .ics met de deellink: de agenda opent de check met het nieuwste weerbericht. */
@@ -1196,9 +1375,21 @@ function icsFor(q, at, url) {
   ].map(fold).join("\r\n") + "\r\n";
 }
 
-$("#btn-ics").addEventListener("click", () => {
+$("#btn-ics").addEventListener("click", async (e) => {
   const at = current && reminderAt(current.q);
   if (!at) return;
+  if (isApp) {
+    // In de app plant de telefoon zelf een melding; een .ics opent daar niets.
+    const r = e.currentTarget.getBoundingClientRect();
+    if (await notifyPermission(true) !== "granted") {
+      showToast("Meldingen staan uit voor Afgelast?. Zet ze aan bij Instellingen op je telefoon.");
+      return;
+    }
+    const wed = matchName(current.q) || "je potje";
+    await planMatch(at, SEINTJE.match.title.replace("{wed}", wed), SEINTJE.match.body, localUrl(current.q));
+    say(`Staat: ${fmtWeekday.format(at)} om 19:45 fluit Henk.`, r.left + r.width / 2, r.top);
+    return;
+  }
   const blob = new Blob([icsFor(current.q, at, current.url)], { type: "text/calendar;charset=utf-8" });
   const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: "opnieuw-checken.ics" });
   a.click();
@@ -1280,7 +1471,7 @@ function statusBanner(s, today) {
   if (s.tot && (typeof s.tot !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(s.tot) || s.tot < today)) return null;
   return { text: s.tekst.trim().slice(0, 200), href: s.bron };
 }
-fetch("/status.json", { cache: "no-cache", credentials: "omit" })
+fetch(`${isApp ? SITE : ""}/status.json`, { cache: "no-cache", credentials: "omit" })
   .then((r) => (r.ok ? r.json() : null))
   .then((s) => {
     const banner = statusBanner(s, new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Amsterdam" }));
@@ -1307,6 +1498,20 @@ function hideToast() {
   $("#toast").hidden = true;
 }
 
+/* ─────────── Op je telefoon ─────────── */
+
+// Op de site: Henk op je beginscherm. In de app: de seintjes, de statusbalk en de terugknop.
+const beginscherm = isApp ? null : import("./beginscherm.js").then((m) => m.mountBeginscherm() && m).catch(() => null);
+if (isApp) {
+  $("#ics-wrap .slot-note").textContent = "Je telefoon geeft je dan een seintje, met het nieuwste weerbericht.";
+  import("./seintje.js").then((m) => m.mountSeintje()).catch(() => {});
+  initApp({ back: () => {
+    const kater = !katerView.hidden && $("#k-more");
+    if (kater) { kater.click(); return true; }
+    return false;
+  } });
+}
+
 /* ─────────── Start ─────────── */
 
 const initial = fromParams(new URLSearchParams(location.search));
@@ -1326,6 +1531,6 @@ if (initial) {
 }
 void homeStage;
 
-if ("serviceWorker" in navigator && location.protocol === "https:") {
+if ("serviceWorker" in navigator && location.protocol === "https:" && !isApp) {
   addEventListener("load", () => navigator.serviceWorker.register("/sw.js", { updateViaCache: "none" }).catch(() => {}));
 }

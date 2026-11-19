@@ -1,5 +1,5 @@
 // Alle teksten van de site op één plek. Stem en woordenlijst: docs/STIJLGIDS.md.
-// Kort: kelderklasse van binnenuit (de consul, vlaggen, met tien man, wie rijdt er),
+// Kort: kelderklasse van binnenuit (de veldkeurder, vlaggen, met tien man, wie rijdt er),
 // wisselend ritme, hooguit één keepergrap per lijst, geen grappen die alleen de maker snapt.
 // {dag} wordt de speeldag ("zaterdag"), {elftal} het elftal ("het zevende").
 
@@ -34,7 +34,7 @@ export const HOME_SHARE = [
 export const HENK = [
   "Ik ben Henk. Ik fluit sinds 1987 en ik heb nog nooit gelijk gekregen.",
   "Buitenspel is een mening.",
-  "De consul keurt het veld. Ik keur de rest.",
+  "De veldkeurder keurt het veld. Ik keur de rest.",
   "Verlenging bestaat alleen in de kantine.",
 ];
 
@@ -42,10 +42,10 @@ export const HENK = [
 
 export const STEP_TEXT = {
   geo: ["Sportpark zoeken", "Veld 4 zoeken (achter de kantine)", "Navigeren naar het sportpark", "Sleutel van de kleedkamer zoeken"],
-  weer: ["Weerbericht ophalen", "Naar de lucht kijken", "Natte vinger in de lucht", "Plassen tellen", "De consul bellen"],
+  weer: ["Weerbericht ophalen", "Naar de lucht kijken", "Natte vinger in de lucht", "Plassen tellen", "De veldkeurder bellen"],
   model: ["Bal laten stuiten", "Henk laat de bal vallen", "Noppen in het gras prikken", "Rekenen, met de rekenmachine van de penningmeester"],
 };
-export const KEURING_TITLE = ["Veldkeuring", "Henk keurt het veld", "Even wachten op de consul", "Keuring bezig"];
+export const KEURING_TITLE = ["Veldkeuring", "Henk keurt het veld", "Even wachten op de veldkeurder", "Keuring bezig"];
 export const KEURING_LINES = {
   ijs: [
     "De bal stuit als een gek: het veld is keihard bevroren.",
@@ -59,7 +59,7 @@ export const KEURING_LINES = {
   ],
   twijfel: [
     "De bal stuit nauwelijks. Henk krabt achter zijn oren.",
-    "Half stuitje. Henk belt eerst even met de consul.",
+    "Half stuitje. Henk belt eerst even met de veldkeurder.",
     "Henk twijfelt, en dat doet hij anders nooit.",
   ],
   stuit: [
@@ -73,7 +73,7 @@ export const KEURING_LINES = {
 
 export const FUN = {
   afgelast: [
-    "De consul liep om zeven uur het veld op en kwam terug met natte sokken. Meer hoefde hij niet te zeggen.",
+    "De veldkeurder liep om zeven uur het veld op en kwam terug met natte sokken. Meer hoefde hij niet te zeggen.",
     "Inhalen wordt een dinsdagavond in maart, half negen, uit. Dat hoort er ook bij.",
     "Niemand hoeft vandaag te vlaggen.",
     "De kantine gaat gewoon open. Iemand moet die bitterballen toch opeten.",
@@ -84,12 +84,12 @@ export const FUN = {
     "Je hamstrings sturen een bedankkaartje.",
   ],
   twijfel: [
-    "De consul loopt nog. Hij belt zo.",
+    "De veldkeurder loopt nog. Hij belt zo.",
     "Hou je tas klaar, maar zet de wekker nog niet.",
     "Dit wordt een appje om half acht. Of om kwart voor negen, als iedereen al in de auto zit.",
     "Scheenbeschermers in de tas, telefoon op luid.",
     "Vijftig-vijftig. Net als jullie kans op een scheids.",
-    "Henk weet het nog niet en de consul neemt niet op.",
+    "Henk weet het nog niet en de veldkeurder neemt niet op.",
     "Stap nog niet in de auto. Maar poets je schoenen ook nog niet.",
   ],
   doorgaat: [
@@ -119,7 +119,7 @@ export const FUN_ELFTAL = {
     eerste: ["Voor het eerste doen ze nog hun best met een hark. Afwachten."],
     reserve: ["Blijft alleen het kunstgras open, dan staat {elftal} achteraan. Als het lukt, wordt het half vijf."],
     35: ["De 35+ twijfelt nooit. De 35+ kijkt of de rug meewerkt."],
-    v: ["De vrouwen wachten op de consul. Verzamelen blijft 11:15, tot het tegendeel bewezen is."],
+    v: ["De vrouwen wachten op de veldkeurder. Verzamelen blijft 11:15, tot het tegendeel bewezen is."],
   },
   doorgaat: {
     eerste: ["Het eerste. Hoofdveld, een echte scheids en publiek dat iets terugroept."],
@@ -134,14 +134,14 @@ export const FUN_ELFTAL = {
 
 export const SHARE_MSG = {
   afgelast: [
-    "{wed}: {pct}% kans op afgelasting. Wachten op de consul, maar pak je tas nog maar niet in.",
+    "{wed}: {pct}% kans op afgelasting. Wachten op de veldkeurder, maar pak je tas nog maar niet in.",
     "Afgelast-alarm: {pct}% kans voor {wed}. Wie regelt de derde helft?",
     "{pct}% kans dat {wed} niet doorgaat. Inhalen wordt vast een dinsdagavond in maart.",
     "{wed}: {pct}% kans op afgelasting. Niemand hoeft te vlaggen, dat is ook wat waard.",
   ],
   twijfel: [
     "{wed}: {pct}% kans op afgelasting. Tas inpakken, wekker op snooze.",
-    "Twijfelgeval: {pct}% voor {wed}. Wie belt de consul?",
+    "Twijfelgeval: {pct}% voor {wed}. Wie belt de veldkeurder?",
     "{pct}% kans op afgelasting voor {wed}. Nog niemand in de auto stappen.",
   ],
   doorgaat: [
@@ -156,23 +156,23 @@ export const SHARE_MSG = {
 // Katermodus: één woord, één regel.
 export const KATER = {
   afgelast: ["Blijf liggen.", "{pct}% kans op afgelasting. Henk heeft gesproken."],
-  twijfel: ["Snooze.", "{pct}% kans op afgelasting. De consul loopt nog."],
+  twijfel: ["Snooze.", "{pct}% kans op afgelasting. De veldkeurder loopt nog."],
   doorgaat: ["Opstaan.", "{pct}% kans op afgelasting. Kevin, jij ook."],
 };
 
-/* ─────────── De 51 consuls ─────────── */
+/* ─────────── De 51 veldkeurders ─────────── */
 
 const STEM = { af: "keuren af", twijfel: "twijfelen", vrij: "zien het zitten" };
 const STEM_1 = { af: "keurt af", twijfel: "twijfelt", vrij: "ziet het zitten" };
 
-/** Kop, restregel en sfeerzin bij de stemming van de consuls: { af, twijfel, vrij }. */
+/** Kop, restregel en sfeerzin bij de stemming van de veldkeurders: { af, twijfel, vrij }. */
 export function consulText(votes) {
   const total = votes.af + votes.twijfel + votes.vrij;
   const [top, second, third] = Object.entries(votes).sort((a, b) => b[1] - a[1]);
   const head = {
-    af: `${top[1]} van de ${total} consuls keuren af.`,
-    twijfel: `${top[1]} van de ${total} consuls weten het nog niet.`,
-    vrij: `${top[1]} van de ${total} consuls geven het veld vrij.`,
+    af: `${top[1]} van de ${total} veldkeurders keuren af.`,
+    twijfel: `${top[1]} van de ${total} veldkeurders weten het nog niet.`,
+    vrij: `${top[1]} van de ${total} veldkeurders geven het veld vrij.`,
   }[top[0]];
   const part = ([k, n]) => `${n === 1 ? "Eén" : nl0.format(n)} ${n === 1 ? STEM_1[k] : STEM[k]}`;
   const others = [second, third].filter(([, n]) => n > 0);
@@ -318,7 +318,7 @@ export const DUEL = {
   stand({ rondes, jij, henk, reeks, hulpconsul }) {
     if (!rondes) return "";
     const base = `Stand na ${rondes === 1 ? "één speelronde" : `${rondes} speelrondes`}: jij ${jij}, Henk ${henk}.`;
-    if (hulpconsul) return `${base} ${reeks} keer op rij goed: je bent nu hulpconsul.`;
+    if (hulpconsul) return `${base} ${reeks} keer op rij goed: je bent nu hulpkeurder.`;
     if (jij > henk) return `${base} Henk vraagt of je volgende week wilt fluiten.`;
     if (jij < henk) return `${base} Nog één keer mis en je staat de rest van het seizoen te vlaggen.`;
     return `${base} Gelijkspel. Verlenging bestaat alleen in de kantine.`;
@@ -341,7 +341,7 @@ export const GROUPS = [
       ["Jeroen", "gaat het door vandaag??", "07:58"],
       ["Trainer Ad", { poll: POLL_ZO, opts: [["Ja", 9], ["Nee", 4], ["Weet nog niet", 2]] }, "08:01"],
       ["Kevin", "ik lig nog, hou me op de hoogte", "08:11"],
-      ["Wim (consul)", { foto: "veld 4, denk ik" }, "08:19"],
+      ["Wim (veldkeurder)", { foto: "veld 4, denk ik" }, "08:19"],
       ["Rinus", "vroeger speelden we gewoon door. ook met sneeuw", "08:24"],
     ],
     typing: ["Kevin", "Jeroen", "Trainer Ad", "Rinus", "Wim"],
@@ -352,7 +352,7 @@ export const GROUPS = [
       ["Trainer Ad", { voice: "0:47" }],
       ["Dennis", { del: true }],
       ["Kevin", "ik zit nog in de stad. is dat erg"],
-      ["Wim (consul)", "ik loop zo het veld op. laarzen aan"],
+      ["Wim (veldkeurder)", "ik loop zo het veld op. laarzen aan"],
       ["Jeroen", "wie rijdt er? ik heb geen auto en ook geen rijbewijs"],
       ["Mo", "met hoeveel zijn we nou"],
       ["Trainer Ad", "tien. wie belt het zesde"],
@@ -362,13 +362,13 @@ export const GROUPS = [
     ],
     keuring: [
       ["Jeroen", "gaat het door??"],
-      ["Trainer Ad", "niemand gaat naar huis voor de consul gebeld heeft"],
+      ["Trainer Ad", "niemand gaat naar huis voor de veldkeurder gebeld heeft"],
       ["Kevin", "ik lig nog in bed, hou me op de hoogte"],
       ["Rinus", "vroeger speelden we gewoon door"],
       ["Bas", "wie heeft de sleutel van het ballenhok"],
       ["Mo", NAT],
       ["Sander", "wie rijdt er"],
-      ["Wim (consul)", "ik sta op het veld. het is nat"],
+      ["Wim (veldkeurder)", "ik sta op het veld. het is nat"],
     ],
   },
   {
@@ -396,7 +396,7 @@ export const GROUPS = [
     ],
     keuring: [
       ["Lotte", "gaat het door? de oppas staat op scherp"],
-      ["Mirjam (trainer)", "wachten op de consul"],
+      ["Mirjam (trainer)", "wachten op de veldkeurder"],
       ["Fleur", "ik lig nog. net"],
       ["Sanne", "de shirts zijn bijna droog"],
       ["Ingrid (leider)", "veld 4 staat altijd als eerste blank"],
@@ -412,7 +412,7 @@ export const GROUPS = [
       ["Ruud", "gaat het door? dan smeer ik m'n knie alvast in", "08:03"],
       ["Hans (leider)", { poll: POLL_ZA, opts: [["Ja", 8], ["Nee", 3], ["Als de rug het toelaat", 4]] }, "08:05"],
       ["Erik", "ik kan alleen de eerste helft, daarna zwemles van de kleine", "08:12"],
-      ["Wim (consul)", { foto: "het veld, vanuit de auto" }, "08:21"],
+      ["Wim (veldkeurder)", { foto: "het veld, vanuit de auto" }, "08:21"],
       ["Peter", "vroeger was dit veld beter. wij ook trouwens", "08:30"],
     ],
     typing: ["Ruud", "Hans", "Erik", "Peter", "Marco"],
@@ -430,11 +430,11 @@ export const GROUPS = [
     ],
     keuring: [
       ["Ruud", "gaat het door? de knie wil het weten"],
-      ["Hans (leider)", "wachten op de consul"],
+      ["Hans (leider)", "wachten op de veldkeurder"],
       ["Erik", "ik heb tot elf uur, daarna zwemles"],
       ["Peter", "vroeger werd er nooit afgelast"],
       ["Marco", "het kratje staat koud. hoe dan ook"],
-      ["Wim (consul)", "ik sta op het veld. het is nat"],
+      ["Wim (veldkeurder)", "ik sta op het veld. het is nat"],
       ["Hans (leider)", "wie heeft de hesjes"],
       ["Ruud", NAT],
     ],
@@ -446,7 +446,7 @@ export const GROUPS = [
       ["Thijs", "gaat het door??", "07:58"],
       ["Gerrit (leider)", { poll: POLL_ZA, opts: [["Ja", 10], ["Nee", 3], ["Moet werken tot twaalf", 2]] }, "08:01"],
       ["Niels", "ik kom van m'n werk en ben er vijf voor aftrap. omgekleed", "08:09"],
-      ["Wim (consul)", { foto: "plas bij de cornervlag" }, "08:17"],
+      ["Wim (veldkeurder)", { foto: "plas bij de cornervlag" }, "08:17"],
       ["Jan", "op zondag voetballen ze ook gewoon in de regen hoor", "08:22"],
     ],
     typing: ["Thijs", "Gerrit", "Niels", "Jan", "Daan"],
@@ -464,11 +464,11 @@ export const GROUPS = [
     ],
     keuring: [
       ["Thijs", "gaat het door??"],
-      ["Gerrit (leider)", "wachten op de consul"],
+      ["Gerrit (leider)", "wachten op de veldkeurder"],
       ["Niels", "ik sta nog op m'n werk"],
       ["Jan", "het eerste gaat voor op het kunstgras"],
       ["Daan", "hoe laat zijn we klaar? verjaardag"],
-      ["Wim (consul)", "ik sta op het veld. het is nat"],
+      ["Wim (veldkeurder)", "ik sta op het veld. het is nat"],
       ["Thijs", "wie rijdt er"],
       ["Niels", NAT],
     ],
@@ -483,3 +483,23 @@ export function groupIndex(elftal, weekday) {
   if (elftal || weekday === 0) return 0;
   return -1;
 }
+
+/* ─────────── Op je telefoon: beginscherm en seintjes ─────────── */
+
+// {dag} is de speeldag van de wedstrijd die net gecheckt is ("Zaterdag", "Zondag").
+export const BEGINSCHERM = {
+  kaart: "{dag} 07:40, één oog open: één tik op Henk en je wedstrijd staat er al. Het blijft gewoon de site, alleen zonder zoeken.",
+  klaar: ["Henk hangt op je beginscherm.", "Staat erop. Tot {dag}.", "Geïnstalleerd. Bal in de ploeg!"],
+};
+
+// De app plant deze seintjes zelf op het toestel; er gaat niets naar ons.
+export const SEINTJE = {
+  title: "Gaat je potje morgen door?",
+  bodies: [
+    "Henk heeft een nieuw weerbericht. Tik en kijk wat de bal doet.",
+    "De veldkeurder loopt morgen om zeven uur het veld op. Jij weet het nu al.",
+    "Tegen wie moeten we eigenlijk? Geen idee. Of het doorgaat wel.",
+    "Nieuw weerbericht, nieuwe kans. Henk laat de bal nog één keer vallen.",
+  ],
+  match: { title: "Check {wed} nog even", body: "Nieuw weerbericht voor morgen. Henk laat de bal nog één keer vallen." },
+};
