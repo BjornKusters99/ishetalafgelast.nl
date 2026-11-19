@@ -1,0 +1,156 @@
+/* Prototypes in de kleedkamer: toss en paspoort. Alles onder .p-<naam>. */
+
+/* ───────── Toss ───────── */
+
+.p-toss { display: grid; gap: var(--s-3); min-width: 0; }
+.p-toss .toss-keuze { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-2) var(--s-3); }
+.p-toss .toss-breed { grid-column: 1 / -1; }
+.p-toss .lab-veld select { width: 100%; min-width: 0; text-overflow: ellipsis; }
+.p-toss .lab-veld select, .p-toss .lab-veld input { transition: background var(--d-1) var(--ease-out), box-shadow var(--d-1) var(--ease-out); }
+.p-toss .lab-veld select:hover:not(:disabled), .p-toss .lab-veld input:hover { background: #fff6e2; }
+.p-toss .lab-veld select:focus-visible, .p-toss .lab-veld input:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.p-toss .lab-veld select:disabled { opacity: .6; cursor: not-allowed; }
+.p-toss .lab-veld input[type="search"] { width: 100%; min-width: 0; }
+.p-toss .toss-noot:empty { display: none; }
+.p-toss .toss-noot { margin: 0; }
+.p-toss .toss-zoek { gap: var(--s-2); }
+.p-toss .toss-zoek > label { font-weight: 600; }
+.p-toss .toss-treffers { display: grid; gap: var(--s-2); }
+.p-toss .toss-treffers:empty { display: none; }
+.p-toss .toss-treffer { justify-content: flex-start; text-align: left; padding-block: var(--s-2); height: auto; white-space: normal; }
+.p-toss .toss-treffer:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+.p-toss .toss-kaart {
+  position: relative; aspect-ratio: 16 / 9; max-height: 250px; width: 100%;
+  background: var(--paper-hi);
+  border: 3px solid var(--ink); border-radius: var(--r-hand);
+  box-shadow: 0 3px 0 var(--ink);
+  overflow: hidden;
+}
+.p-toss .toss-kaart-svg, .p-toss .toss-strepen { position: absolute; inset: 0; width: 100%; height: 100%; }
+.p-toss .toss-strepen { pointer-events: none; }
+.p-toss .toss-omtrek { fill: var(--cream-2); stroke: var(--ink-2); stroke-width: 2px; vector-effect: non-scaling-stroke; }
+.p-toss .toss-veldje polygon { fill: var(--green); stroke: var(--ink); stroke-width: 2px; vector-effect: non-scaling-stroke; cursor: pointer; transition: fill var(--d-2) var(--ease-out); }
+.p-toss .toss-veldje.is-gekozen polygon { fill: var(--gold); stroke-width: 3.5px; }
+.p-toss .toss-as { stroke: var(--ink); stroke-width: 2px; stroke-dasharray: 7 5; vector-effect: non-scaling-stroke; pointer-events: none; }
+
+.p-toss .toss-melding:empty { display: none; }
+.p-toss .toss-advies { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3) var(--s-4); }
+.p-toss .toss-kompas { width: 148px; height: 148px; flex: none; }
+.p-toss .toss-pijl { transform-origin: 60px 60px; transition: transform 520ms var(--ease-out); }
+.p-toss .toss-letter { font: 400 17px var(--f-display); fill: var(--ink); text-anchor: middle; }
+.p-toss .toss-bal-tekst { font: 400 17px var(--f-display); fill: var(--ink); }
+.p-toss .toss-tekst { flex: 1 1 200px; min-width: 0; display: grid; gap: var(--s-2); }
+.p-toss .toss-kop { font-weight: 600; font-size: .95rem; line-height: 1.35; }
+
+.p-toss .toss-muntblok { display: flex; flex-wrap: wrap; align-items: end; gap: var(--s-3) var(--s-5); padding-top: var(--s-3); }
+.p-toss .toss-podium { width: 84px; height: 72px; perspective: 520px; display: grid; place-items: end center; }
+.p-toss .toss-munt { position: relative; width: 64px; height: 64px; transform-style: preserve-3d; }
+.p-toss .toss-vlak {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  border: 3px solid var(--ink); border-radius: 50%;
+  background: var(--gold); color: var(--ink);
+  box-shadow: inset 0 0 0 4px var(--gold-hi);
+  font: 400 1.05rem/1 var(--f-display);
+  backface-visibility: hidden;
+}
+.p-toss .toss-vlak--munt { transform: rotateX(180deg); }
+.p-toss .toss-muntrechts { display: grid; gap: var(--s-2); justify-items: start; }
+.p-toss .toss-uitslag { min-height: 1.3em; }
+
+/* ───────── Paspoort ───────── */
+
+.p-paspoort { display: grid; gap: var(--s-3); min-width: 0; }
+.p-paspoort .lab-veld select { width: 100%; min-width: 0; text-overflow: ellipsis; }
+
+.p-paspoort .pas-boek { position: relative; width: min(100%, 340px); height: 430px; margin-inline: auto; perspective: 1500px; }
+.p-paspoort .pas-blad {
+  position: absolute; inset: 0;
+  display: grid; align-content: start; gap: var(--s-3);
+  padding: var(--s-4);
+  overflow-x: hidden; overflow-y: auto;
+  background: var(--paper-hi);
+  border: 3px solid var(--ink); border-radius: var(--r-hand);
+  box-shadow: 0 3px 0 var(--ink);
+  transform-origin: left center;
+  backface-visibility: hidden;
+  transition: transform 720ms var(--ease-out), visibility 0s;
+}
+.p-paspoort .pas-blad.is-om { transform: rotateY(-178deg); visibility: hidden; transition: transform 720ms var(--ease-out), visibility 0s 720ms; }
+.p-paspoort .pas-kopje {
+  font: 400 1.15rem/1.2 var(--f-hand); color: var(--ink-2);
+  padding-bottom: var(--s-2); border-bottom: 2px dashed var(--ink-2);
+}
+
+.p-paspoort .pas-kaft {
+  align-content: space-evenly; justify-items: center; text-align: center;
+  background: var(--red-ink); color: var(--gold);
+  box-shadow: inset 0 0 0 7px var(--red-ink), inset 0 0 0 10px var(--gold), 0 3px 0 var(--ink);
+}
+.p-paspoort .pas-kaft-boven, .p-paspoort .pas-kaft-onder { font: 600 .78rem/1.2 var(--f-ui); letter-spacing: .14em; text-transform: uppercase; }
+.p-paspoort .pas-kaft-naam { font: 400 2.1rem/1 var(--f-display); text-shadow: 0 3px 0 var(--ink); hyphens: manual; overflow-wrap: anywhere; }
+.p-paspoort .pas-embleem { width: 84px; height: 84px; }
+
+.p-paspoort .pas-id { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: var(--s-3); align-items: start; }
+.p-paspoort .pas-foto { padding: 5px; background: var(--paper-lo); border: 3px solid var(--ink); border-radius: var(--r-hand-sm); rotate: -2deg; aspect-ratio: 1; }
+.p-paspoort .pas-foto svg { width: 100%; height: 100%; }
+.p-paspoort .pas-naam { font: 400 1.3rem/1.1 var(--f-display); }
+.p-paspoort .pas-plaats { font: 400 1.2rem/1.2 var(--f-hand); color: var(--ink-2); }
+.p-paspoort .pas-feiten { display: grid; gap: var(--s-2); }
+.p-paspoort .pas-feiten div { display: flex; justify-content: space-between; gap: var(--s-3); border-bottom: 1.5px dotted var(--ink-2); padding-bottom: 2px; }
+.p-paspoort .pas-feiten dt { font-weight: 600; font-size: .85rem; color: var(--ink-2); }
+.p-paspoort .pas-feiten dd { font-size: .9rem; }
+.p-paspoort .pas-omtrek { fill: var(--cream-2); stroke: var(--ink-2); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
+.p-paspoort .pas-veldje { stroke: var(--ink); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
+.p-paspoort .pas-veldje--gras { fill: var(--green); }
+.p-paspoort .pas-veldje--kunstgras { fill: var(--green-ink); }
+.p-paspoort .pas-veldje--onbekend { fill: var(--paper-hi); stroke-dasharray: 4 3; }
+
+.p-paspoort .pas-tellers { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-2); }
+.p-paspoort .pas-teller { display: grid; justify-items: center; padding: var(--s-2); background: var(--paper); border: 2.5px solid var(--ink); border-radius: var(--r-hand-sm); }
+.p-paspoort .pas-teller--onbekend { border-style: dashed; }
+.p-paspoort .pas-teller strong { font: 400 1.7rem/1 var(--f-display); }
+.p-paspoort .pas-teller span { font-size: .8rem; font-weight: 600; }
+.p-paspoort .pas-chips { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.p-paspoort .pas-chip {
+  display: inline-flex; align-items: center; min-height: 32px; padding: 0 var(--s-3);
+  background: var(--paper); border: 2px solid var(--ink-2); border-radius: var(--r-hand-sm);
+  font-size: .85rem;
+}
+.p-paspoort .pas-chip--onbekend { border-style: dashed; }
+.p-paspoort .pas-chip--knop { min-height: 44px; border-color: var(--ink); border-width: 2.5px; box-shadow: 0 3px 0 var(--ink); cursor: pointer; }
+.p-paspoort .pas-chip--knop:hover { background: #fff6e2; }
+.p-paspoort .pas-chip--knop[aria-pressed="true"] { background: var(--gold); }
+.p-paspoort .pas-zet { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); }
+.p-paspoort .pas-zet-tekst { font-weight: 600; }
+.p-paspoort .pas-dank:empty { display: none; }
+.p-paspoort .pas-eerlijk { margin: 0; }
+
+.p-paspoort .pas-stempels { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s-3) var(--s-2); padding-block: var(--s-3); }
+.p-paspoort .pas-stempel {
+  display: grid; justify-items: center; align-content: center; gap: 2px;
+  width: 92px; min-height: 92px; padding: var(--s-2);
+  color: var(--red-ink); text-align: center;
+  border: 3px solid currentColor; border-radius: 14px;
+  outline: 2px solid currentColor; outline-offset: -8px;
+  rotate: var(--rot, 0deg);
+}
+.p-paspoort .pas-st-wat { font: 600 .66rem/1.15 var(--f-ui); letter-spacing: .05em; text-transform: uppercase; }
+.p-paspoort .pas-stempel strong { font: 400 1.2rem/1.1 var(--f-display); }
+.p-paspoort .pas-st-woord { font: 600 .74rem/1.1 var(--f-ui); text-transform: uppercase; letter-spacing: .06em; }
+.p-paspoort .pas-blad.is-huidig .pas-stempel { animation: pas-stempel 560ms var(--vertraging, 0ms) cubic-bezier(.5, 0, .9, .6) both; }
+@keyframes pas-stempel {
+  from { scale: 2.6; opacity: 0; rotate: calc(var(--rot, 0deg) - 16deg); }
+  55% { scale: .9; opacity: 1; rotate: var(--rot, 0deg); animation-timing-function: var(--ease-out); }
+  to { scale: 1; opacity: 1; rotate: var(--rot, 0deg); }
+}
+
+.p-paspoort .pas-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-2) var(--s-3); }
+.p-paspoort .pas-nav .lab-knop { padding-inline: var(--s-3); font-size: .95rem; }
+.p-paspoort .pas-stand { grid-column: 1 / -1; order: 3; text-align: center; }
+
+@media (prefers-reduced-motion: reduce) {
+  .p-toss .toss-pijl, .p-toss .toss-veldje polygon { transition: none; }
+  .p-paspoort .pas-blad, .p-paspoort .pas-blad.is-om { transition: none; }
+  .p-paspoort .pas-blad.is-huidig .pas-stempel { animation: none; }
+}

@@ -1,0 +1,335 @@
+/* Clubhuis-prototypes: opstelling, bingo, spelerspas, kantine-tv. Elke selector begint met .p-<naam>. */
+
+/* ═════════ Opstelling ═════════ */
+
+.p-opstelling { display: grid; gap: var(--s-3); }
+.p-opstelling .os-formaties { gap: var(--s-2); }
+.p-opstelling .os-form { padding-inline: var(--s-3); }
+
+.p-opstelling .os-veld {
+  position: relative;
+  width: min(100%, 400px);
+  aspect-ratio: 10 / 11;
+  container-type: inline-size;
+  margin-inline: auto;
+  touch-action: pan-y;
+}
+.p-opstelling .os-tekening {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  border: 3px solid var(--ink); border-radius: var(--r-hand);
+  box-shadow: 0 3px 0 var(--ink);
+}
+.p-opstelling .os-gras { fill: var(--green); }
+.p-opstelling .os-gras--b { fill: color-mix(in srgb, var(--green) 86%, var(--ink)); }
+.p-opstelling .os-krijt { fill: none; stroke: var(--cream); stroke-opacity: .85; stroke-width: .7; stroke-linecap: round; stroke-linejoin: round; }
+.p-opstelling .os-krijt--vol { fill: var(--cream); }
+
+.p-opstelling .os-tk {
+  position: absolute; width: 72px; margin: -22px 0 0 -36px;
+  display: grid; justify-items: center; gap: 3px;
+}
+.p-opstelling .os-tk.is-drag { z-index: 3; }
+.p-opstelling .os-bank-rij .os-tk { position: static; margin: 0; }
+.p-opstelling .os-bank-rij .os-naam { max-width: 90px; }
+.p-opstelling .os-disc {
+  width: 44px; height: 44px; padding: 0;
+  display: grid; place-items: center;
+  border: 3px solid var(--ink); border-radius: 50%;
+  background: var(--red-ink); color: var(--cream);
+  box-shadow: 0 3px 0 var(--ink);
+  font: 400 1.2rem/1 var(--f-display);
+  cursor: grab; touch-action: none;
+  transition: scale var(--d-1) var(--ease-out), box-shadow var(--d-1) var(--ease-out);
+}
+.p-opstelling .os-disc.is-keeper { background: var(--gold); color: var(--ink); }
+.p-opstelling .os-disc.is-bank { background: var(--paper-hi); color: var(--ink); cursor: pointer; }
+.p-opstelling .os-disc[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--gold), 0 0 0 6px var(--ink); }
+.p-opstelling .is-drag .os-disc { cursor: grabbing; scale: 1.12; box-shadow: 0 6px 0 var(--ink); }
+.p-opstelling .os-naam {
+  max-width: 100%; padding: 0 6px;
+  background: var(--paper-hi); color: var(--ink);
+  border: 1.5px solid var(--ink); border-radius: 6px;
+  max-width: calc(76cqw / var(--n, 4) - 2px);
+  font: 600 .75rem/1.35 var(--f-ui);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  pointer-events: none;
+}
+
+.p-opstelling .os-bank {
+  display: grid; gap: var(--s-1); justify-items: center;
+  padding: var(--s-2) var(--s-3) var(--s-3);
+  background: var(--paper-lo);
+  border: var(--line) solid var(--ink); border-radius: var(--r-hand);
+}
+.p-opstelling .os-bank-kop { font-size: 1.1rem; line-height: 1.1; }
+.p-opstelling .os-bank-rij { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s-3); }
+.p-opstelling .os-kans {
+  padding: var(--s-2) var(--s-3);
+  background: var(--paper-hi);
+  border: var(--line) solid var(--ink); border-radius: var(--r-hand-sm);
+  font: 400 1.15rem/1.25 var(--f-hand);
+}
+.p-opstelling .os-edit input { width: 100%; }
+.p-opstelling .os-slider input { width: 100%; min-height: 44px; accent-color: var(--btn-green); }
+.p-opstelling .os-live:empty { display: none; }
+
+/* ═════════ Bingo ═════════ */
+
+.p-bingo { display: grid; gap: var(--s-3); }
+.p-bingo .bg-regel { max-width: 40ch; }
+.p-bingo .bg-bord { position: relative; }
+.p-bingo .bg-kaart { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: 1fr; gap: 6px; }
+.p-bingo .bg-cel {
+  position: relative; min-height: 76px; min-width: 0; padding: 6px 3px;
+  display: grid; place-items: center;
+  background: var(--paper-hi); color: var(--ink);
+  border: var(--line) solid var(--ink); border-radius: var(--r-hand-sm);
+  box-shadow: 0 3px 0 var(--ink);
+  cursor: pointer; text-align: center; overflow: clip;
+  transition: translate var(--d-1) var(--ease-out), box-shadow var(--d-1) var(--ease-out);
+}
+.p-bingo .bg-cel:active { translate: 0 3px; box-shadow: 0 0 0 var(--ink); }
+.p-bingo .bg-tekst {
+  position: relative; z-index: 1;
+  font: 400 .92rem/1.12 var(--f-hand);
+  overflow-wrap: anywhere; hyphens: auto;
+}
+.p-bingo .bg-klad {
+  position: absolute; inset: 2px; width: calc(100% - 4px); height: calc(100% - 4px);
+  fill: var(--red); fill-opacity: .3; stroke: var(--red-ink); stroke-width: 3; stroke-linejoin: round;
+  opacity: 0; rotate: var(--rot, -8deg);
+  pointer-events: none;
+}
+.p-bingo .bg-cel[aria-pressed="true"] .bg-klad { opacity: 1; }
+.p-bingo .bg-cel[aria-pressed="true"] .bg-tekst { font-weight: 700; }
+.p-bingo .bg-cel.is-nieuw .bg-klad { animation: bg-stempel 340ms cubic-bezier(.16, 1, .3, 1) both; }
+@keyframes bg-stempel {
+  from { scale: 2.3; rotate: calc(var(--rot, -8deg) - 40deg); opacity: 0; }
+  to { scale: 1; rotate: var(--rot, -8deg); opacity: 1; }
+}
+.p-bingo .bg-krijt { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
+.p-bingo .bg-streep {
+  fill: none; stroke: var(--ink); stroke-width: 4; stroke-linecap: round; stroke-opacity: .5;
+  stroke-dasharray: 1; stroke-dashoffset: 0;
+}
+.p-bingo .bg-streep.is-tekenen { animation: bg-krijt 520ms cubic-bezier(.22, 1, .36, 1) both; }
+@keyframes bg-krijt { from { stroke-dashoffset: 1; } }
+.p-bingo .bg-vol {
+  position: absolute; left: 50%; top: 50%; z-index: 4;
+  translate: -50% -50%; rotate: -6deg;
+  padding: var(--s-2) var(--s-5);
+  background: var(--gold); color: var(--ink);
+  border: 3px solid var(--ink); border-radius: var(--r-hand);
+  box-shadow: 0 5px 0 var(--ink);
+  font: 400 clamp(2.6rem, 14vw, 4.2rem)/1 var(--f-display);
+  pointer-events: none;
+  animation: bg-pop 520ms cubic-bezier(.16, 1, .3, 1) both;
+}
+@keyframes bg-pop { from { scale: .3; opacity: 0; rotate: -24deg; } }
+.p-bingo .bg-confetti { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
+.p-bingo .bg-stand { font: 400 1.15rem/1.25 var(--f-hand); }
+
+@media (prefers-reduced-motion: reduce) {
+  .p-bingo .bg-cel, .p-bingo .bg-cel.is-nieuw .bg-klad, .p-bingo .bg-streep.is-tekenen, .p-bingo .bg-vol { animation: none; transition: none; }
+  .p-bingo .bg-confetti { display: none; }
+}
+
+/* ═════════ Spelerspas ═════════ */
+
+.p-pas { display: grid; gap: var(--s-3); justify-items: center; }
+.p-pas > * { max-width: 100%; }
+.p-pas .ps-toneel { width: min(100%, 270px); padding-block: var(--s-2); touch-action: pan-y; }
+.p-pas .ps-kaart { position: relative; aspect-ratio: 5 / 7; perspective: 900px; cursor: pointer; border-radius: var(--r-hand); }
+.p-pas .ps-kantel, .p-pas .ps-draai { position: absolute; inset: 0; transform-style: preserve-3d; }
+.p-pas .ps-kantel { transition: transform 520ms cubic-bezier(.34, 1.56, .64, 1); }
+.p-pas .ps-kantel.is-live { transition: transform 90ms linear; }
+.p-pas .ps-draai { transition: transform 650ms cubic-bezier(.22, 1, .36, 1); }
+.p-pas.is-achter .ps-draai { transform: rotateY(180deg); }
+.p-pas .ps-vlak {
+  position: absolute; inset: 0; container-type: inline-size;
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 4%;
+  background: var(--paper-hi); color: var(--ink);
+  border: 3px solid var(--ink); border-radius: var(--r-hand);
+  box-shadow: 0 5px 0 var(--ink);
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  overflow: hidden;
+}
+.p-pas .ps-achter { transform: rotateY(180deg); background: var(--cream); }
+.p-pas .ps-kop {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 2cqw;
+  padding: 1.6cqw 3cqw;
+  background: var(--red-ink); color: var(--cream);
+  border: 2px solid var(--ink); border-radius: 6px;
+}
+.p-pas .ps-titel { font: 400 6.4cqw/1.1 var(--f-display); letter-spacing: .02em; text-transform: uppercase; }
+.p-pas .ps-seizoen { font: 600 3.4cqw/1.1 var(--f-ui); }
+.p-pas .ps-foto { flex: 1; min-height: 0; border: 3px solid var(--ink); border-radius: 8px; overflow: hidden; }
+.p-pas .ps-portret { width: 100%; height: 100%; }
+.p-pas .ps-portret { object-fit: cover; }
+.p-pas .ps-lucht { fill: var(--green-ink); }
+.p-pas .ps-stralen { fill: var(--green); }
+.p-pas .ps-silhouet { fill: var(--ink); }
+.p-pas .ps-kraag { fill: none; stroke: var(--cream); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.p-pas .ps-naam {
+  font: 400 8.4cqw/1.05 var(--f-display);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.p-pas .ps-elftal { margin-top: -2cqw; font: 400 6cqw/1.1 var(--f-hand); color: var(--ink-2); }
+.p-pas .ps-nr { font: 600 3cqw/1 var(--f-ui); color: var(--ink-2); letter-spacing: .03em; }
+.p-pas .ps-glans {
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(105deg, transparent 22%, rgb(255 244 205 / .55) 40%, rgb(168 222 255 / .5) 48%, rgb(255 166 196 / .5) 54%, rgb(255 238 168 / .55) 60%, transparent 78%);
+  background-size: 260% 100%;
+  background-position: var(--sx, 20%) 0;
+  mix-blend-mode: soft-light;
+  opacity: .8;
+}
+.p-pas .ps-stempels { flex: 1; min-height: 0; list-style: none; padding: 0; display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr; gap: 2cqw 3cqw; }
+.p-pas .ps-stempel { display: grid; justify-items: center; align-content: center; gap: 1px; text-align: center; min-width: 0; }
+.p-pas .ps-ring {
+  display: grid; place-items: center; width: 17cqw; height: 17cqw;
+  border: 2.5px dashed var(--ink-2); border-radius: 50%; color: var(--ink-2);
+}
+.p-pas .ps-ring .ic { width: 55%; height: 55%; }
+.p-pas .is-echt .ps-ring { border-style: solid; border-color: var(--ink); background: var(--red-ink); color: var(--cream); rotate: -8deg; box-shadow: 0 2px 0 var(--ink); }
+.p-pas .ps-st-naam { font: 600 4.4cqw/1.1 var(--f-ui); }
+.p-pas .ps-st-tag { font: 400 4.6cqw/1.1 var(--f-hand); color: var(--ink-2); }
+.p-pas .is-echt .ps-st-tag { color: var(--green-ink); font-weight: 700; }
+.p-pas .ps-leeg { flex: 1; display: grid; align-content: center; text-align: center; font: 400 5.2cqw/1.25 var(--f-hand); color: var(--ink-2); }
+.p-pas .ps-bed { justify-content: center; }
+.p-pas .ps-velden { display: flex; flex-wrap: wrap; gap: var(--s-3); width: 100%; justify-content: center; }
+.p-pas .ps-velden .lab-veld { flex: 1 1 130px; min-width: 0; }
+.p-pas .ps-velden input { width: 100%; }
+.p-pas .ps-live:empty { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .p-pas .ps-kantel { transition: none; transform: none !important; }
+  .p-pas .ps-glans { display: none; }
+  .p-pas .ps-draai, .p-pas.is-achter .ps-draai { transform: none; transition: none; }
+  .p-pas .ps-vlak { transition: opacity var(--d-3) linear; }
+  .p-pas .ps-achter { transform: none; opacity: 0; }
+  .p-pas.is-achter .ps-achter { opacity: 1; }
+  .p-pas.is-achter .ps-voor { opacity: 0; }
+}
+
+/* ═════════ Kantine-tv ═════════ */
+
+.p-tv { display: grid; gap: var(--s-3); }
+.p-tv .tv-bezel {
+  position: relative; padding: clamp(8px, 3%, 16px);
+  background: repeating-linear-gradient(94deg, var(--wood-700) 0 14px, var(--wood-800) 14px 17px);
+  border: 3px solid var(--ink); border-radius: var(--r-hand);
+  box-shadow: 0 5px 0 var(--ink);
+}
+.p-tv .tv-led { position: absolute; right: 18px; bottom: 3px; width: 6px; height: 6px; border-radius: 50%; background: var(--red); }
+.p-tv .tv-scherm {
+  container-type: inline-size;
+  aspect-ratio: 16 / 9;
+  display: flex; flex-direction: column; gap: 1%;
+  padding: 2.4% 3% 1.6%;
+  background: var(--wood-900); color: var(--cream);
+  border: 2px solid var(--ink); border-radius: 8px;
+  overflow: hidden;
+}
+.p-tv .tv-scherm:fullscreen { width: 100vw; height: 100vh; aspect-ratio: auto; border: 0; border-radius: 0; }
+.p-tv .tv-kop { display: flex; justify-content: space-between; align-items: flex-start; gap: 2cqw; }
+.p-tv .tv-club { font: 400 5cqw/1 var(--f-display); color: var(--gold-hi); }
+.p-tv .tv-dag { font: 400 max(2.7cqw, 9px)/1.2 var(--f-hand); color: var(--cream-2); }
+.p-tv .tv-dag::first-letter { text-transform: uppercase; }
+.p-tv .tv-klok { font: 400 6.4cqw/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.p-tv .tv-kolommen {
+  display: grid; grid-template-columns: 11cqw minmax(0, 1fr) 27cqw; gap: 1.6cqw; padding: 0 1.6cqw 0.5cqw;
+  font: 600 max(2.2cqw, 8px)/1 var(--f-ui); letter-spacing: .06em; text-transform: uppercase; color: var(--cream-2);
+  border-bottom: 2px solid rgb(243 230 203 / .35);
+}
+.p-tv .tv-lijst { flex: 1 1 0; overflow: hidden; list-style: none; padding: 0; display: grid; grid-auto-rows: 1fr; gap: .4cqw; min-height: 0; align-content: stretch; }
+.p-tv .tv-rij {
+  display: grid; grid-template-columns: 11cqw minmax(0, 1fr) 27cqw; gap: 1.6cqw; align-items: center;
+  padding: 0 1.6cqw; border-radius: 6px;
+  transition: translate 450ms cubic-bezier(.22, 1, .36, 1), background-color 450ms linear, color 450ms linear;
+}
+.p-tv .tv-rij.is-aan { translate: 1.2cqw 0; background: var(--cream); color: var(--ink); }
+.p-tv .tv-tijd { font: 400 max(3.8cqw, 10px)/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.p-tv .tv-wed { display: grid; min-width: 0; font: 600 max(3.2cqw, 9px)/1.1 var(--f-ui); }
+.p-tv .tv-wed span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.p-tv .tv-wed small { font: 400 max(2.3cqw, 8px)/1.1 var(--f-ui); opacity: .85; }
+.p-tv .tv-kans { display: flex; align-items: center; gap: 1cqw; font: 600 max(2.8cqw, 9px)/1.1 var(--f-ui); white-space: nowrap; }
+.p-tv .tv-kans .ic { width: 3.6cqw; height: 3.6cqw; min-width: 10px; }
+.p-tv .tv-kans b { margin-left: auto; font: 400 max(3.6cqw, 10px)/1 var(--f-display); }
+.p-tv .tv-kans[data-mood="doorgaat"] .ic { color: color-mix(in srgb, var(--green) 70%, var(--cream)); }
+.p-tv .tv-kans[data-mood="twijfel"] .ic { color: var(--gold-hi); }
+.p-tv .tv-kans[data-mood="afgelast"] .ic { color: color-mix(in srgb, var(--red) 50%, var(--cream)); }
+.p-tv .is-aan .tv-kans .ic { color: var(--ink) !important; }
+.p-tv .tv-kans--leeg { font-weight: 400; opacity: .8; }
+.p-tv .tv-ticker {
+  overflow: hidden; white-space: nowrap;
+  padding-top: 1cqw; border-top: 2px dashed rgb(243 230 203 / .35);
+  font: 400 max(3.4cqw, 11px)/1.3 var(--f-hand); color: var(--gold-hi);
+}
+.p-tv .tv-ticker-in { display: inline-block; padding-left: 100%; animation: tv-loop 55s linear infinite; }
+@keyframes tv-loop { to { transform: translateX(-100%); } }
+.p-tv.is-pauze .tv-ticker-in { animation-play-state: paused; }
+.p-tv .tv-details summary {
+  display: flex; align-items: center; min-height: 44px; cursor: pointer; font-weight: 600;
+}
+.p-tv .tv-edit-rij {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: var(--s-2) var(--s-3);
+  margin-top: var(--s-3); padding: var(--s-3);
+  border: var(--line) solid var(--ink); border-radius: var(--r-hand-sm);
+}
+.p-tv .tv-edit-rij legend { padding: 0 var(--s-2); font: 400 1.1rem/1 var(--f-hand); }
+.p-tv .tv-edit-rij input, .p-tv .tv-edit-rij select { width: 100%; min-width: 0; }
+
+@container (max-width: 400px) {
+  .p-tv .tv-kolommen, .p-tv .tv-wed small { display: none; }
+  .p-tv .tv-lijst { gap: 0; }
+  .p-tv .tv-kop { align-items: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .p-tv .tv-ticker-in { animation: none; padding-left: 0; display: block; overflow: hidden; text-overflow: ellipsis; }
+  .p-tv .tv-rij { transition: none; }
+}
+
+/* ═════════ Spelerspas op de homepage ═════════ */
+
+.pas-thuis { container-type: inline-size; padding: var(--s-4); color: var(--ink); background: var(--paper-hi); border: 3px solid var(--ink); border-radius: var(--r-hand); box-shadow: 0 4px 0 var(--ink); }
+.pas-thuis .pt-binnen { display: grid; gap: var(--s-3); }
+.pas-thuis .pt-kaart { display: grid; gap: var(--s-3); align-content: start; min-width: 0; }
+.pas-thuis .pt-kop { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+.pas-thuis .pt-titel { margin: 0; font: 400 1.5rem/1.1 var(--f-display); letter-spacing: .02em; }
+.pas-thuis .pt-nummer { flex: none; display: grid; place-items: center; min-width: 2.6rem; height: 2.6rem; padding-inline: 6px; font: 400 1.5rem/1 var(--f-display); color: var(--cream); background: var(--ink); border-radius: 50%; }
+.pas-thuis .pt-velden { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); }
+.pas-thuis .pt-veld { display: grid; gap: 2px; min-width: 0; }
+.pas-thuis .pt-veld label { font: 600 .85rem/1.2 var(--f-ui); color: var(--ink-2); }
+.pas-thuis .pt-veld input { width: 100%; min-width: 0; min-height: 44px; padding: 6px 10px; font: 400 1.15rem/1.2 var(--f-hand); color: var(--ink); background: var(--cream); border: 2.5px solid var(--ink); border-radius: var(--r-hand-sm); transition: background var(--d-1), box-shadow var(--d-1); }
+.pas-thuis .pt-veld input::placeholder { color: var(--ink-3); opacity: 1; }
+.pas-thuis .pt-veld input:hover { background: var(--paper); }
+.pas-thuis .pt-veld input:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; box-shadow: 0 0 0 2px var(--ink); }
+.pas-thuis .pt-veld input:active { background: var(--paper-hi); }
+.pas-thuis .pt-stempels { display: grid; gap: var(--s-2); align-content: center; min-width: 0; }
+.pas-thuis .pt-rij { min-width: 0; overflow-x: auto; padding: 4px 4px 8px; border-radius: var(--r-hand-sm); scroll-snap-type: x proximity; }
+.pas-thuis .pt-rij[tabindex]:hover { background: color-mix(in srgb, var(--paper) 45%, transparent); }
+.pas-thuis .pt-rij:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; box-shadow: 0 0 0 2px var(--ink); }
+.pas-thuis .pt-rij:active { cursor: grabbing; }
+.pas-thuis .pt-strook { display: flex; gap: var(--s-3); margin: 0; padding: 0; list-style: none; width: max-content; }
+.pas-thuis .pt-stempel { display: grid; justify-items: center; gap: 4px; width: 96px; scroll-snap-align: start; }
+.pas-thuis .pt-ring { display: grid; justify-items: center; align-content: center; gap: 1px; width: 96px; height: 96px; text-align: center; border: 3px solid var(--ink); border-radius: 50%; box-shadow: 0 3px 0 var(--ink); rotate: -5deg; }
+.pas-thuis .pt-stempel:nth-child(even) .pt-ring { rotate: 4deg; }
+.pas-thuis .pt-stempel[data-mood="afgelast"] .pt-ring { background: var(--red-ink); color: var(--cream); }
+.pas-thuis .pt-stempel[data-mood="doorgaat"] .pt-ring { background: var(--green-ink); color: var(--cream); }
+.pas-thuis .pt-stempel[data-mood="twijfel"] .pt-ring { background: var(--gold); color: var(--ink); }
+.pas-thuis .pt-datum { font: 600 .72rem/1.1 var(--f-ui); }
+.pas-thuis .pt-ring .ic { width: 22px; height: 22px; }
+.pas-thuis .pt-mood { font: 400 .95rem/1.1 var(--f-display); letter-spacing: .02em; }
+.pas-thuis .pt-tegen { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 .85rem/1.2 var(--f-ui); }
+.pas-thuis .pt-leeg { margin: 0; font: 400 1.2rem/1.3 var(--f-hand); color: var(--ink-2); }
+.pas-thuis .pt-teller { margin: 0; font: 600 .9rem/1.2 var(--f-ui); color: var(--ink-2); }
+@container (min-width: 720px) {
+  .pas-thuis .pt-binnen { grid-template-columns: minmax(260px, 340px) minmax(0, 1fr); align-items: center; gap: var(--s-5); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pas-thuis .pt-veld input { transition: none; }
+  .pas-thuis .pt-rij { scroll-behavior: auto; }
+}
