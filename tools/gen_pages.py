@@ -293,6 +293,7 @@ def doc_page(title: str, desc: str, path: str, body: str, *, noindex: bool = Fal
   <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
   <link rel="preload" href="/fonts/lilita-one.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/mobiel.css">
 </head>
 <body>
   <section class="scene doc">

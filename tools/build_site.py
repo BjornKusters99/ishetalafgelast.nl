@@ -11,7 +11,7 @@ from typing import Dict, Set
 
 FILES = {
     "_headers", "index.html", "404.html", "privacy.html", "proeftuin.html",
-    "styles.css", "sw.js", "manifest.webmanifest", "robots.txt", "sitemap.xml",
+    "styles.css", "mobiel.css", "sw.js", "manifest.webmanifest", "robots.txt", "sitemap.xml",
     "status.json",
 }
 DIRECTORIES: Dict[str, Set[str]] = {

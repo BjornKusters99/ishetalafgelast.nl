@@ -6,6 +6,7 @@ const VERSION = "ishetalafgelast-security-v1";
 const CORE = [
   "/",
   "/styles.css",
+  "/mobiel.css",
   "/js/app.js",
   "/js/engine.js",
   "/js/model.js",
@@ -21,6 +22,7 @@ const CORE = [
   "/js/route.js",
   "/js/native.js",
   "/js/beginscherm.js",
+  "/js/mobiel.js",
   "/fonts/lilita-one.woff2",
   "/fonts/fredoka.woff2",
   "/fonts/patrick-hand.woff2",
