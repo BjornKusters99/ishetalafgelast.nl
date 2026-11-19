@@ -120,7 +120,9 @@ export function verdeelKlussen(names, team, isoDate) {
   const sorted = [...list].sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase(), "nl"));
   const order = shuffled(sorted, hash(String(team ?? "").trim().toLowerCase()));
   // Weken sinds maandag 29 december 1969: loopt door over de jaarwisseling.
-  const weeks = Math.floor((Math.round(noon(isoDate).getTime() / DAY_MS) + 3) / 7);
+  // Telt kalenderdagen via UTC, zodat de tijdzone van het toestel de week niet verschuift.
+  const d = noon(isoDate);
+  const weeks = Math.floor((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / DAY_MS + 3) / 7);
   const at = (i) => order[(((weeks + i) % order.length) + order.length) % order.length];
   const rijden = [...new Set([at(2), at(3)])].filter((n) => order.length < 3 || (n !== at(0) && n !== at(1)));
   return { week: weekNumber(isoDate), vlaggen: at(0), was: order.length > 1 ? at(1) : null, rijden: order.length > 2 ? rijden : [] };
