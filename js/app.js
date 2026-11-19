@@ -9,8 +9,8 @@ import { renderExtra, el } from "./extra.js";
 import { hangBoard, splash, thud } from "./moment.js";
 import { isApp, origin, SITE, appShare, appCopy, initApp, notifyPermission, planMatch } from "./native.js";
 
-// ?proef=1: prototypes uit de kleedkamer onder de uitslag. Zonder de schakelaar wordt er niets geladen.
-const proef = new URLSearchParams(location.search).get("proef") === "1" ? import("../lab/proef.js").catch(() => null) : null;
+// Tactiekbord, toss-advies, deelplaatjes en de rest uit lab/: apart geladen, zodat de uitslag er niet op wacht.
+const proef = import("../lab/proef.js").catch(() => null);
 
 /* ─────────── Namen uit een teamlink ─────────── */
 
@@ -933,7 +933,7 @@ function renderResult({ q, weather: w, pred, v, other, at, kater }) {
   if (!resultStuit) {
     resultStuit = new Stuitproef($("#stuit-canvas"), {
       onCard: (color, n) => {
-        // Voor wie wil meeluisteren (de proef laat Henk dan fluiten).
+        // Voor wie wil meeluisteren (lab/proef.js laat Henk dan fluiten).
         document.dispatchEvent(new CustomEvent("henk:kaart", { detail: { color, n } }));
         if (color === "red") $("#stuit-cap").textContent = "Rood. Je bent van het veld gestuurd. Dan zit je alvast in de kantine.";
         else if (n === 1) $("#stuit-cap").textContent = "Gele kaart. Henk houdt niet van aanraken.";
@@ -1275,7 +1275,7 @@ $("#btn-back").addEventListener("click", () => {
 });
 
 window.addEventListener("popstate", () => {
-  if (history.state?.tactiek || $("#view-tactiek")?.hidden === false) return; // het tactiekbord van de proef handelt dit zelf af
+  if (history.state?.tactiek || $("#view-tactiek")?.hidden === false) return; // het tactiekbord handelt dit zelf af
   goingBack = false;
   const q = fromParams(new URLSearchParams(location.search));
   if (q) {

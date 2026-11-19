@@ -52,11 +52,11 @@ class BuildAppTest(unittest.TestCase):
         return (self.output / "index.html").read_text(encoding="utf-8")
 
     def test_web_only_files_stay_out(self) -> None:
-        """No service worker, Cloudflare headers, crawler files or prototype lab."""
+        """No service worker, Cloudflare headers, crawler files or prototype page; lab/ ships for the tactics board."""
         self.build()
         for name in ("sw.js", "_headers", "robots.txt", "sitemap.xml", "manifest.webmanifest", "proeftuin.html", "status.json"):
             self.assertFalse((self.output / name).exists(), name)
-        self.assertFalse((self.output / "lab").exists())
+        self.assertTrue((self.output / "lab" / "proef.js").is_file())
         self.assertTrue((self.output / "js" / "capacitor.js").is_file())
 
     def test_capacitor_loads_before_the_app_and_analytics_are_gone(self) -> None:

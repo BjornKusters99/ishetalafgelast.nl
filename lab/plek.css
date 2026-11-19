@@ -1,29 +1,4 @@
-/* ?proef=1 op de echte site: de prototypes op de plek waar ze zouden wonen. Tokens uit /styles.css. */
-
-/* ───────── Proefbalk ───────── */
-
-.plek-balk {
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--s-1) var(--s-4);
-  padding: var(--s-2) var(--s-4);
-  background: var(--wood-900); color: var(--cream);
-  border-bottom: 2px solid var(--gold);
-  font-size: .92rem;
-}
-.plek-balk p { margin: 0; }
-.plek-balk strong { color: var(--gold-hi); font-weight: 600; }
-.plek-balk-links { display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-4); }
-.plek-balk a {
-  display: inline-flex; align-items: center;
-  min-height: 32px; padding: 0 var(--s-1);
-  color: var(--cream); font-weight: 600; text-underline-offset: 3px;
-  border-radius: 4px;
-}
-.plek-balk a:hover { color: var(--gold-hi); background: rgb(243 230 203 / .1); }
-.plek-balk a:active { background: rgb(243 230 203 / .2); }
-
-/* ───────── Tape ───────── */
-
-.plek-tape { margin-left: .6em; vertical-align: middle; font-size: .78rem; }
+/* De onderdelen uit de kleedkamer op hun plek op de site (lab/proef.js). Tokens uit /styles.css. */
 
 /* ───────── Tabblad ───────── */
 
@@ -101,7 +76,6 @@
 /* ───────── Voor de aftrap: het tactiekbord en de toss onder het bord ───────── */
 
 .plek-titel { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-3); }
-.plek-titel .plek-tape { margin-left: 0; }
 .plek-aftrap {
   max-width: 1180px; margin: 0 auto;
   padding: clamp(var(--s-6), 5vw, var(--s-8)) clamp(var(--s-4), 5vw, var(--s-7)) clamp(var(--s-5), 3vw, var(--s-7));
@@ -396,8 +370,6 @@
 
 /* De spelerspas onder het bord. */
 .tb-pas { display: grid; gap: var(--s-3); max-width: 640px; }
-.tb-pas .plek-thuis-kop { display: flex; align-items: center; gap: var(--s-2); }
-.tb-pas .plek-tape { margin-left: 0; }
 
 /* ───────── Opstelling: spelers erbij en eraf (ook in de kleedkamer) ───────── */
 

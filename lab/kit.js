@@ -53,7 +53,7 @@ export function svg(tag, attrs = {}, ...kids) {
   return node;
 }
 
-/** Icoon uit de sprite in proeftuin.html (#i-x, #i-play, #i-wind, ...). */
+/** Icoon uit de sprite van de pagina (#i-x, #i-play, #i-wind, ...): index.html, of proeftuin.html in de kleedkamer. */
 export function icon(name) {
   const s = svg("svg", { class: "ic", "aria-hidden": "true" });
   s.append(svg("use", { href: `#i-${name}` }));

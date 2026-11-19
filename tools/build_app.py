@@ -3,7 +3,7 @@
 
 The app ships the site's own files instead of loading the live URL (Apple
 guideline 4.2), minus what only makes sense on the web: the service worker,
-Cloudflare headers, analytics, crawler files and the prototype lab. Pages load
+Cloudflare headers, analytics, crawler files and the prototype page. Pages load
 from files in the app, so internal links get their .html back.
 """
 
@@ -23,7 +23,6 @@ WEB_ONLY = {
     "_headers", "sw.js", "manifest.webmanifest", "robots.txt", "sitemap.xml",
     "proeftuin.html", "status.json",
 }
-WEB_ONLY_DIRS = {"lab"}
 BEACON = re.compile(r'[ \t]*<script[^>]*static\.cloudflareinsights\.com[^>]*></script>\n?')
 MANIFEST = re.compile(r'[ \t]*<link rel="manifest"[^>]*>\n?')
 CSP = re.compile(r'(<meta http-equiv="Content-Security-Policy" content=")([^"]+)(">)')
@@ -91,8 +90,6 @@ def build_app(root: Path, output: Path, capacitor_js: Path = CAPACITOR_JS) -> No
         build_site(root, site)
         for name in WEB_ONLY:
             (site / name).unlink(missing_ok=True)
-        for name in WEB_ONLY_DIRS:
-            shutil.rmtree(site / name, ignore_errors=True)
         if output.exists():
             shutil.rmtree(output)
         shutil.copytree(site, output)

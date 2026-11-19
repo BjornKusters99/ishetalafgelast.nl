@@ -39,7 +39,6 @@ export function bouwTactiek({ kit, signal, wedstrijd, start, names, save, onStaa
   const terugKnop = el("button", { type: "button", className: "tb-terug" }, pijl, "Terug");
   terugKnop.addEventListener("click", terug, { signal });
   const kop = el("h1", { id: "tactiek-title", tabIndex: -1, textContent: "Het tactiekbord" });
-  const tape = el("span", { className: "tape tape--werkt plek-tape", textContent: "Proef" });
   const sub = el("p", { className: "tb-sub", textContent: "Sleep je elftal op het veld, kies je formatie en gooi het in de appgroep." });
   const strook = el("p", { className: "tb-strook", hidden: true });
 
@@ -131,7 +130,7 @@ export function bouwTactiek({ kit, signal, wedstrijd, start, names, save, onStaa
   const lijst = [
     el("div", { className: "tb-kop" },
       terugKnop,
-      el("div", { className: "plek-titel" }, kop, tape),
+      el("div", { className: "plek-titel" }, kop),
       sub),
     strook, editor];
   if (pas) lijst.push(pas);

@@ -5,12 +5,9 @@
   var p = new URLSearchParams(location.search);
   if (p.has("plaats") && p.has("datum")) document.documentElement.classList.add("is-uitslaglink");
   // De opstelling uit een deellink staat achter het hekje. Meteen opzij en uit de adresbalk, zodat de namen
-  // nooit in de statistiekenscript of een server terechtkomen. De proef (?proef=1) leest ze hier weer uit.
-  // Zonder de proef leest niemand ze, dan bewaren we ze ook niet (bij livegang deze voorwaarde weghalen).
+  // nooit in de statistiekenscript of een server terechtkomen. lab/proef.js leest ze hier weer uit.
   if (location.hash.indexOf("#opstelling=") === 0) {
-    if (p.get("proef") === "1") {
-      try { sessionStorage.setItem("ishetalafgelast:opstelling-link", location.hash.slice(12)); } catch (e) { /* geen opslag */ }
-    }
+    try { sessionStorage.setItem("ishetalafgelast:opstelling-link", location.hash.slice(12)); } catch (e) { /* geen opslag */ }
     history.replaceState(history.state, "", location.pathname + location.search);
   }
 })();

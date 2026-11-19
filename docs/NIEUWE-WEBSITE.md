@@ -41,7 +41,7 @@ Automatische tests: `npm test` en, met de server op poort 8765, `npm run test:e2
 | Het moment | Check een wedstrijd met regen (of eigen weer 1 / 35 / 75). Het bord valt aan een touw, de stempel slaat modder los, de thermometer klotst. Op desktop kun je het bord wegslepen en laten slingeren; een tik geeft een duw. Bij "gaat door" stuift krijt, bij twijfel spatten druppels. Via de keuring vloeit "Verwachting: ..." over in het oordeel (View Transition). |
 | 51 veldkeurders (nieuw) | Scroll naar het veld: ze lopen op, steken hun kaart op als een wave en staan bij een nek-aan-nekrace te ruziën op de middenlijn. Wijs of tik een veldkeurder aan voor zijn eigen weerbericht. |
 | De kleedkamer | `/proeftuin`: elf kluisjes met prototypes. Zie hieronder. |
-| Proef op de echte site | Zet `?proef=1` achter de URL. De gekozen ideeën staan dan op de plek waar ze zouden komen, met een gele tape "Proef". Home: alleen het formulier, plus een tactiekbordje aan de kantinemuur en "Opstelling" in het menu. Die openen "Het tactiekbord": opstelling met Henk, bank en spelerspas. "Stuur naar de groep" deelt een plaatje (1080x1350) met een link. Uitslag: "Henk zegt het" onder het bord, "Voor de aftrap" met tactiekbord en toss-advies, het deelplaatje naast het appgroepberichtje, Appgroep-bingo bij de extra's, en Henk fluit als je hem in de stuitproef aantikt. Zonder `?proef=1` verandert er niets. |
+| Tactiekbord en de rest uit `lab/` | Live voor iedereen (`lab/proef.js`, geladen door `js/app.js`). Home: het formulier, plus een tactiekbordje aan de kantinemuur en "Opstelling" in het menu. Die openen "Het tactiekbord": opstelling met Henk, bank en spelerspas. "Stuur naar de groep" deelt een plaatje (1080x1350) met een link. Uitslag: "Henk zegt het" onder het bord, "Voor de aftrap" met tactiekbord en toss-advies, het deelplaatje naast het appgroepberichtje, Appgroep-bingo bij de extra's, en Henk fluit als je hem in de stuitproef aantikt. |
 
 ## Wat erin zit
 
@@ -119,19 +119,20 @@ De deellink van de opstelling zet de namen achter `#opstelling=`. Dat deel gaat 
 `js/route.js` haalt het voor de statistiekenscript laadt uit de adresbalk. Een ontvangen opstelling wordt
 nooit over je eigen teamnamen opgeslagen, en standaardnamen (invallers) ook niet.
 
-Checklist om het tactiekbord echt live te zetten (nu zit alles achter `?proef=1`):
+Het tactiekbord staat live (vroeger achter `?proef=1`; die schakelaar doet niets meer):
 
-1. `lab/bord.js` `linkBasis()`: `proef=1` eruit, en in de app `origin` uit `js/native.js` gebruiken in plaats
-   van `location.origin` (dat is daar `capacitor://localhost`).
-2. `js/route.js`: de voorwaarde `p.get("proef") === "1"` voor het bewaren van `#opstelling=` weghalen.
-3. `js/app.js`: de `?proef=1`-poort vervangen door het vaste laden van wat live gaat; de "Proef"-tapes,
-   de proefbalk en "Alle kluisjes" eruit.
-4. `prepare()` in `lab/proef.js` haalt nu `/proeftuin.html` op voor de iconen en zet zes stylesheets erbij.
-   Die horen dan in `index.html` en `styles.css`.
-5. `tools/build_site.py` neemt nu heel `lab/` en `proeftuin.html` mee. Neem alleen mee wat live gaat.
-6. Offline: de lab-bestanden staan niet in `CORE` van `sw.js`.
-7. De Android-app maakt geen back-up meer naar de cloud (`allowBackup="false"`): teamnamen en spelerspas
-   blijven op het toestel.
+- `js/app.js` laadt `lab/proef.js` altijd, apart van de uitslag. Geen proefbalk of tapes meer.
+- `lab/proef.js` laadt zes stylesheets uit `lab/` en wacht tot ze er zijn; de iconen `download` en
+  `play` staan in de sprite van `index.html`.
+- `lab/bord.js` `linkBasis()`: deellinks zonder `proef`, en in de app naar de echte site (`origin` uit
+  `js/native.js`) in plaats van `capacitor://localhost`.
+- `js/route.js` bewaart `#opstelling=` altijd voor het tactiekbord.
+- Offline: `sw.js` haalt `lab/` niet vooraf op, maar bewaart wat je één keer online gebruikt.
+- De app neemt `lab/` mee (`tools/build_app.py`); `proeftuin.html` blijft alleen op het web.
+- De Android-app maakt geen back-up naar de cloud (`allowBackup="false"`): teamnamen en spelerspas
+  blijven op het toestel.
+- Geparkeerd en niet live: Sportparkpaspoort, Henks stand, Kantine-tv en Blijf liggen. Die staan alleen
+  in `/proeftuin`.
 
 Lichtere tekeningen is doorgevoerd:
 de scènes zijn opnieuw gemaakt op WebP-kwaliteit 62 (`SCENE_Q` in `tools/build_assets.py`),
@@ -152,8 +153,8 @@ samen 636 kB in plaats van 960 kB, zonder zichtbaar verschil.
 - **Namen bij "Wie vlagt er?"** blijven op het toestel en reizen in de teamlink
   mee achter het hekje. De privacytekst is daarop aangepast.
 - **De CSP staat één host meer toe**: `https://ensemble-api.open-meteo.com`.
-- **`/proeftuin` en `lab/` gaan mee in de build.** Wil je ze niet live, haal
-  dan `proeftuin.html` en `"lab"` uit `tools/build_site.py`. `?proef=1` laadt
-  dan niets meer (de import faalt stil).
+- **`/proeftuin` en `lab/` gaan mee in de build.** `lab/` is nodig voor het
+  tactiekbord; `proeftuin.html` (noindex, niet gelinkt) kan eruit via
+  `tools/build_site.py`.
 - **Aftrap** staat nu standaard op 10:00. Oude links zonder aftrap blijven
   14:00 betekenen.

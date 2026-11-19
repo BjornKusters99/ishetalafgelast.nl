@@ -57,7 +57,9 @@ self.addEventListener("fetch", (e) => {
   // Cloudflare serveert pagina's zonder .html; oude links met .html blijven geldig.
   const page = /^\/(?:index\.html|privacy(?:\.html)?|404(?:\.html)?)?$/.test(url.pathname)
     || /^\/plaatsen\/(?:[a-z-]+(?:\.html)?)?$/.test(url.pathname);
-  const asset = CORE.includes(url.pathname) || /^\/img\/(?:scenes\/)?[a-z0-9-]+\.(?:webp|png|jpg)$/.test(url.pathname);
+  // lab/: het tactiekbord en de rest. Niet vooraf ophalen (te zwaar voor elke bezoeker); na één keer online werkt het offline.
+  const asset = CORE.includes(url.pathname) || /^\/img\/(?:scenes\/)?[a-z0-9-]+\.(?:webp|png|jpg)$/.test(url.pathname)
+    || /^\/lab\/[a-z]+\.(?:js|css)$/.test(url.pathname);
   if (!page && !asset) return;
 
   if (req.mode === "navigate") {
