@@ -96,13 +96,19 @@ http://localhost:8788, met dezelfde routering als productie (verwijder `_site`
 eerst als die map al bestaat). Wat er te zien is staat in
 [docs/NIEUWE-WEBSITE.md](docs/NIEUWE-WEBSITE.md).
 
-`npm test` draait ook `tools/test_team.mjs` (team, duel, teksten, consuls) en `tools/test_engine.mjs`: offline regressietests voor
+`npm test` draait ook `tools/test_team.mjs` (team, duel, teksten, veldkeurders) en `tools/test_engine.mjs`: offline regressietests voor
 Python/JavaScript-pariteit, de veldtypemix en numerieke grenzen. Ze bewijzen
 geen voorspelkwaliteit.
 
 `tools/e2e.cjs` mockt Open-Meteo en loopt de hele flow door: validatie,
 uitslag, delen, terug/vooruit, deeplinks, foutgevallen, plaatspagina's en de
 easter eggs.
+
+## App
+
+De site is ook een app: als PWA op het beginscherm, en als iOS- en Android-app
+via Capacitor (`ios/`, `android/`). Bouwen, testen en naar de stores:
+[docs/APP.md](docs/APP.md).
 
 ## Veilige publicatie
 

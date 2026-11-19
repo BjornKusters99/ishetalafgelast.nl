@@ -28,8 +28,8 @@ Automatische tests: `npm test` en, met de server op poort 8765, `npm run test:e2
 
 | Onderdeel | Zo zie je het |
 |---|---|
-| Uitslag in drie sferen | Vul bij "Weer zelf invullen" in: 4 °C, 20 mm, 50 km/u (afgelast), 4 / 14 / 50 (twijfel), 14 / 0 / 15 (gaat door). Met eigen weer zie je geen consuls en geen teamlink. |
-| 51 consuls | Check een plaats en een dag binnen twee weken. Het vak verschijnt een tel na de uitslag. |
+| Uitslag in drie sferen | Vul bij "Weer zelf invullen" in: 4 °C, 20 mm, 50 km/u (afgelast), 4 / 14 / 50 (twijfel), 14 / 0 / 15 (gaat door). Met eigen weer zie je geen veldkeurders en geen teamlink. |
+| 51 veldkeurders | Check een plaats en een dag binnen twee weken. Het vak verschijnt een tel na de uitslag. |
 | Zaterdag of zondag | Check een weekenddag: de schakelaar staat in de balk onder de tekening. |
 | Elftal | Klap "Teams en elftal" open (op een telefoon), kies een elftal: de aftraptijd schuift mee en de appgroep op de homepage wisselt. |
 | Briefje, Wie vlagt er?, Tas-check, Smoesje | Tabbladen onder het keuringsrapport. Welke er staan hangt af van het oordeel. |
@@ -38,6 +38,10 @@ Automatische tests: `npm test` en, met de server op poort 8765, `npm run test:e2
 | Jij tegen Henk | Check een wedstrijd die nog komt: tijdens de keuring kun je tippen. Na de speeldag vraagt de homepage hoe het afliep. |
 | Zoekplaatje | Teller onder het formulier; een tik geeft een hint. |
 | Onthouden wedstrijd | Na een check staat hij op de homepage. Heb je al getipt, dan staat de kans er meteen bij. |
+| Het moment | Check een wedstrijd met regen (of eigen weer 1 / 35 / 75). Het bord valt aan een touw, de stempel slaat modder los, de thermometer klotst. Op desktop kun je het bord wegslepen en laten slingeren; een tik geeft een duw. Bij "gaat door" stuift krijt, bij twijfel spatten druppels. Via de keuring vloeit "Verwachting: ..." over in het oordeel (View Transition). |
+| 51 veldkeurders (nieuw) | Scroll naar het veld: ze lopen op, steken hun kaart op als een wave en staan bij een nek-aan-nekrace te ruziën op de middenlijn. Wijs of tik een veldkeurder aan voor zijn eigen weerbericht. |
+| De kleedkamer | `/proeftuin`: elf kluisjes met prototypes. Zie hieronder. |
+| Proef op de echte site | Zet `?proef=1` achter de URL. De gekozen ideeën staan dan op de plek waar ze zouden komen, met een gele tape "Proef". Home: alleen het formulier, plus een tactiekbordje aan de kantinemuur en "Opstelling" in het menu. Die openen "Het tactiekbord": opstelling met Henk, bank en spelerspas. "Stuur naar de groep" deelt een plaatje (1080x1350) met een link. Uitslag: "Henk zegt het" onder het bord, "Voor de aftrap" met tactiekbord en toss-advies, het deelplaatje naast het appgroepberichtje, Appgroep-bingo bij de extra's, en Henk fluit als je hem in de stuitproef aantikt. Zonder `?proef=1` verandert er niets. |
 
 ## Wat erin zit
 
@@ -60,11 +64,11 @@ Automatische tests: `npm test` en, met de server op poort 8765, `npm run test:e2
 - Deelbericht zonder verzonnen tegenstander; "Het rekenwerk" in het menu op
   een telefoon; logo op de uitslag; geen spookperkament op tekstpagina's.
 
-**Nieuwe uitslag**: antwoord en delen op de vouw, daarna de consuls, het
+**Nieuwe uitslag**: antwoord en delen op de vouw, daarna de veldkeurders, het
 keuringsrapport (uurverslag en weging achter "Waarom?"), de extra's in
 tabbladen en een slot met de teamlink.
 
-**Nieuw**: de 51 consuls, teamlink, katermodus, briefje met
+**Nieuw**: de 51 veldkeurders, teamlink, katermodus, briefje met
 thuiskomstvoorspeller, wie vlagt er, Jij tegen Henk (alleen op je eigen
 toestel), smoesjesgenerator, noppenadvies, weer als wedstrijdverslag per uur,
 elftal, zoekplaatjesteller, zomerstopmelding.
@@ -73,25 +77,73 @@ elftal, zoekplaatjesteller, zomerstopmelding.
 [stijlgids](STIJLGIDS.md). Vier appgroepen (Zondag 7, Vrouwen 2, 35+,
 Zaterdag 4) met peiling, spraakbericht, wazige foto en verwijderd bericht.
 
-## Wat er bewust niet in zit
+## De kleedkamer (`/proeftuin`)
 
-| Idee | Waarom niet |
-|---|---|
-| Uitkomsten verzamelen, echte stand tussen bezoekers en Henk | Heeft een server nodig. Jij tegen Henk telt nu alleen op je eigen toestel en zegt dus niets over hoe goed het model is. |
-| Linkvoorbeeld per uitslag, pushmelding, deelplaatje | Server of beeldgeneratie nodig. |
-| Sportparkpaspoort, toss-advies, voorrangsladder, Blubberstand, Gouden Regenlaars | Vraagt een databouw met OpenStreetMap, en die data is onvolledig. De voorrangsregel staat er alleen als "regel van Henk" in de tekst. |
-| Spraakbericht van Henk, fluitje, bingo, spelerspas, kantine-tv | Niet gebouwd; geluid in WhatsApp is niet getest. |
-| Nieuwe tekeningen | Keuze van de eigenaar. De twijfelscène hergebruikt de kantine. |
-| Kleinere afbeeldingen (rapport: 215 KB eerste beeld) | Niet aangepakt. |
-| Opstelling (F01 uit de roadmap) | Buiten deze ronde. |
+De ideeën die nog niet op de site staan, als speelbare prototypes. De pagina
+staat niet in het menu of de sitemap en heeft `noindex`. Elk kluisje heeft een
+label: **Echte data** (OpenStreetMap of Open-Meteo), **Werkt al** (speelbaar met
+eigen invoer) of **Nagespeeld** (vraagt een server, dus verzonnen cijfers). Op
+de binnenkant van elke deur staat wat het nog nodig heeft.
+
+| Kluisje | Wat je ziet | Label |
+|---|---|---|
+| Toss-advies | Sportpark van boven, wind uit het echte weerbericht, Henks keuze en een munt | Echte data |
+| Sportparkpaspoort | Paspoort per sportpark met velden en hoe nat de grond is; onbekende ondergrond kun je aanvullen | Echte data |
+| Opstelling (F01) | Elftal op het veld slepen, formaties, delen als tekst of plaatje | Werkt al |
+| Spraakbericht | Henk spreekt de uitslag in met de stem van je browser | Werkt al |
+| Het fluitje | Fluitje via WebAudio; alleen geluid als je drukt | Werkt al |
+| Spelerspas | Verzamelkaart met hologlans en stempels | Werkt al |
+| Appgroep-bingo | Bingokaart voor de wedstrijdochtend | Werkt al |
+| Kantine-tv | Scherm voor boven de bar met de kansen van vandaag | Werkt al |
+| Blijf liggen | Pushmeldingen om 20:00 en 07:00, op een nagebootste telefoon | Nagespeeld |
+| Deelplaatje | Plaatje dat je browser tekent; het linkvoorbeeld in de groep is nagespeeld | Werkt al |
+| Henks stand | Klapbord met hoe vaak Henk gelijk had | Nagespeeld |
+
+`lab/sportparken.json` komt uit OpenStreetMap (17 sportparken, 87 velden; bij
+54 velden ontbreekt de ondergrond). Bron: © OpenStreetMap-bijdragers (ODbL).
+Nieuwe tekeningen staan er niet in: dat blijft de keuze van de eigenaar.
+
+Afgeschoten na review: Voorrangsladder en Blubberstand. Ligt stil (nog niet bouwen):
+Sportparkpaspoort, Henks stand, Kantine-tv en Blijf liggen. Automatische pushmeldingen op vaste
+tijden komen er voorlopig niet: daarvoor zou de site per bezoeker een abonnement moeten bewaren,
+en we verzamelen geen persoonsgegevens. De agenda-herinnering ("Herinner me ...") blijft zoals hij is.
+
+Het toss-advies kent de sportparken van Nederland uit OpenStreetMap (`lab/parken.json`, 2386 parken met 7931
+velden, gebouwd met `python3 tools/osm_parken.py`; ruwe antwoorden in `.osm-cache/`, niet in git). Een park krijgt
+de naam uit OSM, anders de club die er speelt, anders "Velden aan de <straat>"; 69 van de 2321 parken blijven zonder naam. Alleen Europees Nederland.
+Trapveldjes en Cruyff Courts (kleiner dan 55 x 35 m) en namen van andere sporten tellen niet mee. Het park van het
+thuisteam wordt herkend aan de clubnaam ("HVCH 1" vindt "vv HVCH"). Lukt dat niet, dan kiest de site niets
+stiekem: je kiest zelf of zoekt op naam, en tot dan geeft Henk alleen windadvies. Alleen publieke kaartdata.
+
+De deellink van de opstelling zet de namen achter `#opstelling=`. Dat deel gaat niet mee naar de server;
+`js/route.js` haalt het voor de statistiekenscript laadt uit de adresbalk. Een ontvangen opstelling wordt
+nooit over je eigen teamnamen opgeslagen, en standaardnamen (invallers) ook niet.
+
+Checklist om het tactiekbord echt live te zetten (nu zit alles achter `?proef=1`):
+
+1. `lab/bord.js` `linkBasis()`: `proef=1` eruit, en in de app `origin` uit `js/native.js` gebruiken in plaats
+   van `location.origin` (dat is daar `capacitor://localhost`).
+2. `js/route.js`: de voorwaarde `p.get("proef") === "1"` voor het bewaren van `#opstelling=` weghalen.
+3. `js/app.js`: de `?proef=1`-poort vervangen door het vaste laden van wat live gaat; de "Proef"-tapes,
+   de proefbalk en "Alle kluisjes" eruit.
+4. `prepare()` in `lab/proef.js` haalt nu `/proeftuin.html` op voor de iconen en zet zes stylesheets erbij.
+   Die horen dan in `index.html` en `styles.css`.
+5. `tools/build_site.py` neemt nu heel `lab/` en `proeftuin.html` mee. Neem alleen mee wat live gaat.
+6. Offline: de lab-bestanden staan niet in `CORE` van `sw.js`.
+7. De Android-app maakt geen back-up meer naar de cloud (`allowBackup="false"`): teamnamen en spelerspas
+   blijven op het toestel.
+
+Lichtere tekeningen is doorgevoerd:
+de scènes zijn opnieuw gemaakt op WebP-kwaliteit 62 (`SCENE_Q` in `tools/build_assets.py`),
+samen 636 kB in plaats van 960 kB, zonder zichtbaar verschil.
 
 ## Wat je moet weten voordat dit live gaat
 
-- **Open-Meteo is gratis voor niet-commercieel gebruik.** De consuls kosten per
+- **Open-Meteo is gratis voor niet-commercieel gebruik.** De veldkeurders kosten per
   uitslag één extra aanvraag (de ensemble-API). Komt er een sponsor, dan is een
   betaald abonnement nodig.
-- **De consuls kunnen het oneens zijn met het percentage.** Het percentage komt
-  uit het hoofdweerbericht, de consuls uit 51 berekeningen van een ander model
+- **De veldkeurders kunnen het oneens zijn met het percentage.** Het percentage komt
+  uit het hoofdweerbericht, de veldkeurders uit 51 berekeningen van een ander model
   (ECMWF). Dat model is soms natter. De tekst bij het vak zegt dat het om de
   onzekerheid van het weer gaat, niet om die van onze som.
 - **Het uurverslag rekent per heel uur.** Fijner is voor Nederland schijnprecisie.
@@ -100,5 +152,8 @@ Zaterdag 4) met peiling, spraakbericht, wazige foto en verwijderd bericht.
 - **Namen bij "Wie vlagt er?"** blijven op het toestel en reizen in de teamlink
   mee achter het hekje. De privacytekst is daarop aangepast.
 - **De CSP staat één host meer toe**: `https://ensemble-api.open-meteo.com`.
+- **`/proeftuin` en `lab/` gaan mee in de build.** Wil je ze niet live, haal
+  dan `proeftuin.html` en `"lab"` uit `tools/build_site.py`. `?proef=1` laadt
+  dan niets meer (de import faalt stil).
 - **Aftrap** staat nu standaard op 10:00. Oude links zonder aftrap blijven
   14:00 betekenen.

@@ -14,14 +14,14 @@ Er zijn twee stemmen:
 
 - **Henk**, de scheids. Laat de bal vallen, heeft overal een mening over en
   krijgt nooit gelijk. Henk is van ons: verzonnen, en dat mag je merken.
-- **De consul.** Loopt om zeven uur het veld op en beslist echt. De consul
+- **De veldkeurder** (vroeger "de consul"; zeg dat niet meer). Loopt om zeven uur het veld op en beslist echt. De veldkeurder
   zeggen we nooit iets in de mond over een echte wedstrijd; hij "loopt nog",
   "belt zo" of "neemt niet op".
 
 ## De regels
 
 1. **Van binnenuit.** Schrijf over wat er op een amateurclub echt gebeurt: de
-   consul, geen scheids, vlaggen, met tien man, wie rijdt er, thee in de rust,
+   veldkeurder, geen scheids, vlaggen, met tien man, wie rijdt er, thee in de rust,
    de was, de boetepot, het kratje, kunstgraskorrels, inhalen op een
    dinsdagavond, doorschuiven naar het kunstgras, veld 4 achter de kantine.
 2. **Zaterdag is evenveel waard als zondag.** Geen "zondagochtend" als je
@@ -53,7 +53,7 @@ Er zijn twee stemmen:
 
 | Zeg | Niet |
 |---|---|
-| de consul | de terreinmeester, de weerman |
+| de veldkeurder | de consul, de terreinmeester, de weerman |
 | het veld is afgekeurd / gaat niet door | het veld is officieel afgelast (dat weten wij niet) |
 | verwachting | voorspelling, uitslag (voor het percentage) |
 | kans op afgelasting | afgelastingspercentage |
@@ -72,7 +72,7 @@ Een appgroep typt niet zoals een site schrijft:
 - kleine letters, geen punt aan het eind, soms twee vraagtekens;
 - "1", "2", "ik +1" onder een peiling;
 - een spraakbericht van de trainer dat niemand afluistert;
-- een wazige foto van de consul ("veld 4, denk ik");
+- een wazige foto van de veldkeurder ("veld 4, denk ik");
 - "Dit bericht is verwijderd";
 - iemand die de groep verlaat.
 
@@ -125,7 +125,7 @@ in beeld.
 
 ## Schrijf zo
 
-- "De consul loopt nog. Hij belt zo."
+- "De veldkeurder loopt nog. Hij belt zo."
 - "Inhalen wordt een dinsdagavond in maart, half negen, uit. Dat hoort er ook bij."
 - "Verzamelen 08:15. Kevin rijdt, dus het wordt 08:40."
 
