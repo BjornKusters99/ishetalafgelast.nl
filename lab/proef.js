@@ -4,11 +4,12 @@
 
 import * as kit from "./kit.js";
 import { registerExtra, renderExtra } from "../js/extra.js";
-import { LINK_KEY, kodeerLink, leesLink, linkBasis, staatVan, tekenOpstelling, deelOpstelling, meldDeel } from "./bord.js";
-import { bouwTactiek } from "./tactiek.js";
 
 const { el } = kit;
-const CSS = ["proeftuin", "veld", "club", "geluid", "server", "plek"];
+// plek.css is genoeg voor het bordje aan de muur; de rest komt pas met het tactiekbord of een uitslag.
+const CSS_THUIS = ["plek"];
+const CSS_BORD = ["proeftuin", "veld", "club", "geluid", "server"];
+const LINK_KEY = "ishetalafgelast:opstelling-link"; // dezelfde sleutel als js/route.js en lab/bord.js
 const $ = (s) => document.querySelector(s);
 
 let wedstrijd = null; // de laatste uitslag
@@ -19,6 +20,9 @@ let result = null;    // { ctrl, nodes }: wat de uitslag heeft toegevoegd
 let home = null;      // { ctrl, nodes }: wat de homepage heeft toegevoegd
 const handled = new WeakSet();
 let gedeeld = null;     // de opstelling uit een deellink: { formatie, namen, posities }
+let gedeeldRaw = null;  // dezelfde link, nog niet gelezen: dat kan pas als lab/bord.js er is
+let B = null;           // lab/bord.js en lab/tactiek.js samen, zodra bord() ze heeft geladen
+let bordLaden = null;
 let gedeeldOpen = false; // het tactiekbord is er al mee geopend
 let bordStaat = null;   // wat de bezoeker in dit tabblad op het tactiekbord heeft gezet
 let tactiek = null;     // { view, ctrl, vorig, scrollY, titel, opener, zetWedstrijd }
@@ -30,19 +34,44 @@ try {
   const raw = sessionStorage.getItem(LINK_KEY);
   if (raw != null) {
     sessionStorage.removeItem(LINK_KEY);
-    gedeeld = leesLink(raw);
+    gedeeldRaw = raw;
   }
 } catch { /* geen sessie-opslag: dan is er ook geen link gekomen */ }
 
-/** De stijl één keer binnenhalen, en wachten tot hij er is: anders staat het bordje even kaal in beeld.
- *  De iconen staan in de sprite van index.html. */
-async function prepare() {
-  await Promise.all(CSS.map((name) => new Promise((done) => {
-    const link = el("link", { rel: "stylesheet", href: `/lab/${name}.css` });
-    link.addEventListener("load", done, { once: true });
-    link.addEventListener("error", done, { once: true });
-    document.head.append(link);
-  })));
+/** Stylesheets uit lab/ één keer binnenhalen en wachten tot ze er zijn: anders staat iets even kaal in beeld.
+ *  plek.css blijft als laatste staan, zodat zijn regels winnen. De iconen staan in de sprite van index.html. */
+function css(names) {
+  const plek = document.querySelector('link[href="/lab/plek.css"]');
+  return Promise.all(names.map((name) => {
+    if (document.querySelector(`link[href="/lab/${name}.css"]`)) return null;
+    return new Promise((done) => {
+      const link = el("link", { rel: "stylesheet", href: `/lab/${name}.css` });
+      link.addEventListener("load", done, { once: true });
+      link.addEventListener("error", done, { once: true });
+      if (plek) plek.before(link);
+      else document.head.append(link);
+    });
+  }));
+}
+
+const prepare = () => css(CSS_THUIS);
+
+/** Het tactiekbord zelf (lab/bord.js, lab/tactiek.js en wat die meenemen) pas als iemand het nodig heeft. */
+function bord() {
+  bordLaden ||= Promise.all([import("./bord.js"), import("./tactiek.js"), css(CSS_BORD)])
+    .then(([b, t]) => {
+      B = { ...b, ...t };
+      if (gedeeldRaw != null) {
+        gedeeld = B.leesLink(gedeeldRaw);
+        gedeeldRaw = null;
+      }
+      return B;
+    })
+    .catch((err) => {
+      bordLaden = null; // offline of een fout: de volgende keer opnieuw proberen
+      throw err;
+    });
+  return bordLaden;
 }
 
 /* ───────── Extra tabbladen ───────── */
@@ -94,7 +123,7 @@ const BORD_KEY = "ishetalafgelast:tactiekbord";
 
 function bewaarBord(staat) {
   try {
-    const link = kodeerLink("", staat);
+    const link = B.kodeerLink("", staat);
     localStorage.setItem(BORD_KEY, JSON.stringify({ link: link.slice(link.indexOf("=") + 1), invallers: staat.invallers || [] }));
   } catch { /* geen opslag: dan alleen in dit tabblad */ }
 }
@@ -103,7 +132,7 @@ function bewaarBord(staat) {
 function vorigBord() {
   try {
     const d = JSON.parse(localStorage.getItem(BORD_KEY) || "null");
-    const g = d && leesLink(d.link);
+    const g = d && B.leesLink(d.link);
     if (!g) return null;
     const invallers = g.namen.map((_, i) => !!d.invallers?.[i]);
     const echt = g.namen.filter((_, i) => !invallers[i]);
@@ -198,10 +227,10 @@ function kaartStaat() {
   const namen = leesNamen();
   const echt = !!(gedeeld || namen?.length);
   if (bordStaat) return { staat: bordStaat, voorbeeld: !echt };
-  if (gedeeld) return { staat: staatVan(gedeeld), voorbeeld: false };
+  if (gedeeld) return { staat: B.staatVan(gedeeld), voorbeeld: false };
   const vorig = vorigBord();
-  if (vorig) return { staat: staatVan(vorig), voorbeeld: !echt };
-  return { staat: staatVan({ namen: namen || [] }), voorbeeld: !echt };
+  if (vorig) return { staat: B.staatVan(vorig), voorbeeld: !echt };
+  return { staat: B.staatVan({ namen: namen || [] }), voorbeeld: !echt };
 }
 
 /** Links in "Voor de aftrap": het tactiekbord als plaatje met zijn knoppen. */
@@ -223,7 +252,7 @@ function bordKaart(match, signal) {
     voorbeeld = k.voorbeeld;
     knoppen();
     try {
-      const src = await tekenOpstelling({ ...k.staat, wedstrijd: match });
+      const src = await B.tekenOpstelling({ ...k.staat, wedstrijd: match });
       if (signal.aborted) return;
       const g = canvas.getContext("2d");
       g.clearRect(0, 0, canvas.width, canvas.height);
@@ -239,9 +268,9 @@ function bordKaart(match, signal) {
     try {
       const staat = kaartStaat().staat;
       let wa = "";
-      const out = await deelOpstelling(staat, match, kodeerLink(linkBasis(match.url), staat), (text) => { wa = kit.waHref(text); window.open(wa, "_blank", "noopener"); });
+      const out = await B.deelOpstelling(staat, match, B.kodeerLink(B.linkBasis(match.url), staat), (text) => { wa = kit.waHref(text); window.open(wa, "_blank", "noopener"); });
       if (signal.aborted) return;
-      meldDeel(status, out, wa, el);
+      B.meldDeel(status, out, wa, el);
     } catch (err) {
       if (signal.aborted) return;
       console.error(err);
@@ -341,7 +370,7 @@ export async function show(match) {
   cleanupResult();
   cleanupHome();
   ready ||= prepare();
-  await ready;
+  const metBord = await Promise.all([ready, bord()]).then(() => true, (err) => { console.error(err); return false; });
   if (mine !== run) return;
 
   register();
@@ -355,8 +384,11 @@ export async function show(match) {
   result = { ctrl, nodes };
   const { signal } = ctrl;
   // Het aftrap-blok staat er meteen; het bord en het slot laden hun module apart en verdringen elkaar niet.
-  aftrap(match, { signal, nodes });
-  meegekregen({ signal, nodes });
+  // Kwam lab/bord.js niet binnen (offline), dan alleen het slot en de rest: geen half tactiekbord.
+  if (metBord) {
+    aftrap(match, { signal, nodes });
+    meegekregen({ signal, nodes });
+  }
   await Promise.all([board(match, { signal, nodes }), slot(match, { signal, nodes })]);
   if (mine !== run) return;
 
@@ -390,6 +422,12 @@ export function hide() {
 
 /* ───────── Homepage ───────── */
 
+/** Wie het bordje aanwijst, focust of aanraakt, gaat het waarschijnlijk openen: dan alvast laden. */
+function voorladen(node) {
+  const warm = () => bord().catch(() => { /* openTactiek probeert het bij de klik opnieuw */ });
+  for (const type of ["pointerenter", "focus", "touchstart"]) node.addEventListener(type, warm, { once: true, passive: true });
+}
+
 /** Een klein bordje aan een spijker: de weg naar het tactiekbord. */
 function hanger() {
   const { svg } = kit;
@@ -412,6 +450,7 @@ function hanger() {
     el("span", { className: "plek-hanger-bord" }, veld, el("span", { className: "plek-hanger-label", textContent: "Tactiekbord" })),
     el("span", { className: "plek-hanger-briefje", textContent: "Kies je opstelling", "aria-hidden": "true" }));
   knop.addEventListener("click", () => openTactiek({ opener: knop }));
+  voorladen(knop);
   return knop;
 }
 
@@ -435,12 +474,13 @@ export async function homeMount() {
   if (nav) {
     const link = el("a", { href: "#tactiekbord", className: "plek-navlink", textContent: "Opstelling" });
     link.addEventListener("click", (e) => { e.preventDefault(); openTactiek({ opener: link }); });
+    voorladen(link);
     nav.prepend(link);
     home.nodes.push(link);
   }
   // Een opstelling uit een link zonder wedstrijd: meteen het bord.
   const wedstrijdLink = new URLSearchParams(location.search).has("plaats");
-  if (gedeeld && !gedeeldOpen && !wedstrijdLink) {
+  if ((gedeeld || gedeeldRaw != null) && !gedeeldOpen && !wedstrijdLink) {
     gedeeldOpen = true;
     openTactiek();
   } else heropenNaHerladen();
@@ -490,7 +530,12 @@ export async function openTactiek({ push = true, opener = null } = {}) {
   opent = true;
   try {
     ready ||= prepare();
-    await ready;
+    try {
+      await Promise.all([ready, bord()]);
+    } catch (err) {
+      console.error(err); // offline voordat het bord ooit geladen was: dan blijft alles zoals het was
+      return;
+    }
     const view = tactiekView();
     const ctrl = new AbortController();
     const { signal } = ctrl;
@@ -505,7 +550,7 @@ export async function openTactiek({ push = true, opener = null } = {}) {
     }
 
     let klaar = false;
-    const t = bouwTactiek({
+    const t = B.bouwTactiek({
       kit, signal, wedstrijd: match, start: bordStart(), pas,
       names: extra ? extra.names : () => leesNamen() || [],
       // Een ontvangen opstelling is van een ander: aanpassen mag, maar dan niet over je eigen team heen.
@@ -515,7 +560,7 @@ export async function openTactiek({ push = true, opener = null } = {}) {
         bordStaat = staat;
         if (!gedeeld) bewaarBord(staat);
       },
-      link: (staat) => kodeerLink(linkBasis(url), staat),
+      link: (staat) => B.kodeerLink(B.linkBasis(url), staat),
       terug: () => { if (history.state?.tactiek) history.back(); else sluitTactiek(); },
     });
     klaar = true;

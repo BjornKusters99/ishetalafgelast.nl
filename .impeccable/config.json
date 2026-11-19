@@ -10,7 +10,409 @@
           "index.html"
         ],
         "createdAt": "2026-11-18T11:57:13.533Z",
-        "reason": "Claude, evidence: the result <img> gets its src from js/scene.js mountStage().set() at runtime so the large illustration is not fetched before a check (see comment in scene.js)"
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/alphen-aan-den-rijn.html"
+        ],
+        "createdAt": "2026-11-19T11:21:09.925Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/almere.html"
+        ],
+        "createdAt": "2026-11-19T11:21:09.982Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/alkmaar.html"
+        ],
+        "createdAt": "2026-11-19T11:21:10.038Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/almelo.html"
+        ],
+        "createdAt": "2026-11-19T11:21:10.097Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/amsterdam.html"
+        ],
+        "createdAt": "2026-11-19T11:21:10.155Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/apeldoorn.html"
+        ],
+        "createdAt": "2026-11-19T11:21:10.214Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/amersfoort.html"
+        ],
+        "createdAt": "2026-11-19T11:21:10.273Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/arnhem.html"
+        ],
+        "createdAt": "2026-11-19T11:21:10.331Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/delft.html"
+        ],
+        "createdAt": "2026-11-19T11:21:10.388Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/breda.html"
+        ],
+        "createdAt": "2026-11-19T11:21:10.444Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/den-bosch.html"
+        ],
+        "createdAt": "2026-11-19T11:21:10.501Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/assen.html"
+        ],
+        "createdAt": "2026-11-19T11:21:10.563Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/dordrecht.html"
+        ],
+        "createdAt": "2026-11-19T11:21:10.621Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/ede.html"
+        ],
+        "createdAt": "2026-11-19T11:21:10.681Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/deventer.html"
+        ],
+        "createdAt": "2026-11-19T11:21:10.737Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/den-haag.html"
+        ],
+        "createdAt": "2026-11-19T11:21:10.793Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/emmen.html"
+        ],
+        "createdAt": "2026-11-19T11:21:10.852Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/eindhoven.html"
+        ],
+        "createdAt": "2026-11-19T11:21:10.910Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/enschede.html"
+        ],
+        "createdAt": "2026-11-19T11:21:10.970Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/gouda.html"
+        ],
+        "createdAt": "2026-11-19T11:21:11.028Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/heerlen.html"
+        ],
+        "createdAt": "2026-11-19T11:21:11.091Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/haarlem.html"
+        ],
+        "createdAt": "2026-11-19T11:21:11.150Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/helmond.html"
+        ],
+        "createdAt": "2026-11-19T11:21:11.208Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/leeuwarden.html"
+        ],
+        "createdAt": "2026-11-19T11:21:11.273Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/hoorn.html"
+        ],
+        "createdAt": "2026-11-19T11:21:11.331Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/lelystad.html"
+        ],
+        "createdAt": "2026-11-19T11:21:11.393Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/nieuwegein.html"
+        ],
+        "createdAt": "2026-11-19T11:21:11.454Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/oss.html"
+        ],
+        "createdAt": "2026-11-19T11:21:11.514Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/rotterdam.html"
+        ],
+        "createdAt": "2026-11-19T11:21:11.581Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/tilburg.html"
+        ],
+        "createdAt": "2026-11-19T11:21:11.642Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/vlaardingen.html"
+        ],
+        "createdAt": "2026-11-19T11:21:11.703Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/hilversum.html"
+        ],
+        "createdAt": "2026-11-19T11:21:11.762Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/leiden.html"
+        ],
+        "createdAt": "2026-11-19T11:21:11.820Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/nijmegen.html"
+        ],
+        "createdAt": "2026-11-19T11:21:11.880Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/maastricht.html"
+        ],
+        "createdAt": "2026-11-19T11:21:11.939Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/spijkenisse.html"
+        ],
+        "createdAt": "2026-11-19T11:21:11.999Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/roosendaal.html"
+        ],
+        "createdAt": "2026-11-19T11:21:12.061Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/utrecht.html"
+        ],
+        "createdAt": "2026-11-19T11:21:12.120Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/groningen.html"
+        ],
+        "createdAt": "2026-11-19T11:21:12.184Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "plaatsen/zwolle.html"
+        ],
+        "createdAt": "2026-11-19T11:21:12.245Z",
+        "reason": "agent-verified: decorative result-scene img inside hidden #view-result; js/app.js sets src per mood on check, an eager src would load the scene on every visit (tools/e2e.cjs asserts it does not)"
+      },
+      {
+        "rule": "organic-clip-path",
+        "value": "*",
+        "files": [
+          "404.html",
+          "index.html",
+          "plaatsen/*.html",
+          "privacy.html"
+        ],
+        "createdAt": "2026-11-19T12:12:00.026Z",
+        "reason": "agent-verified: the only multi-vertex clip-path is .voice i in styles.css:1751, the waveform of the fake WhatsApp voice message in the appgroep, not a torn edge or silhouette"
+      },
+      {
+        "rule": "radial-halo",
+        "value": "*",
+        "files": [
+          "404.html",
+          "index.html",
+          "plaatsen/*.html",
+          "privacy.html"
+        ],
+        "createdAt": "2026-11-19T12:12:00.100Z",
+        "reason": "agent-verified: the #6f8f55 radial-gradient is .foto i in styles.css:1758, a deliberately blurry field photo inside the fake appgroep chat, not a page glow"
+      },
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "styles.css"
+        ],
+        "createdAt": "2026-11-19T12:16:25.361Z",
+        "reason": "agent-verified: styles.css .egg-bubble::after is the speech-bubble tail, a 16px square rotated 45deg with two ink borders forming the outline, not a side accent on a card"
+      },
+      {
+        "rule": "border-accent-on-rounded",
+        "value": "*",
+        "files": [
+          "styles.css"
+        ],
+        "createdAt": "2026-11-19T12:16:25.434Z",
+        "reason": "agent-verified: styles.css .egg-bubble::after is the speech-bubble tail, a 16px square rotated 45deg with two ink borders forming the outline, not a side accent on a card"
       }
     ]
   }

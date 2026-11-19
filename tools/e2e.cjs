@@ -698,10 +698,13 @@ const noBeacon = (rt) => rt.fulfill({ contentType: "text/javascript", body: "" }
   {
     const tb = await ctx.newPage();
     tb.on("pageerror", (e) => errs.push(e.message));
+    const labReqs = [];
+    tb.on("request", (r) => { if (r.url().includes("/lab/")) labReqs.push(new URL(r.url()).pathname); });
     await mock(tb);
     await tb.goto(BASE + "/", { waitUntil: "networkidle" });
     await tb.waitForSelector(".plek-hanger", { timeout: 8000 }).catch(() => {});
     ok(await tb.isVisible(".plek-hanger"), "live: tactiekbordje hangt aan de muur");
+    ok(!labReqs.some((u) => /\/lab\/(bord|tactiek|deel|opstelling)\.js$/.test(u)), "live: code van het tactiekbord pas bij openen: " + labReqs.join(" "));
     ok(!(await tb.$(".plek-balk, .plek-tape")), "live: geen proefbalk of tape");
     await tb.click(".plek-hanger");
     await tb.waitForSelector("#view-tactiek:not([hidden])", { timeout: 8000 }).catch(() => {});
