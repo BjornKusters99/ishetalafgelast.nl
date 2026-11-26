@@ -728,7 +728,7 @@ function vorstTekst(w, veld) {
   const l = w.vorst ? frostLayers(w.vorst) : null;
   const gras = veld !== "kunstgras";
   if (l?.sneeuw) return "Vooral de sneeuw: er ligt bij de aftrap een sneeuwdek op het veld.";
-  if (gras && l?.opdooi) return "Vooral de opdooi: de bovenlaag ontdooit, maar de grond eronder is nog bevroren. Het water kan nergens heen.";
+  if (gras && l?.opdooi >= 0.5) return "Vooral de opdooi: de bovenlaag ontdooit, maar de grond eronder is nog bevroren. Het water kan nergens heen.";
   if (gras && l?.bevroren >= 0.5) return `Vooral de vorst: ${nl0.format(l.bevroren * 100)}% kans dat de grasmat bij de aftrap nog bevroren is.`;
   return w.frost_days_7d
     ? `Vooral de vorst: ${w.frost_days_7d} vriesnachten vooraf en ${nl1.format(w.temperature)} °C op de dag zelf.`

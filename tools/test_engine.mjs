@@ -126,10 +126,21 @@ test("snow cover counts on both surfaces; frozen ground and thaw only on grass",
   // Opdooi: bovenlaag ontdooid, ondergrond nog bevroren.
   const thaw = { soil0: 1, soil1: 0.2, snow: 0 };
   assert.ok(gras(thaw) >= 0.9);
-  assert.ok(Math.abs(kunst(thaw) - kunst(bare)) < 1e-12);
-  // Droge strenge vorst verandert kunstgras niet.
-  assert.ok(Math.abs(kunst(bare, week(-6, -12)) - kunst(bare)) < 1e-12);
+  assert.ok(kunst(thaw) - kunst(bare) < 0.05);
+  // Droge strenge vorst telt op kunstgras zwak mee (bevroren toplaag), op gras sterk.
+  assert.ok(kunst(bare, week(-6, -12)) > kunst(bare) + 0.1);
+  assert.ok(kunst(bare, week(-6, -12)) < gras(bare, week(-6, -12)) - 0.3);
   assert.ok(gras(bare, week(-6, -12)) > 0.7);
+});
+
+test("a pitch frozen yesterday that thaws today counts as opdooi", () => {
+  const series = { temperature_2m_mean: [-2, -2, -2, -2, -2, -2, -2, 2], temperature_2m_min: [-5, -5, -5, -5, -5, -5, -5, 1] };
+  const thawing = frostLayers(frostState(series, { soil0: 1, soil1: 2, snow: 0 }));
+  assert.ok(thawing.opdooi > 0.6);
+  const stillFrozen = frostLayers(frostState(week(-3, -6), { soil0: -2, soil1: -1, snow: 0 }));
+  assert.ok(stillFrozen.opdooi < 0.05);
+  const r = predict(withFrost({ ...dry, temperature: 2 }, series, { soil0: 1, soil1: 2, snow: 0 }), "natuurgras");
+  assert.ok(r.probability > 0.6);
 });
 
 test("missing soil or snow values switch off those layers only", () => {

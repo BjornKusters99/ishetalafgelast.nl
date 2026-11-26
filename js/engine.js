@@ -310,7 +310,8 @@ const clampP = (p) => Math.min(1 - 1e-6, Math.max(1e-6, p));
  * Vorstlaag (v3). Het getrainde model ziet vorst alleen als "aantal vriesnachten" en
  * mist zo de echte KNVB-afgelastingen (februari 2012: 25%). Daarom liggen er drie
  * fysieke oorzaken bovenop, elk als onafhankelijke reden om af te keuren:
- *   P = 1 − (1 − P_nat)·(1 − 0,7·P_bevroren)·(1 − 0,9·sneeuwdek)·(1 − 0,9·opdooi)
+ *   P = 1 − (1 − P_nat)·(1 − 0,7·P_bevroren)·(1 − 0,9·sneeuwdek)·(1 − 0,9·P_opdooi)
+ * Kunstgras: 1 − (1 − P_nat)·(1 − 0,25·P_bevroren)·(1 − 0,9·sneeuwdek).
  * P_nat is het getrainde model zonder vriesnachten. Onderbouwing en backtest tegen
  * tien landelijke afgelastingen: docs/modelonderzoek/vorst-v3.md.
  */
@@ -327,6 +328,8 @@ const FROST = {
   soilMargin: 0.5,
   // Hoe vaak die toestand tot afkeuren leidt (KNVB-handleiding consuls; aanname, nog niet gekalibreerd).
   bevroren: 0.7, sneeuw: 0.9, opdooi: 0.9,
+  // Kunstgras: bevroren infill, rijp en ijs; gemeenten sluiten ook kunstgras bij strenge vorst (aanname).
+  kunstBevroren: 0.25,
   snowM: 0.01, // sneeuwdek vanaf 1 cm
   subsoilC: 0.5, // opdooi: bovenlaag boven 0 °C, ondergrond (7–28 cm) nog ≤ 0,5 °C
 };
@@ -344,6 +347,9 @@ export function frostState(series, ground = {}) {
   return {
     index: frostIndex(series.temperature_2m_mean.slice(0, 7)) + FROST.night * Math.max(0, -tmin),
     tmin,
+    // Dezelfde schatting voor de dag ervoor: was het veld gisteren bevroren, dan is vandaag opdooi.
+    prevIndex: frostIndex(series.temperature_2m_mean.slice(0, 6)) + FROST.night * Math.max(0, -series.temperature_2m_min[6]),
+    prevTmin: series.temperature_2m_min[6],
     soil0: ground.soil0 ?? null,
     soil1: ground.soil1 ?? null,
     snow: ground.snow ?? null,
@@ -351,25 +357,32 @@ export function frostState(series, ground = {}) {
 }
 
 /**
- * Kansen per fysieke oorzaak: { bevroren (0..1), sneeuw (0/1), opdooi (0/1) }.
+ * Kansen per fysieke oorzaak: { bevroren (0..1), sneeuw (0/1), opdooi (0..1) }.
  * Bevroren = de hoogste van twee schattingen: uit de luchttemperatuur (fit) en uit de
  * voorspelde bodem bij de aftrap.
+ * Opdooi = de ondergrond is nog bevroren onder een ontdooide bovenlaag, of het veld was
+ * gisteren bevroren en ontdooit nu (kans gisteren bevroren × kans bovenlaag nu ontdooid).
  */
 export function frostLayers(v) {
   const [c0, c1, c2] = FROST.fit;
-  const fromAir = sigmoid(c0 + c1 * Math.sqrt(Math.max(0, v.index)) + c2 * Math.max(0, -v.tmin));
+  const air = (index, tmin) => sigmoid(c0 + c1 * Math.sqrt(Math.max(0, index)) + c2 * Math.max(0, -tmin));
+  const fromAir = air(v.index, v.tmin);
   const fromSoil = v.soil0 != null ? sigmoid(-v.soil0 / FROST.soilMargin) : 0;
+  const bevroren = Math.max(fromAir, fromSoil);
+  const subsoil = v.soil0 != null && v.soil1 != null && v.soil0 > 0 && v.soil1 <= FROST.subsoilC ? 1 : 0;
+  const yesterday = v.prevIndex != null ? air(v.prevIndex, v.prevTmin) : 0;
+  const thawing = v.soil0 != null ? sigmoid(v.soil0 / FROST.soilMargin) : 0;
   return {
-    bevroren: Math.max(fromAir, fromSoil),
+    bevroren,
     sneeuw: v.snow != null && v.snow >= FROST.snowM ? 1 : 0,
-    opdooi: v.soil0 != null && v.soil1 != null && v.soil0 > 0 && v.soil1 <= FROST.subsoilC ? 1 : 0,
+    opdooi: Math.max(subsoil, yesterday * thawing),
   };
 }
 
 /**
  * Kans op afgelasting (0..1) + risicolabel.
- * Gras = model + vorstlaag. Kunstgras = model met gedempt veldeffect; daar telt
- * alleen een sneeuwdek (droge vorst en opdooi zijn op kunstgras geen probleem).
+ * Gras = model + vorstlaag. Kunstgras = model met gedempt veldeffect; daar tellen
+ * een sneeuwdek en, zwakker, een bevroren toplaag (opdooi is op kunstgras geen probleem).
  * Geen idee = gewogen mix van die twee. Zonder `weather.vorst` (eigen invoer)
  * rekent het model zoals vóór v3, met de vriesnachten als gewone invoer.
  */
@@ -383,7 +396,9 @@ export function predict(weather, veldtype) {
   const gras = layers
     ? 1 - (1 - natGras) * (1 - FROST.bevroren * layers.bevroren) * (1 - FROST.sneeuw * layers.sneeuw) * (1 - FROST.opdooi * layers.opdooi)
     : natGras;
-  const kunst = layers ? 1 - (1 - natKunst) * (1 - FROST.sneeuw * layers.sneeuw) : natKunst;
+  const kunst = layers
+    ? 1 - (1 - natKunst) * (1 - FROST.kunstBevroren * layers.bevroren) * (1 - FROST.sneeuw * layers.sneeuw)
+    : natKunst;
   const p =
     veldtype === "kunstgras" ? kunst
       : veldtype === "natuurgras" ? gras
