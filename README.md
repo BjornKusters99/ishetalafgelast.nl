@@ -8,13 +8,21 @@ Statische site op Cloudflare Workers (alleen statische bestanden); geen backend 
 De browser doet alles zelf:
 
 1. Plaats opzoeken via de Open-Meteo geocoding-API.
-2. Weer van de speeldag en de zeven dagen ervoor ophalen (Open-Meteo, één call).
+2. Weer van de speeldag en de zeven dagen ervoor ophalen, plus bodemtemperatuur
+   en sneeuwhoogte rond de aftrap (Open-Meteo, één call).
 3. Het getrainde model draaien in JavaScript (`js/model.js`): dezelfde
    gekalibreerde logistische regressie als in de Python-repo
    `voetbal-voorspel-model`. `predictRaw()` in `js/engine.js` geeft exact
    dezelfde uitkomst als `predict_full()` in Python.
 
-Bovenop het ruwe model zitten twee bewuste correcties in `predict()`:
+Bovenop het ruwe model zitten drie bewuste correcties in `predict()`:
+
+- **Vorstlaag (v3)**: bevroren veld, sneeuwdek en opdooi als aparte redenen om
+  af te keuren, uit de luchttemperatuur van de week ervoor, de nacht vóór de
+  aftrap en de voorspelde bodemtemperatuur en sneeuwhoogte (Open-Meteo,
+  ook per ensemblelid). Op kunstgras telt alleen sneeuw. Onderbouwing en
+  backtest tegen tien landelijke KNVB-afgelastingen:
+  `docs/modelonderzoek/vorst-v3.md`.
 
 - **Geen idee (veldtype)**: het model kent alleen gras of kunstgras (in de
   trainingsdata is altijd één van de twee bekend). "Geen idee" is daarom een
