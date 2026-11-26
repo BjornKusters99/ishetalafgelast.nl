@@ -20,7 +20,7 @@ Bovenop het ruwe model zitten drie bewuste correcties in `predict()`:
 - **Vorstlaag (v3)**: bevroren veld, sneeuwdek en opdooi als aparte redenen om
   af te keuren, uit de luchttemperatuur van de week ervoor, de nacht vóór de
   aftrap en de voorspelde bodemtemperatuur en sneeuwhoogte (Open-Meteo,
-  ook per ensemblelid). Op kunstgras telt alleen sneeuw. Onderbouwing en
+  ook per ensemblelid). Op kunstgras telt sneeuw, en een bevroren toplaag zwak. Onderbouwing en
   backtest tegen tien landelijke KNVB-afgelastingen:
   `docs/modelonderzoek/vorst-v3.md`.
 

@@ -435,7 +435,8 @@ test("hourly forecast is context: requested from the forecast API and split per 
   assert.equal(urls[0].host, "api.open-meteo.com");
   assert.equal(urls[0].searchParams.get("hourly"), "temperature_2m,precipitation,precipitation_probability,wind_gusts_10m,soil_temperature_0_to_7cm,soil_temperature_7_to_28cm,snow_depth");
   // Zonder bodemwaarden in het antwoord rekent de vorstlaag alleen met de luchttemperatuur.
-  assert.deepEqual({ ...weather.vorst, index: undefined, tmin: undefined }, { index: undefined, tmin: undefined, soil0: null, soil1: null, snow: null });
+  const { index, tmin, prevIndex, prevTmin, ...ground } = weather.vorst;
+  assert.deepEqual(ground, { soil0: null, soil1: null, snow: null });
   assert.deepEqual(JSON.parse(JSON.stringify(weather.hours[14])), { temp: 7, precip: 1.4, prob: null, gust: 44 });
   assert.equal(weather.series.precipitation_sum.length, 8);
   assert.deepEqual(Object.keys(weather.series), ["temperature_2m_mean", "temperature_2m_min", "precipitation_sum", "wind_gusts_10m_max"]);

@@ -15,8 +15,8 @@ stormweekenden. De nacht vóór de wedstrijd telde helemaal niet mee.
 ## Formule
 
 ```
-gras     P = 1 − (1 − P_nat)·(1 − 0,7·P_bevroren)·(1 − 0,9·sneeuwdek)·(1 − 0,9·opdooi)
-kunstgras P = 1 − (1 − P_nat)·(1 − 0,9·sneeuwdek)
+gras      P = 1 − (1 − P_nat)·(1 − 0,7·P_bevroren)·(1 − 0,9·sneeuwdek)·(1 − 0,9·P_opdooi)
+kunstgras P = 1 − (1 − P_nat)·(1 − 0,25·P_bevroren)·(1 − 0,9·sneeuwdek)
 geen idee: gewogen mix (~70% gras), zoals voorheen
 ```
 
@@ -25,9 +25,9 @@ geen idee: gewogen mix (~70% gras), zoals voorheen
 | `P_nat` | Het getrainde model met `frost_days_7d = 0` | Ongewijzigd; labels nog steeds synthetisch |
 | `P_bevroren` | Hoogste van twee schattingen (zie hieronder) | Getoetst |
 | sneeuwdek | Sneeuwhoogte om 10 uur ≥ 1 cm, uit het weerbericht | Getoetst op gebeurtenissen |
-| opdooi | Bodem 0–7 cm > 0 °C én 7–28 cm ≤ 0,5 °C (koudste waarde 10–14 uur) | Getoetst op gebeurtenissen, drempel achteraf gekozen |
+| opdooi | Hoogste van: bodem 0–7 cm > 0 °C én 7–28 cm ≤ 0,5 °C (koudste waarde 10–14 uur), of kans gisteren bevroren (luchtfit) × kans bovenlaag nu ontdooid (σ(soil0/0,5)) | Eerste deel getoetst op gebeurtenissen; tweede deel aanname (26-11-2026) |
 | 0,7 en 0,9 | KNVB: een vlak, hard bevroren veld is "in beginsel bespeelbaar"; bij opdooi "wachten totdat alle vorst is verdwenen" | Aanname; 0,5–0,9 geeft dezelfde volgorde |
-| kunstgras | Alleen sneeuw telt; droge vorst en opdooi niet (KNVB *Kunstgras en de winter*) | Aanname, niet apart getoetst |
+| kunstgras | Sneeuw telt volledig, een bevroren toplaag zwak (0,25: rijp, ijs, gemeenten die bij strenge vorst ook kunstgras sluiten), opdooi niet | Aanname, niet apart getoetst |
 
 ### P_bevroren
 
@@ -116,36 +116,7 @@ https://www.knvb.nl/downloads/bestand/2067/handleiding-consuls-) en KNVB
   labels.
 
 Om 0,7 en 0,9 echt te kalibreren zijn voorspellingen met datum en tijd nodig,
-naast de echte uitkomst. De voorspellingen worden sinds 26-11-2026 bijgehouden
-(zie hieronder); de kalibratie wacht op een winter met echte uitkomsten.
-
-## Voorspellingen bijhouden
-
-De workflow `.github/workflows/voorspellingslog.yml` draait
-`tools/log_voorspellingen.mjs` en logt de live voorspelling voor het komende
-weekend (zaterdag en zondag; in het weekend zelf vandaag en de rest van het
-weekend). Per stad (dezelfde zes als de backtest), dag en veldtype
-(natuurgras, kunstgras) komt één regel in `voorspellingen.csv`:
-
-```
-logged_at,target_date,lead_days,city,veld,p,risk,bevroren,sneeuw,opdooi,frost_index,tmin,soil0,soil1,snow
-```
-
-Dat gebeurt woensdag tot en met zaterdag om 05:00 UTC en vrijdag om 17:00 UTC,
-zodat dezelfde dag meerdere keren met een andere voorspeltermijn
-(`lead_days`) wordt vastgelegd. Lege velden betekenen dat de laag of waarde
-ontbrak.
-
-Het bestand staat op de aparte branch `voorspellingslog`, niet op `master`. De
-echte uitkomsten gaan met de hand in `uitkomsten.csv` op diezelfde branch:
-
-```
-datum,landelijk_afgelast,bron
-```
-
-Alleen landelijke KNVB-besluiten, met de bron-URL erbij (verplicht).
-
-## Opnieuw draaien
+naast de echte uitkomst. Tot die er zijn gelden de aannames hierboven.
 
 ## Opnieuw draaien
 
