@@ -116,7 +116,36 @@ https://www.knvb.nl/downloads/bestand/2067/handleiding-consuls-) en KNVB
   labels.
 
 Om 0,7 en 0,9 echt te kalibreren zijn voorspellingen met datum en tijd nodig,
-naast de echte uitkomst. Dat wordt nog niet opgeslagen.
+naast de echte uitkomst. De voorspellingen worden sinds 26-11-2026 bijgehouden
+(zie hieronder); de kalibratie wacht op een winter met echte uitkomsten.
+
+## Voorspellingen bijhouden
+
+De workflow `.github/workflows/voorspellingslog.yml` draait
+`tools/log_voorspellingen.mjs` en logt de live voorspelling voor het komende
+weekend (zaterdag en zondag; in het weekend zelf vandaag en de rest van het
+weekend). Per stad (dezelfde zes als de backtest), dag en veldtype
+(natuurgras, kunstgras) komt één regel in `voorspellingen.csv`:
+
+```
+logged_at,target_date,lead_days,city,veld,p,risk,bevroren,sneeuw,opdooi,frost_index,tmin,soil0,soil1,snow
+```
+
+Dat gebeurt woensdag tot en met zaterdag om 05:00 UTC en vrijdag om 17:00 UTC,
+zodat dezelfde dag meerdere keren met een andere voorspeltermijn
+(`lead_days`) wordt vastgelegd. Lege velden betekenen dat de laag of waarde
+ontbrak.
+
+Het bestand staat op de aparte branch `voorspellingslog`, niet op `master`. De
+echte uitkomsten gaan met de hand in `uitkomsten.csv` op diezelfde branch:
+
+```
+datum,landelijk_afgelast,bron
+```
+
+Alleen landelijke KNVB-besluiten, met de bron-URL erbij (verplicht).
+
+## Opnieuw draaien
 
 ## Opnieuw draaien
 
