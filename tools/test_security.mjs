@@ -421,15 +421,18 @@ test("a team link with an unknown weekday or elftal is ignored", () => {
 
 test("hourly forecast is context: requested from the forecast API and split per day", async () => {
   const urls = [];
-  const time = Array.from({ length: 8 }, (_, i) => `2026-10-${18 + i}`);
+  // Een speeldag over drie dagen: een vaste datum belandt na een maand in het archief.
+  const today = Date.parse(`${new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Amsterdam" })}T00:00:00Z`);
+  const time = Array.from({ length: 8 }, (_, i) => new Date(today + (i - 4) * 864e5).toISOString().slice(0, 10));
   const hourTimes = time.flatMap((d) => Array.from({ length: 24 }, (_, h) => `${d}T${String(h).padStart(2, "0")}:00`));
   const api = engineWith(async (url) => {
     urls.push(new URL(url));
-    return { ok: true, json: async () => ({ ...dailyData(), hourly: { time: hourTimes,
+    return { ok: true, json: async () => ({ daily: { ...dailyData().daily, time }, hourly: { time: hourTimes,
       temperature_2m: hourTimes.map((_, i) => (i % 24) / 2), precipitation: hourTimes.map((_, i) => (i % 24) / 10), precipitation_probability: hourTimes.map(() => 120),
       wind_gusts_10m: hourTimes.map(() => 44) } }) };
   });
-  const weather = await api.fetchWeather(52, 5, DATE);
+  const weather = await api.fetchWeather(52, 5, time[7]);
+  assert.equal(urls[0].host, "api.open-meteo.com");
   assert.equal(urls[0].searchParams.get("hourly"), "temperature_2m,precipitation,precipitation_probability,wind_gusts_10m");
   assert.deepEqual(JSON.parse(JSON.stringify(weather.hours[14])), { temp: 7, precip: 1.4, prob: null, gust: 44 });
   assert.equal(weather.series.precipitation_sum.length, 8);
