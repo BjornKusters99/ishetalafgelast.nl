@@ -1,4 +1,4 @@
-import { searchPlaces, geocode, placeLabel, splitPlace, fetchWeekend, fetchConsuls, predict, explain, isValidDay, horizonError, daysAhead, UserError, BASELINE } from "./engine.js";
+import { searchPlaces, geocode, placeLabel, splitPlace, fetchWeekend, fetchConsuls, predict, explain, frostLayers, isValidDay, horizonError, daysAhead, UserError, BASELINE } from "./engine.js";
 import { mountStage } from "./scene.js";
 import { Stuitproef, bounceProfile, moodFor } from "./stuitproef.js";
 import { say, parade, mountHotspots, mountAppgroep, kiesAppgroep, appgroep } from "./eggs.js";
@@ -723,6 +723,18 @@ function horizonText(q, at) {
   return `${fetched}, ${n} dagen vooruit: grove schatting. Kom vanaf ${fmtDay.format(back)} terug.`;
 }
 
+/** Waarom de vorst de kans omhoog duwt: de fysieke toestand van het veld als die bekend is. */
+function vorstTekst(w, veld) {
+  const l = w.vorst ? frostLayers(w.vorst) : null;
+  const gras = veld !== "kunstgras";
+  if (l?.sneeuw) return "Vooral de sneeuw: er ligt bij de aftrap een sneeuwdek op het veld.";
+  if (gras && l?.opdooi) return "Vooral de opdooi: de bovenlaag ontdooit, maar de grond eronder is nog bevroren. Het water kan nergens heen.";
+  if (gras && l?.bevroren >= 0.5) return `Vooral de vorst: ${nl0.format(l.bevroren * 100)}% kans dat de grasmat bij de aftrap nog bevroren is.`;
+  return w.frost_days_7d
+    ? `Vooral de vorst: ${w.frost_days_7d} vriesnachten vooraf en ${nl1.format(w.temperature)} °C op de dag zelf.`
+    : `Vooral de kou: gemiddeld ${nl1.format(w.temperature)} °C op de dag zelf.`;
+}
+
 function whyText(weather, veld, p, manual) {
   const c = explain(weather, veld);
   const up = moodFor(p) !== "doorgaat";
@@ -735,9 +747,7 @@ function whyText(weather, veld, p, manual) {
     ? {
         regen: `Vooral de ${nl1.format(w.precipitation)} mm regen op de dag zelf weegt zwaar.`,
         week: `Vooral de ${nl0.format(w.precip_7d_sum)} mm regen in de week ervoor: het veld is al verzadigd.`,
-        vorst: w.frost_days_7d
-          ? `Vooral de vorst: ${w.frost_days_7d} vriesnachten vooraf en ${nl1.format(w.temperature)} °C op de dag zelf.`
-          : `Vooral de kou: gemiddeld ${nl1.format(w.temperature)} °C op de dag zelf.`,
+        vorst: vorstTekst(w, veld),
         wind: `Vooral de windstoten tot ${nl0.format(w.wind_gusts)} km/u.`,
         veld: "Natuurgras maakt het verschil: dat loopt veel sneller onder dan kunstgras.",
       }

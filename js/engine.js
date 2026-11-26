@@ -163,8 +163,8 @@ async function fetchDays(lat, lon, dates, signal) {
     start_date: isoDay(new Date(first - 7 * DAY_MS)),
     end_date: sorted.at(-1),
   });
-  // Uurweer rond de aftrap is context; het model rekent met dagwaarden. Het archief heeft geen regenkans.
-  if (base === FORECAST_URL) params.set("hourly", "temperature_2m,precipitation,precipitation_probability,wind_gusts_10m");
+  // Uurweer rond de aftrap is context; het archief heeft geen regenkans. Bodem en sneeuw zijn modelinvoer (vorstlaag).
+  params.set("hourly", [...(base === FORECAST_URL ? ["temperature_2m", "precipitation", "precipitation_probability", "wind_gusts_10m"] : []), ...GROUND_KEYS].join(","));
   const data = await getJson(`${base}?${params}`, signal);
   const d = data?.daily;
   if (!Array.isArray(d?.time) || d.time.length !== n
@@ -180,8 +180,31 @@ async function fetchDays(lat, lon, dates, signal) {
     if (hours[iso]) w.hours = hours[iso];
     // De acht dagwaarden zelf: de 51 veldkeurders vullen hiermee de dagen aan die hun eigen bericht mist.
     w.series = Object.fromEntries(Object.keys(DAILY_LIMITS).map((key) => [key, d[key].slice(i - 7, i + 1)]));
+    w.vorst = frostState(w.series, groundAt(data.hourly, iso));
     return [iso, w];
   }));
+}
+
+const GROUND_KEYS = ["soil_temperature_0_to_7cm", "soil_temperature_7_to_28cm", "snow_depth"];
+// Aftrapvenster van het vorstonderzoek: de koudste bodem tussen 10 en 14 uur, sneeuwhoogte om 10 uur.
+const KICKOFF_HOURS = [10, 11, 12, 13, 14];
+
+/**
+ * Bodem bij de aftrap uit uurwaarden: { soil0, soil1, snow } (°C, °C, m). Een waarde die
+ * ontbreekt of onzinnig is wordt null; de vorstlaag telt die dan niet mee.
+ * `suffix` kiest een ensemblelid ("_member07").
+ */
+export function groundAt(h, iso, suffix = "") {
+  const out = { soil0: null, soil1: null, snow: null };
+  if (!Array.isArray(h?.time)) return out;
+  const at = (hour) => h.time.indexOf(`${iso}T${String(hour).padStart(2, "0")}:00`);
+  const pick = (key, lo, hi) => KICKOFF_HOURS.map((hour) => h[key + suffix]?.[at(hour)])
+    .map((v) => (Number.isFinite(v) && v >= lo && v <= hi ? v : null));
+  const coldest = (vals) => (vals.every((v) => v !== null) ? Math.min(...vals) : null);
+  out.soil0 = coldest(pick("soil_temperature_0_to_7cm", -60, 60));
+  out.soil1 = coldest(pick("soil_temperature_7_to_28cm", -60, 60));
+  out.snow = pick("snow_depth", 0, 20)[0];
+  return out;
 }
 
 /**
@@ -283,15 +306,84 @@ function rawProbability(weather, veldtype) {
 
 const clampP = (p) => Math.min(1 - 1e-6, Math.max(1e-6, p));
 
+/*
+ * Vorstlaag (v3). Het getrainde model ziet vorst alleen als "aantal vriesnachten" en
+ * mist zo de echte KNVB-afgelastingen (februari 2012: 25%). Daarom liggen er drie
+ * fysieke oorzaken bovenop, elk als onafhankelijke reden om af te keuren:
+ *   P = 1 − (1 − P_nat)·(1 − 0,7·P_bevroren)·(1 − 0,9·sneeuwdek)·(1 − 0,9·opdooi)
+ * P_nat is het getrainde model zonder vriesnachten. Onderbouwing en backtest tegen
+ * tien landelijke afgelastingen: docs/modelonderzoek/vorst-v3.md.
+ */
+const FROST = {
+  // Vorstindex (CFGI, USACE n-factoren voor gras): F = max(0, 0,97·F − n·T), n = 0,5 vriezen, 0,8 dooien.
+  decay: 0.97, nFreeze: 0.5, nThaw: 0.8,
+  // De nacht vóór de aftrap telt als een halve dag met de n-factor voor vriezen.
+  night: 0.25,
+  // Logistische fit (leave-one-season-out AUC 0,98) van "bovenlaag 0–7 cm ≤ 0 °C bij de aftrap"
+  // op √(vorstindex) en de kou van de nacht, ERA5-Land 2008–2026, zes steden.
+  fit: [-5.56812806492687, 2.8158001804145956, 0.6531595600483827],
+  // Het weerbericht voorspelt de bodem zelf ook. Die telt als zachte kans met ±0,5 °C marge:
+  // 0,0 of 0,1 °C is een grensgeval, geen ja of nee. Zelfde backtest-score als de fit alleen.
+  soilMargin: 0.5,
+  // Hoe vaak die toestand tot afkeuren leidt (KNVB-handleiding consuls; aanname, nog niet gekalibreerd).
+  bevroren: 0.7, sneeuw: 0.9, opdooi: 0.9,
+  snowM: 0.01, // sneeuwdek vanaf 1 cm
+  subsoilC: 0.5, // opdooi: bovenlaag boven 0 °C, ondergrond (7–28 cm) nog ≤ 0,5 °C
+};
+
+/** Opgebouwde vorst (°C·dag aan het oppervlak) uit daggemiddelden, oudste eerst. */
+export function frostIndex(tmeans) {
+  let f = 0;
+  for (const t of tmeans) f = Math.max(0, FROST.decay * f - (t < 0 ? FROST.nFreeze : FROST.nThaw) * t);
+  return f;
+}
+
+/** Invoer van de vorstlaag uit de acht dagwaarden (week ervoor + speeldag) en de bodem bij de aftrap. */
+export function frostState(series, ground = {}) {
+  const tmin = series.temperature_2m_min[7];
+  return {
+    index: frostIndex(series.temperature_2m_mean.slice(0, 7)) + FROST.night * Math.max(0, -tmin),
+    tmin,
+    soil0: ground.soil0 ?? null,
+    soil1: ground.soil1 ?? null,
+    snow: ground.snow ?? null,
+  };
+}
+
+/**
+ * Kansen per fysieke oorzaak: { bevroren (0..1), sneeuw (0/1), opdooi (0/1) }.
+ * Bevroren = de hoogste van twee schattingen: uit de luchttemperatuur (fit) en uit de
+ * voorspelde bodem bij de aftrap.
+ */
+export function frostLayers(v) {
+  const [c0, c1, c2] = FROST.fit;
+  const fromAir = sigmoid(c0 + c1 * Math.sqrt(Math.max(0, v.index)) + c2 * Math.max(0, -v.tmin));
+  const fromSoil = v.soil0 != null ? sigmoid(-v.soil0 / FROST.soilMargin) : 0;
+  return {
+    bevroren: Math.max(fromAir, fromSoil),
+    sneeuw: v.snow != null && v.snow >= FROST.snowM ? 1 : 0,
+    opdooi: v.soil0 != null && v.soil1 != null && v.soil0 > 0 && v.soil1 <= FROST.subsoilC ? 1 : 0,
+  };
+}
+
 /**
  * Kans op afgelasting (0..1) + risicolabel.
- * Gras = puur model. Kunstgras = model met gedempt veldeffect.
- * Geen idee = gewogen mix van die twee.
+ * Gras = model + vorstlaag. Kunstgras = model met gedempt veldeffect; daar telt
+ * alleen een sneeuwdek (droge vorst en opdooi zijn op kunstgras geen probleem).
+ * Geen idee = gewogen mix van die twee. Zonder `weather.vorst` (eigen invoer)
+ * rekent het model zoals vóór v3, met de vriesnachten als gewone invoer.
  */
 export function predict(weather, veldtype) {
-  const gras = rawProbability(weather, "natuurgras");
-  const kunstRaw = rawProbability(weather, "kunstgras");
-  const kunst = sigmoid(logit(clampP(gras)) + KUNSTGRAS_WEIGHT * (logit(clampP(kunstRaw)) - logit(clampP(gras))));
+  const v = weather.vorst;
+  const base = v ? { ...weather, frost_days_7d: 0 } : weather;
+  const natGras = rawProbability(base, "natuurgras");
+  const kunstRaw = rawProbability(base, "kunstgras");
+  const natKunst = sigmoid(logit(clampP(natGras)) + KUNSTGRAS_WEIGHT * (logit(clampP(kunstRaw)) - logit(clampP(natGras))));
+  const layers = v ? frostLayers(v) : null;
+  const gras = layers
+    ? 1 - (1 - natGras) * (1 - FROST.bevroren * layers.bevroren) * (1 - FROST.sneeuw * layers.sneeuw) * (1 - FROST.opdooi * layers.opdooi)
+    : natGras;
+  const kunst = layers ? 1 - (1 - natKunst) * (1 - FROST.sneeuw * layers.sneeuw) : natKunst;
   const p =
     veldtype === "kunstgras" ? kunst
       : veldtype === "natuurgras" ? gras
@@ -299,7 +391,7 @@ export function predict(weather, veldtype) {
 
   const t = MODEL.thresholds;
   const risk = p >= t.p95 ? "zeer hoog" : p >= t.p90 ? "hoog" : p >= t.p75 ? "verhoogd" : "laag";
-  return { probability: p, risk, multiplier: p / MODEL.baseline };
+  return { probability: p, risk, multiplier: p / MODEL.baseline, layers };
 }
 
 const ENSEMBLE_URL = "https://ensemble-api.open-meteo.com/v1/ensemble";
@@ -323,12 +415,14 @@ export async function fetchConsuls(lat, lon, isoDate, series, veldtype, signal, 
     longitude: lon.toFixed(4),
     models: "ecmwf_ifs025",
     daily: keys.join(","),
+    hourly: GROUND_KEYS.join(","),
     timezone: "Europe/Amsterdam",
     // Het verleden is voor elke berekening gelijk: dat hebben we al.
     start_date: isoDay(new Date(Math.max(first, todayUtc().getTime()))),
     end_date: isoDate,
   });
-  const d = (await getJson(`${ENSEMBLE_URL}?${params}`, signal))?.daily;
+  const data = await getJson(`${ENSEMBLE_URL}?${params}`, signal);
+  const d = data?.daily;
   if (!Array.isArray(d?.time)) return null;
   const at = new Map(d.time.map((t, i) => [t, i]));
   const votes = [];
@@ -348,6 +442,8 @@ export async function fetchConsuls(lat, lon, isoDate, series, veldtype, signal, 
     // Alleen veldkeurders met een eigen bericht voor de speeldag stemmen mee.
     if (own === keys.length) {
       const w = featuresAt(days, 7);
+      // Elke berekening heeft zijn eigen bodem en sneeuw; ontbreekt die, dan telt alleen de luchttemperatuur.
+      w.vorst = frostState(days, groundAt(data.hourly, isoDate, suffix));
       const p = predict(w, veldtype).probability;
       votes.push(detail ? { p, mm: w.precipitation, temp: w.temperature, gust: w.wind_gusts } : p);
     }
@@ -365,6 +461,8 @@ export const predictRaw = rawProbability;
 export function explain(weather, veldtype) {
   // "Geen idee" = verwachte waarde (zelfde mix als in predict).
   const natuur = veldtype === "natuurgras" ? 1 : veldtype === "kunstgras" ? 0 : NATUUR_SHARE;
+  // Met vorstlaag telt het model zonder vriesnachten; de vorstlaag komt er hieronder bij.
+  const frostDays = weather.vorst ? 0 : weather.frost_days_7d;
   const x = {
     precipitation_sum: weather.precipitation || 0,
     wind_gusts_max: weather.wind_gusts || 0,
@@ -372,7 +470,7 @@ export function explain(weather, veldtype) {
     precip_7d_sum: weather.precip_7d_sum,
     precip_3d_sum: weather.precip_3d_sum,
     precip_1d: weather.precip_1d,
-    frost_days_7d: weather.frost_days_7d,
+    frost_days_7d: frostDays,
     rain_days_7d: weather.rain_days_7d,
     is_natuurgras: natuur,
     is_kunstgras: 1 - natuur,
@@ -393,6 +491,11 @@ export function explain(weather, veldtype) {
       if (j < 0) continue;
       for (const fold of MODEL.folds) out[g] += (fold.coef[j] * (orMean(x[f], fold, j) - fold.mean[j])) / fold.scale[j] / MODEL.folds.length;
     }
+  }
+  if (weather.vorst) {
+    const { vorst, ...zonder } = weather;
+    out.vorst += logit(clampP(predict(weather, veldtype).probability))
+      - logit(clampP(predict({ ...zonder, frost_days_7d: 0 }, veldtype).probability));
   }
   return out;
 }
