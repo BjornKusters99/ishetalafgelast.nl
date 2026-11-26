@@ -496,3 +496,24 @@ test("fetchConsuls returns null for an answer without daily times", async () => 
   const { result } = await withFetch(() => ({}), () => fetchConsuls(52, 5, amsterdam(3), SERIES, "natuurgras"));
   assert.equal(result, null);
 });
+
+test("fetchConsuls gives every member its own soil and snow at kickoff", async () => {
+  const date = amsterdam(3);
+  const withGround = (url) => {
+    const body = ensembleResponse(url);
+    const time = Array.from({ length: 24 }, (_, h) => `${date}T${String(h).padStart(2, "0")}:00`);
+    const hourly = { time };
+    for (let m = 0; m < 51; m++) {
+      const suffix = m ? `_member${String(m).padStart(2, "0")}` : "";
+      hourly[`soil_temperature_0_to_7cm${suffix}`] = time.map(() => 3);
+      hourly[`soil_temperature_7_to_28cm${suffix}`] = time.map(() => 4);
+      hourly[`snow_depth${suffix}`] = time.map(() => (m === 1 ? 0.05 : 0)); // alleen lid 01 heeft sneeuw
+    }
+    return { ...body, hourly };
+  };
+  const { result, urls } = await withFetch(withGround, () => fetchConsuls(52, 5, date, SERIES, "kunstgras"));
+  assert.deepEqual(urls[0].searchParams.get("hourly").split(","), ["soil_temperature_0_to_7cm", "soil_temperature_7_to_28cm", "snow_depth"]);
+  assert.equal(result.length, 51);
+  assert.ok(result[1] >= 0.9, String(result[1]));
+  assert.ok(result.filter((p, i) => i !== 1).every((p) => p < 0.5));
+});

@@ -421,16 +421,21 @@ test("a team link with an unknown weekday or elftal is ignored", () => {
 
 test("hourly forecast is context: requested from the forecast API and split per day", async () => {
   const urls = [];
-  const time = Array.from({ length: 8 }, (_, i) => `2026-10-${18 + i}`);
+  // Een speeldag over drie dagen: een vaste datum belandt na een maand in het archief.
+  const today = Date.parse(`${new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Amsterdam" })}T00:00:00Z`);
+  const time = Array.from({ length: 8 }, (_, i) => new Date(today + (i - 4) * 864e5).toISOString().slice(0, 10));
   const hourTimes = time.flatMap((d) => Array.from({ length: 24 }, (_, h) => `${d}T${String(h).padStart(2, "0")}:00`));
   const api = engineWith(async (url) => {
     urls.push(new URL(url));
-    return { ok: true, json: async () => ({ ...dailyData(), hourly: { time: hourTimes,
+    return { ok: true, json: async () => ({ daily: { ...dailyData().daily, time }, hourly: { time: hourTimes,
       temperature_2m: hourTimes.map((_, i) => (i % 24) / 2), precipitation: hourTimes.map((_, i) => (i % 24) / 10), precipitation_probability: hourTimes.map(() => 120),
       wind_gusts_10m: hourTimes.map(() => 44) } }) };
   });
-  const weather = await api.fetchWeather(52, 5, DATE);
-  assert.equal(urls[0].searchParams.get("hourly"), "temperature_2m,precipitation,precipitation_probability,wind_gusts_10m");
+  const weather = await api.fetchWeather(52, 5, time[7]);
+  assert.equal(urls[0].host, "api.open-meteo.com");
+  assert.equal(urls[0].searchParams.get("hourly"), "temperature_2m,precipitation,precipitation_probability,wind_gusts_10m,soil_temperature_0_to_7cm,soil_temperature_7_to_28cm,snow_depth");
+  // Zonder bodemwaarden in het antwoord rekent de vorstlaag alleen met de luchttemperatuur.
+  assert.deepEqual({ ...weather.vorst, index: undefined, tmin: undefined }, { index: undefined, tmin: undefined, soil0: null, soil1: null, snow: null });
   assert.deepEqual(JSON.parse(JSON.stringify(weather.hours[14])), { temp: 7, precip: 1.4, prob: null, gust: 44 });
   assert.equal(weather.series.precipitation_sum.length, 8);
   assert.deepEqual(Object.keys(weather.series), ["temperature_2m_mean", "temperature_2m_min", "precipitation_sum", "wind_gusts_10m_max"]);
@@ -447,4 +452,13 @@ test("general cancellation banner only shows with text, a KNVB or Voetbal.nl sou
     { ...on, bron: "javascript:alert(1)" }, { ...on, bron: "http://www.knvb.nl/" }, { ...on, tot: "2026-10-23" }, { ...on, tot: "morgen" }, null]) {
     assert.equal(context.f(off, "2026-10-24"), null, JSON.stringify(off));
   }
+});
+
+test("archived match days also ask soil and snow for the frost layer", async () => {
+  const urls = [];
+  const api = engineWith(async (url) => { urls.push(new URL(url)); return { ok: true, json: async () => dailyData() }; });
+  // De nep-dagreeks hoort bij een andere week; het gaat hier alleen om de vraag.
+  await api.fetchWeather(52, 5, "2025-10-25").catch(() => {});
+  assert.equal(urls[0].host, "archive-api.open-meteo.com");
+  assert.equal(urls[0].searchParams.get("hourly"), "soil_temperature_0_to_7cm,soil_temperature_7_to_28cm,snow_depth");
 });
